@@ -24,17 +24,9 @@ export function createUser(data) {
   })
 }
 
-export function getInfo(token) {
+export function deleteUser(id) {
   return request({
-    url: '/vue-admin-template/user/info',
-    method: 'get',
-    params: { token }
-  })
-}
-
-export function logout() {
-  return request({
-    url: '/vue-admin-template/user/logout',
-    method: 'post'
+    url: `/sys/user/delete/${id}`,
+    method: 'delete'
   })
 }

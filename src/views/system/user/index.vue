@@ -11,7 +11,7 @@
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" icon="el-icon-plus" @click="handlerCreate">创建用户</el-button>
+              <el-button type="primary" @click="handlerCreate">创建用户</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -58,26 +58,26 @@
               <el-input placeholder="请输入手机号" v-model="userForm.phone"></el-input>
           </el-form-item>
           <el-form-item v-if="dialogAttribute.create === 0" label="职责" prop="duty">
-          <el-select v-model="userForm.duty" placeholder="请选择职责" style="width:184px">
-            <el-option v-for="item in duty" :key="item.type" :label="item.name" :value="item.type" />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="dialogAttribute.create === 0" label="状态" prop="status">
-          <el-select v-model="userForm.status" placeholder="状态" style="width:184px">
-            <el-option v-for="item in status" :key="item.type" :label="item.name" :value="item.type" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogAttribute.show = false">取 消</el-button>
-          <el-button type="primary" @click="saveSubmit" :loading="dialogAttribute.save">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
-      </span>
-  </el-dialog>
+            <el-select v-model="userForm.duty" placeholder="请选择职责" style="width:184px">
+              <el-option v-for="item in dutyList" :key="item.type" :label="item.name" :value="item.type" />
+            </el-select>
+          </el-form-item>
+          <el-form-item v-if="dialogAttribute.create === 0" label="状态" prop="status">
+            <el-select v-model="userForm.status" placeholder="状态" style="width:184px">
+              <el-option v-for="item in statusList" :key="item.type" :label="item.name" :value="item.type" />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="cancelSubmit" >取 消</el-button>
+            <el-button type="primary" @click="saveSubmit" :loading="dialogAttribute.save">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
+        </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { searchUser, createUser } from '@/api/user'
+import { searchUser, createUser, deleteUser } from '@/api/user'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -119,14 +119,14 @@ export default {
       userForm: {
         id:'',
         username: '',
-        password: '123456',
+        password: '',
         fullname: '',
         status: '',
         phone:'',
         email:'',
         duty:''
       },
-      status: [
+      statusList: [
         {
           type: 1,
           name: '启用'
@@ -135,7 +135,7 @@ export default {
           name: '禁用'
         },
       ],
-      duty: [
+      dutyList: [
         {
           type: 0,
           name: '普通用户'
@@ -144,7 +144,7 @@ export default {
           name: '组长'
         },
         { type: 2,
-          name: '超级管理员'
+          name: '管理员'
         }
       ],
     }
@@ -154,13 +154,13 @@ export default {
   },
   methods: {
     handlerCreate() {
-      this.$refs.userForm.resetFields()
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
     },
     handlerEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
+      this.dialogAttribute.title = '编辑用户'
       this.userForm.id = row.id
       this.userForm.fullname = row.fullname
       this.userForm.username = row.username
@@ -168,8 +168,19 @@ export default {
       this.userForm.duty = row.duty
       this.userForm.status = row.status
     },
-    handleClose() {
-      this.dialogAttribute.show = false
+    async handlerDelete(row){
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        console.log(row.id)
+        const { msg } = await deleteUser(row.id)
+        this.$message.success(msg)
+        await this.getUserList()
+      }).catch(() => {
+      })
     },
     async handleCurrentChange(val) {
       this.paging.page = val
@@ -196,18 +207,40 @@ export default {
       this.$refs.userForm.validate(validate => {
         if(validate) {
           this.dialogAttribute.save = true
-          createUser(this.userForm).then(res => {
-            this.$message.success(res.msg)
-          }).catch(error => {
-            console.log(error)
-            this.$message.error(error.response.data['message'])
-          }).finally(() => {
-            this.dialogAttribute.show = false
-            this.dialogAttribute.save = false
-            this.$refs.userForm.resetFields()
-            this.getUserList()
-          })
+          if (this.dialogAttribute.create === 1){
+            this.save()
+          }else{
+            this.update()
+          }
         }
+      })
+    },
+    update() {
+      this.$message.success("update")
+      this.cancelSubmit()
+      this.getUserList()
+    },
+    save() {
+        createUser(this.userForm).then(res => {
+          this.$message.success(res.msg)
+        }).catch(error => {
+          console.log(error)
+          this.$message.error(error.response.data['message'])
+        }).finally(() => {
+          this.cancelSubmit()
+          this.getUserList()
+      })
+    },
+    cancelSubmit() {
+      // 等页面刷新完之后，再执行回调函数中的方法，因为this.dialogFrom = false 它是异步的
+      this.$nextTick(() => {
+        this.dialogAttribute.save = false
+        this.dialogAttribute.show = false
+        this.$refs['userForm'].clearValidate() 
+        for (let key in this.userForm){
+          this.userForm[key] = ""
+        }
+        // this.$refs['userForm'].resetFields()
       })
     },
   }
