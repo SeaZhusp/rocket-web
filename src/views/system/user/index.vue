@@ -16,7 +16,7 @@
           </el-col>
         </el-row>
       </el-form>
-      <el-table  v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
+      <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
         <el-table-column align="center" type="selection" width="55" />
         <el-table-column label="姓名" prop="fullname" align="center" />
         <el-table-column label="账号" prop="username" align="center" />
@@ -34,50 +34,50 @@
         </el-table-column>
         <el-table-column label="创建日期" prop="create_time" align="center" />
         <el-table-column fixed="right" align="center" label="操作" min-width="80px">
-            <template slot-scope="scope">
-              <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
-              <el-button type="text" size="small" @click="handlerDelete(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
+          <template slot-scope="scope">
+            <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
+            <el-button type="text" size="small" @click="handlerDelete(scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getUserList" />
     </el-card>
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="30%">
-      <el-form :inline="true" ref="userForm" :model="userForm" :rules="userFormRules" label-width="55px">
-          <el-form-item label="姓名" prop="fullname">
-              <el-input placeholder="请输入姓名" v-model="userForm.fullname" :disabled="dialogAttribute.create === 0"></el-input>
-          </el-form-item>
-          <el-form-item label="账号" prop="username">
-              <el-input placeholder="请输入账号" v-model="userForm.username" :disabled="dialogAttribute.create === 0"></el-input>
-          </el-form-item>
-          <el-form-item v-if="dialogAttribute.create === 1" label="邮箱" prop="email">
-              <el-input placeholder="请输入邮箱" v-model="userForm.email"></el-input>
-          </el-form-item>
-          <el-form-item v-if="dialogAttribute.create === 1" label="手机号" prop="phone">
-              <el-input placeholder="请输入手机号" v-model="userForm.phone"></el-input>
-          </el-form-item>
-          <el-form-item v-if="dialogAttribute.create === 0" label="职责" prop="duty">
-            <el-select v-model="userForm.duty" placeholder="请选择职责" style="width:184px">
-              <el-option v-for="item in dutyList" :key="item.type" :label="item.name" :value="item.type" />
-            </el-select>
-          </el-form-item>
-          <el-form-item v-if="dialogAttribute.create === 0" label="状态" prop="status">
-            <el-select v-model="userForm.status" placeholder="状态" style="width:184px">
-              <el-option v-for="item in statusList" :key="item.type" :label="item.name" :value="item.type" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-            <el-button @click="cancelSubmit" >取 消</el-button>
-            <el-button type="primary" @click="saveSubmit" :loading="dialogAttribute.save">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
-        </span>
+      <el-form ref="userForm" :inline="true" :model="userForm" :rules="userFormRules" label-width="55px">
+        <el-form-item label="姓名" prop="fullname">
+          <el-input v-model="userForm.fullname" placeholder="请输入姓名" :disabled="dialogAttribute.create === 0"/>
+        </el-form-item>
+        <el-form-item label="账号" prop="username">
+          <el-input v-model="userForm.username" placeholder="请输入账号" :disabled="dialogAttribute.create === 0"/>
+        </el-form-item>
+        <el-form-item v-if="dialogAttribute.create === 1" label="邮箱" prop="email">
+          <el-input v-model="userForm.email" placeholder="请输入邮箱"/>
+        </el-form-item>
+        <el-form-item v-if="dialogAttribute.create === 1" label="手机号" prop="phone">
+          <el-input v-model="userForm.phone" placeholder="请输入手机号"/>
+        </el-form-item>
+        <el-form-item v-if="dialogAttribute.create === 0" label="职责" prop="duty">
+          <el-select v-model="userForm.duty" placeholder="请选择职责" style="width:184px">
+            <el-option v-for="item in dutyList" :key="item.type" :label="item.name" :value="item.type" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="dialogAttribute.create === 0" label="状态" prop="status">
+          <el-select v-model="userForm.status" placeholder="状态" style="width:184px">
+            <el-option v-for="item in statusList" :key="item.type" :label="item.name" :value="item.type" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelSubmit" >取 消</el-button>
+        <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { searchUser, createUser, deleteUser } from '@/api/user'
+import { searchUser, createUser, deleteUser, updateUser } from '@/api/user'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -117,14 +117,14 @@ export default {
         ]
       },
       userForm: {
-        id:'',
+        id: '',
         username: '',
         password: '',
         fullname: '',
         status: '',
-        phone:'',
-        email:'',
-        duty:''
+        phone: '',
+        email: '',
+        duty: ''
       },
       statusList: [
         {
@@ -133,7 +133,7 @@ export default {
         },
         { type: 0,
           name: '禁用'
-        },
+        }
       ],
       dutyList: [
         {
@@ -146,7 +146,7 @@ export default {
         { type: 2,
           name: '管理员'
         }
-      ],
+      ]
     }
   },
   created() {
@@ -164,11 +164,12 @@ export default {
       this.userForm.id = row.id
       this.userForm.fullname = row.fullname
       this.userForm.username = row.username
+      this.userForm.email = row.email
       this.userForm.phone = row.phone
       this.userForm.duty = row.duty
       this.userForm.status = row.status
     },
-    async handlerDelete(row){
+    async handlerDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -205,30 +206,36 @@ export default {
     },
     saveSubmit() {
       this.$refs.userForm.validate(validate => {
-        if(validate) {
+        if (validate) {
           this.dialogAttribute.save = true
-          if (this.dialogAttribute.create === 1){
-            this.save()
-          }else{
+          if (this.dialogAttribute.create === 1) {
+            this.create()
+          } else {
             this.update()
           }
         }
       })
     },
     update() {
-      this.$message.success("update")
-      this.cancelSubmit()
-      this.getUserList()
+      updateUser(this.userForm).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        console.log(error)
+        this.$message.error(error.response.data['message'])
+      }).finally(() => {
+        this.cancelSubmit()
+        this.getUserList()
+      })
     },
-    save() {
-        createUser(this.userForm).then(res => {
-          this.$message.success(res.msg)
-        }).catch(error => {
-          console.log(error)
-          this.$message.error(error.response.data['message'])
-        }).finally(() => {
-          this.cancelSubmit()
-          this.getUserList()
+    create() {
+      createUser(this.userForm).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        console.log(error)
+        this.$message.error(error.response.data['message'])
+      }).finally(() => {
+        this.cancelSubmit()
+        this.getUserList()
       })
     },
     cancelSubmit() {
@@ -237,12 +244,12 @@ export default {
         this.dialogAttribute.save = false
         this.dialogAttribute.show = false
         this.$refs['userForm'].clearValidate() 
-        for (let key in this.userForm){
-          this.userForm[key] = ""
+        for (let key in this.userForm) {
+          this.userForm[key] = ''
         }
         // this.$refs['userForm'].resetFields()
       })
-    },
+    }
   }
 }
 </script>
