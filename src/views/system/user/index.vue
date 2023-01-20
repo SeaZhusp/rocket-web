@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="8">
             <el-form-item>
-              <el-input v-model="q" placeholder="请输入姓名" />
+              <el-input v-model="q" placeholder="输入用例标题" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -95,7 +95,7 @@ export default {
   data() {
     return {
       userList: null,
-      listLoading: true,
+      listLoading: false,
       q: '',
       paging: {
         page: 1,

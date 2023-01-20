@@ -56,17 +56,33 @@ export const constantRoutes = [
   },
 
   {
+    path: '/http',
+    component: Layout,
+    redirect: '/http/api',
+    meta: { title: '接口测试' },
+    children: [
+      {
+        path: '/http/api',
+        name: '接口管理',
+        component: () => import('@/views/http/api'),
+        meta: { title: '接口管理' }
+      },
+      
+  ]
+  },
+
+  {
     path: '/system',
     component: Layout,
     redirect: '/system/user',
     name: '系统管理',
-    meta: { title: '系统管理', icon: 'el-icon-setting' },
+    meta: { title: '系统管理' },
     children: [
       {
         path: 'user',
         name: '用户管理',
         component: () => import('@/views/system/user/index'),
-        meta: { title: '用户管理', icon: 'el-icon-user' }
+        meta: { title: '用户管理' }
       },
       {
         path: 'tree',
