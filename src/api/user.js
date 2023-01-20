@@ -8,7 +8,7 @@ export function login(data) {
   })
 }
 
-export function searchUser(params){
+export function searchUser(params) {
   return request({
     url: '/sys/user/list',
     method: 'get',
@@ -28,5 +28,13 @@ export function deleteUser(id) {
   return request({
     url: `/sys/user/delete/${id}`,
     method: 'delete'
+  })
+}
+
+export function updateUser(data) {
+  return request({
+    url: '/sys/user/update',
+    method: 'put',
+    data
   })
 }
