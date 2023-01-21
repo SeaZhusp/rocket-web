@@ -5,34 +5,29 @@
         <el-row>
           <el-col :span="8">
             <el-form-item>
-              <el-input v-model="q" placeholder="输入姓名筛选" />
+              <el-input v-model="q" placeholder="输入项目名筛选" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handlerCreate">创建用户</el-button>
+              <el-button type="primary" @click="handlerCreate">创建项目</el-button>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
+      <el-table v-loading="listLoading" :data="projectList" element-loading-text="Loading" fit highlight-current-row>
         <el-table-column align="center" type="selection" width="55" />
-        <el-table-column label="姓名" prop="fullname" align="center" />
-        <el-table-column label="账号" prop="username" align="center" />
-        <el-table-column label="职责" align="center">
+        <el-table-column label="项目名" prop="Project.name" align="center" />
+        <el-table-column label="描述" prop="Project.description" align="center" />
+        <el-table-column label="负责人" prop="fullname" align="center" />
+        <el-table-column label="类型" align="center">
           <template slot-scope="{row}">
-            <el-tag :type="row.duty === 0 ? 'info': row.duty === 1 ? 'success': 'danger' ">{{ row.duty | dutyName }}</el-tag>
+            <el-tag :type="row.Project.type === 0 ? 'info': row.Project.type === 1 ? 'success': 'danger' ">{{ row.Project.type | typeName }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" prop="email" align="center" />
-        <el-table-column label="手机号" prop="phone" align="center" />
-        <el-table-column label="状态" align="center">
-          <template slot-scope="{row}">
-            <el-tag effect="dark" :type="row.status === 1 ? 'success':'info' ">{{ row.status===1? "启用":"禁用" }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="创建日期" prop="create_time" align="center" />
+        <el-table-column label="更新时间" prop="Project.update_time" align="center" />
+        <el-table-column label="创建日期" prop="Project.create_time" align="center" />
         <el-table-column fixed="right" align="center" label="操作" min-width="80px">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
@@ -40,7 +35,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getUserList" />
+      <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getProjectList" />
     </el-card>
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="30%">
@@ -77,24 +72,24 @@
 </template>
 
 <script>
-import { searchUser, createUser, deleteUser, updateUser } from '@/api/system/user'
+import { searchProject, createUser, deleteUser, updateUser } from '@/api/system/project'
 import Pagination from '@/components/Pagination'
 
 export default {
   components: { Pagination },
   filters: {
-    dutyName(duty) {
+    typeName(type) {
       const statusMap = {
-        0: '普通成员',
-        1: '组长',
-        2: '管理员'
+        0: 'api',
+        1: 'web',
+        2: 'app'
       }
-      return statusMap[duty]
+      return statusMap[type]
     }
   },
   data() {
     return {
-      userList: null,
+      projectList: null,
       listLoading: false,
       q: '',
       paging: {
@@ -150,7 +145,7 @@ export default {
     }
   },
   created() {
-    this.getUserList()
+    this.getProjectList()
   },
   methods: {
     handlerCreate() {
@@ -179,27 +174,27 @@ export default {
         console.log(row.id)
         const { msg } = await deleteUser(row.id)
         this.$message.success(msg)
-        await this.getUserList()
+        await this.getProjectList()
       }).catch(() => {
       })
     },
     async handleCurrentChange(val) {
       this.paging.page = val
-      await this.getUserList()
+      await this.getProjectList()
     },
     async handleSearch() {
       this.paging.page = 1
-      await this.getUserList()
+      await this.getProjectList()
     },
-    async getUserList() {
+    async getProjectList() {
       this.listLoading = true
       const params = {
         page: this.paging.page,
         limit: this.paging.limit,
         search: this.q
       }
-      await searchUser(params).then(response => {
-        this.userList = response.data
+      await searchProject(params).then(response => {
+        this.projectList = response.data
         this.paging = response.paging
         this.listLoading = false
       })
@@ -224,7 +219,7 @@ export default {
         this.$message.error(error.response.data['message'])
       }).finally(() => {
         this.cancelSubmit()
-        this.getUserList()
+        this.getProjectList()
       })
     },
     create() {
@@ -235,7 +230,7 @@ export default {
         this.$message.error(error.response.data['message'])
       }).finally(() => {
         this.cancelSubmit()
-        this.getUserList()
+        this.getProjectList()
       })
     },
     cancelSubmit() {
