@@ -8,24 +8,24 @@ export function searchProject(params) {
   })
 }
 
-export function createUser(data) {
+export function createProject(data) {
   return request({
-    url: '/sys/user/create',
+    url: '/sys/project/create',
     method: 'post',
     data
   })
 }
 
-export function deleteUser(id) {
+export function deleteProject(id) {
   return request({
-    url: `/sys/user/delete/${id}`,
+    url: `/sys/project/delete/${id}`,
     method: 'delete'
   })
 }
 
-export function updateUser(data) {
+export function updateProject(data) {
   return request({
-    url: '/sys/user/update',
+    url: '/sys/project/update',
     method: 'put',
     data
   })

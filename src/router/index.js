@@ -79,16 +79,22 @@ export const constantRoutes = [
     meta: { title: '系统管理' },
     children: [
       {
+        path: 'project',
+        name: '项目管理',
+        component: () => import('@/views/system/project/index'),
+        meta: { title: '项目管理' }
+      },
+      {
         path: 'user',
         name: '用户管理',
         component: () => import('@/views/system/user/index'),
         meta: { title: '用户管理' }
       },
       {
-        path: 'project',
-        name: '项目管理',
-        component: () => import('@/views/system/project/index'),
-        meta: { title: '项目管理' }
+        path: 'dict',
+        name: '字典管理',
+        component: () => import('@/views/system/dict/index'),
+        meta: { title: '字典管理' }
       },
       {
         path: 'tree',

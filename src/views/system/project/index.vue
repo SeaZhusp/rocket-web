@@ -18,20 +18,20 @@
       </el-form>
       <el-table v-loading="listLoading" :data="projectList" element-loading-text="Loading" fit highlight-current-row>
         <el-table-column align="center" type="selection" width="55" />
-        <el-table-column label="项目名" prop="Project.name" align="center" />
-        <el-table-column label="描述" prop="Project.description" align="center" />
-        <el-table-column label="负责人" prop="fullname" align="center" />
+        <el-table-column label="项目名" prop="name" align="center" />
+        <el-table-column label="描述" prop="description" align="center" />
         <el-table-column label="类型" align="center">
           <template slot-scope="{row}">
-            <el-tag :type="row.Project.type === 0 ? 'info': row.Project.type === 1 ? 'success': 'danger' ">{{ row.Project.type | typeName }}</el-tag>
+            <el-tag :type="row.type === 0 ? 'info': row.type === 1 ? 'success': 'danger' ">{{ row.type | typeName }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="更新时间" prop="Project.update_time" align="center" />
-        <el-table-column label="创建日期" prop="Project.create_time" align="center" />
+        <el-table-column label="更新时间" prop="update_time" align="center" />
+        <el-table-column label="创建日期" prop="create_time" align="center" />
         <el-table-column fixed="right" align="center" label="操作" min-width="80px">
           <template slot-scope="scope">
-            <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
-            <el-button type="text" size="small" @click="handlerDelete(scope.row)">删除</el-button>
+            <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
+            <!-- <el-button type="text" @click="handlerEdit(scope.row)">成员</el-button> -->
+            <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -39,29 +39,26 @@
     </el-card>
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="30%">
-      <el-form ref="userForm" :inline="true" :model="userForm" :rules="userFormRules" label-width="55px">
-        <el-form-item label="姓名" prop="fullname">
-          <el-input v-model="userForm.fullname" placeholder="请输入姓名" :disabled="dialogAttribute.create === 0"/>
-        </el-form-item>
-        <el-form-item label="账号" prop="username">
-          <el-input v-model="userForm.username" placeholder="请输入账号" :disabled="dialogAttribute.create === 0"/>
-        </el-form-item>
-        <el-form-item v-if="dialogAttribute.create === 1" label="邮箱" prop="email">
-          <el-input v-model="userForm.email" placeholder="请输入邮箱"/>
-        </el-form-item>
-        <el-form-item v-if="dialogAttribute.create === 1" label="手机号" prop="phone">
-          <el-input v-model="userForm.phone" placeholder="请输入手机号"/>
-        </el-form-item>
-        <el-form-item v-if="dialogAttribute.create === 0" label="职责" prop="duty">
-          <el-select v-model="userForm.duty" placeholder="请选择职责" style="width:184px">
-            <el-option v-for="item in dutyList" :key="item.type" :label="item.name" :value="item.type" />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="dialogAttribute.create === 0" label="状态" prop="status">
-          <el-select v-model="userForm.status" placeholder="状态" style="width:184px">
-            <el-option v-for="item in statusList" :key="item.type" :label="item.name" :value="item.type" />
-          </el-select>
-        </el-form-item>
+      <el-form ref="projectForm"  :model="projectForm" :rules="projectFormRules" label-width="55px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="项目" prop="name">
+              <el-input v-model="projectForm.name" placeholder="项目" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="类型" prop="type">
+              <el-select v-model="projectForm.type" placeholder="选择类型">
+                <el-option v-for="item in typeList" :key="item.type" :label="item.name" :value="item.type" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-form-item label="描述" prop="description">
+            <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 6}" maxlength="200" show-word-limit v-model="projectForm.description" placeholder="描述"/>
+          </el-form-item>
+        </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelSubmit" >取 消</el-button>
@@ -72,7 +69,7 @@
 </template>
 
 <script>
-import { searchProject, createUser, deleteUser, updateUser } from '@/api/system/project'
+import { searchProject, createProject, deleteProject, updateProject } from '@/api/system/project'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -98,48 +95,35 @@ export default {
         total: 0
       },
       dialogAttribute: {
-        title: '创建用户',
+        title: '创建项目',
         create: 1,
         show: false,
         save: false
       },
-      userFormRules: {
-        username: [
-          { required: true, message: '账号不能为空', trigger: 'blur' }
+      projectFormRules: {
+        name: [
+          { required: true, message: '项目名不能为空', trigger: 'blur' }
         ],
-        fullname: [
-          { required: true, message: '姓名不能为空', trigger: 'blur' }
+        type: [
+          { required: true, message: '类型不能为空', trigger: 'blur' }
         ]
       },
-      userForm: {
+      projectForm: {
         id: '',
-        username: '',
-        password: '',
-        fullname: '',
-        status: '',
-        phone: '',
-        email: '',
-        duty: ''
+        name: '',
+        type: '',
+        description: '',
       },
-      statusList: [
-        {
-          type: 1,
-          name: '启用'
-        },
-        { type: 0,
-          name: '禁用'
-        }
-      ],
-      dutyList: [
+      typeList: [
         {
           type: 0,
-          name: '普通用户'
+          name: 'api'
         },
         { type: 1,
-          name: '组长'
+          name: 'web'
         },
         { type: 2,
-          name: '管理员'
+          name: 'app'
         }
       ]
     }
@@ -155,14 +139,11 @@ export default {
     handlerEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
-      this.dialogAttribute.title = '编辑用户'
-      this.userForm.id = row.id
-      this.userForm.fullname = row.fullname
-      this.userForm.username = row.username
-      this.userForm.email = row.email
-      this.userForm.phone = row.phone
-      this.userForm.duty = row.duty
-      this.userForm.status = row.status
+      this.dialogAttribute.title = '编辑项目'
+      this.projectForm.id = row.id
+      this.projectForm.name = row.name
+      this.projectForm.type = row.type
+      this.projectForm.description = row.description
     },
     async handlerDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
@@ -171,8 +152,7 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        console.log(row.id)
-        const { msg } = await deleteUser(row.id)
+        const { msg } = await deleteProject(row.id)
         this.$message.success(msg)
         await this.getProjectList()
       }).catch(() => {
@@ -200,7 +180,7 @@ export default {
       })
     },
     saveSubmit() {
-      this.$refs.userForm.validate(validate => {
+      this.$refs.projectForm.validate(validate => {
         if (validate) {
           this.dialogAttribute.save = true
           if (this.dialogAttribute.create === 1) {
@@ -212,7 +192,7 @@ export default {
       })
     },
     update() {
-      updateUser(this.userForm).then(res => {
+      updateProject(this.projectForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         console.log(error)
@@ -223,7 +203,7 @@ export default {
       })
     },
     create() {
-      createUser(this.userForm).then(res => {
+      createProject(this.projectForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         console.log(error)
@@ -238,11 +218,11 @@ export default {
       this.$nextTick(() => {
         this.dialogAttribute.save = false
         this.dialogAttribute.show = false
-        this.$refs['userForm'].clearValidate() 
-        for (let key in this.userForm) {
-          this.userForm[key] = ''
+        this.$refs['projectForm'].clearValidate() 
+        for (let key in this.projectForm) {
+          this.projectForm[key] = ''
         }
-        // this.$refs['userForm'].resetFields()
+        // this.$refs['projectForm'].resetFields()
       })
     }
   }
