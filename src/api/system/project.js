@@ -30,3 +30,11 @@ export function updateProject(data) {
     data
   })
 }
+
+export function listProject(params) {
+  return request({
+    url: '/sys/project/listall',
+    method: 'get',
+    params
+  })
+}

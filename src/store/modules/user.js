@@ -1,12 +1,13 @@
-import { login, logout, getInfo } from '@/api/system/user'
-import { getToken, setToken, removeToken, setUserInfo} from '@/utils/auth'
+import { login } from '@/api/system/user'
+import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
+import { setUserInfo, getUserInfo } from '@/utils/rocket'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: '',
-    avatar: ''
+    fullname: getUserInfo()['fullname'],
+    avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
   }
 }
 
@@ -20,7 +21,7 @@ const mutations = {
     state.token = token
   },
   SET_NAME: (state, name) => {
-    state.name = name
+    state.fullname = name
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
@@ -35,11 +36,11 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         const { data } = response
         setToken(data.token)
-        // setUserInfo(eval('(' + data.userInfo + ')'))
-        commit('SET_TOKEN', data.token)
-        commit('SET_NAME', data.userInfo.fullname)
+        setUserInfo(data.userInfo)
+        // commit('SET_TOKEN', data.token)
+        // commit('SET_NAME', data.userInfo.fullname)
         commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
-        resolve()
+        resolve(data)
       }).catch(error => {
         reject(error)
       })

@@ -11,7 +11,7 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
-import { resetForm } from './utils/form-util'
+import { resetForm } from './utils/rocket'
 
 import '@/icons' // icon
 import '@/permission' // permission control
