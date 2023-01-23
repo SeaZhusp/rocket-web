@@ -11,35 +11,37 @@
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handlerCreate">创建项目</el-button>
+              <el-button type="primary" @click="handlerCreate">新增</el-button>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <el-table v-loading="listLoading" :data="projectList" element-loading-text="Loading" fit highlight-current-row>
-        <el-table-column align="center" type="selection" width="55" />
-        <el-table-column label="项目名" prop="name" align="center" />
-        <el-table-column label="描述" prop="description" align="center" />
-        <el-table-column label="类型" align="center">
-          <template slot-scope="{row}">
-            <el-tag :type="row.type === 0 ? 'info': row.type === 1 ? 'success': 'danger' ">{{ row.type | typeName }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="更新时间" prop="update_time" align="center" />
-        <el-table-column label="创建日期" prop="create_time" align="center" />
-        <el-table-column fixed="right" align="center" label="操作" min-width="80px">
-          <template slot-scope="scope">
-            <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
-            <!-- <el-button type="text" @click="handlerEdit(scope.row)">成员</el-button> -->
-            <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getProjectList" />
+      <el-row>
+        <el-table v-loading="listLoading" :data="projectList" element-loading-text="Loading">
+          <el-table-column label="序号" type="selection" width="55" />
+          <el-table-column label="项目" prop="name" />
+          <el-table-column label="描述" prop="description" />
+          <el-table-column label="类型">
+            <template slot-scope="{row}">
+              <el-tag :type="row.type === 0 ? 'info': row.type === 1 ? 'success': 'danger' ">{{ row.type | typeName }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="更新时间" prop="update_time" />
+          <el-table-column label="创建日期" prop="create_time" />
+          <el-table-column fixed="right" label="操作" min-width="80px">
+            <template slot-scope="scope">
+              <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
+              <!-- <el-button type="text" @click="handlerEdit(scope.row)">成员</el-button> -->
+              <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getProjectList" />
+      </el-row>
     </el-card>
 
-    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="30%">
-      <el-form ref="projectForm"  :model="projectForm" :rules="projectFormRules" label-width="55px">
+    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="cancelSubmit">
+      <el-form ref="projectForm" :model="projectForm" :rules="projectFormRules" label-width="55px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="项目" prop="name">
@@ -56,12 +58,12 @@
         </el-row>
         <el-row>
           <el-form-item label="描述" prop="description">
-            <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 6}" maxlength="200" show-word-limit v-model="projectForm.description" placeholder="描述"/>
+            <el-input v-model="projectForm.description" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" maxlength="200" show-word-limit placeholder="描述" />
           </el-form-item>
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="cancelSubmit" >取 消</el-button>
+        <el-button @click="cancelSubmit">取 消</el-button>
         <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
       </span>
     </el-dialog>
@@ -95,7 +97,7 @@ export default {
         total: 0
       },
       dialogAttribute: {
-        title: '创建项目',
+        title: '新增',
         create: 1,
         show: false,
         save: false
@@ -112,7 +114,7 @@ export default {
         id: '',
         name: '',
         type: '',
-        description: '',
+        description: ''
       },
       typeList: [
         {
@@ -135,11 +137,12 @@ export default {
     handlerCreate() {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
+      this.projectForm = this.$resetForm(this.projectForm)
     },
     handlerEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
-      this.dialogAttribute.title = '编辑项目'
+      this.dialogAttribute.title = '编辑'
       this.projectForm.id = row.id
       this.projectForm.name = row.name
       this.projectForm.type = row.type
@@ -214,16 +217,9 @@ export default {
       })
     },
     cancelSubmit() {
-      // 等页面刷新完之后，再执行回调函数中的方法，因为this.dialogFrom = false 它是异步的
-      this.$nextTick(() => {
-        this.dialogAttribute.save = false
-        this.dialogAttribute.show = false
-        this.$refs['projectForm'].clearValidate() 
-        for (let key in this.projectForm) {
-          this.projectForm[key] = ''
-        }
-        // this.$refs['projectForm'].resetFields()
-      })
+      this.dialogAttribute.save = false
+      this.dialogAttribute.show = false
+      this.$refs['projectForm'].clearValidate()
     }
   }
 }

@@ -11,29 +11,30 @@
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handlerCreate">创建用户</el-button>
+              <el-button type="primary" @click="handlerCreate">新增</el-button>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
-        <el-table-column align="center" type="selection" width="55" />
-        <el-table-column label="姓名" prop="fullname" align="center" />
-        <el-table-column label="账号" prop="username" align="center" />
-        <el-table-column label="职责" align="center">
+      <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading">
+        <el-table-column label="序号" type="index" width="55" />
+        <el-table-column label="姓名" prop="fullname" />
+        <el-table-column label="账号" prop="username" />
+        <el-table-column label="职责">
           <template slot-scope="{row}">
             <el-tag :type="row.duty === 0 ? 'info': row.duty === 1 ? 'success': 'danger' ">{{ row.duty | dutyName }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" prop="email" align="center" />
-        <el-table-column label="手机号" prop="phone" align="center" />
-        <el-table-column label="状态" align="center">
+        <el-table-column label="邮箱" prop="email" />
+        <el-table-column label="手机号" prop="phone" />
+        <el-table-column label="状态">
           <template slot-scope="{row}">
             <el-tag effect="dark" :type="row.status === 1 ? 'success':'info' ">{{ row.status===1? "启用":"禁用" }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="创建日期" prop="create_time" align="center" />
-        <el-table-column fixed="right" align="center" label="操作" min-width="80px">
+        <el-table-column label="创建日期" prop="create_time" />
+        <el-table-column label="创建日期" prop="update_time" />
+        <el-table-column fixed="right" label="操作" min-width="80px">
           <template slot-scope="scope">
             <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
             <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
@@ -43,19 +44,19 @@
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getUserList" />
     </el-card>
 
-    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="30%">
+    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="cancelSubmit">
       <el-form ref="userForm" :inline="true" :model="userForm" :rules="userFormRules" label-width="55px">
         <el-form-item label="姓名" prop="fullname">
-          <el-input v-model="userForm.fullname" placeholder="请输入姓名" :disabled="dialogAttribute.create === 0"/>
+          <el-input v-model="userForm.fullname" placeholder="请输入姓名" :disabled="dialogAttribute.create === 0" />
         </el-form-item>
         <el-form-item label="账号" prop="username">
-          <el-input v-model="userForm.username" placeholder="请输入账号" :disabled="dialogAttribute.create === 0"/>
+          <el-input v-model="userForm.username" placeholder="请输入账号" :disabled="dialogAttribute.create === 0" />
         </el-form-item>
         <el-form-item v-if="dialogAttribute.create === 1" label="邮箱" prop="email">
-          <el-input v-model="userForm.email" placeholder="请输入邮箱"/>
+          <el-input v-model="userForm.email" placeholder="请输入邮箱" />
         </el-form-item>
         <el-form-item v-if="dialogAttribute.create === 1" label="手机号" prop="phone">
-          <el-input v-model="userForm.phone" placeholder="请输入手机号"/>
+          <el-input v-model="userForm.phone" placeholder="请输入手机号" />
         </el-form-item>
         <el-form-item v-if="dialogAttribute.create === 0" label="职责" prop="duty">
           <el-select v-model="userForm.duty" placeholder="请选择职责" style="width:184px">
@@ -69,7 +70,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="cancelSubmit" >取 消</el-button>
+        <el-button @click="cancelSubmit">取 消</el-button>
         <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
       </span>
     </el-dialog>
@@ -103,7 +104,7 @@ export default {
         total: 0
       },
       dialogAttribute: {
-        title: '创建用户',
+        title: '新增',
         create: 1,
         show: false,
         save: false
@@ -156,11 +157,13 @@ export default {
     handlerCreate() {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
+      this.userForm = this.$resetForm(this.userForm)
+      this.userForm.password = '123456'
     },
     handlerEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
-      this.dialogAttribute.title = '编辑用户'
+      this.dialogAttribute.title = '编辑'
       this.userForm.id = row.id
       this.userForm.fullname = row.fullname
       this.userForm.username = row.username
@@ -238,16 +241,9 @@ export default {
       })
     },
     cancelSubmit() {
-      // 等页面刷新完之后，再执行回调函数中的方法，因为this.dialogFrom = false 它是异步的
-      this.$nextTick(() => {
-        this.dialogAttribute.save = false
-        this.dialogAttribute.show = false
-        this.$refs['userForm'].clearValidate() 
-        for (let key in this.userForm) {
-          this.userForm[key] = ''
-        }
-        // this.$refs['userForm'].resetFields()
-      })
+      this.dialogAttribute.save = false
+      this.dialogAttribute.show = false
+      this.$refs['userForm'].clearValidate()
     }
   }
 }

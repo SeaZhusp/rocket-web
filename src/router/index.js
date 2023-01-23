@@ -66,9 +66,9 @@ export const constantRoutes = [
         name: '接口管理',
         component: () => import('@/views/http/api'),
         meta: { title: '接口管理' }
-      },
-      
-  ]
+      }
+
+    ]
   },
 
   {

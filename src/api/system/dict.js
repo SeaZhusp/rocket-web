@@ -30,3 +30,34 @@ export function updateDict(data) {
     data
   })
 }
+
+export function searchDictItem(params) {
+  return request({
+    url: '/sys/dict/item/list',
+    method: 'get',
+    params
+  })
+}
+
+export function createDictItem(data) {
+  return request({
+    url: '/sys/dict/item/create',
+    method: 'post',
+    data
+  })
+}
+
+export function updateItemDict(data) {
+  return request({
+    url: '/sys/dict/item/update',
+    method: 'put',
+    data
+  })
+}
+
+export function deleteItemDict(id) {
+  return request({
+    url: `/sys/dict/item/delete/${id}`,
+    method: 'delete'
+  })
+}
