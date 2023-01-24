@@ -19,7 +19,7 @@
             </el-form-item>
             <el-form-item>
               <el-tooltip class="item" effect="dark" content="点击创建根目录，子目录在树上建" placement="top-start">
-                <el-button type="text" icon="el-icon-plus" />
+                <el-button type="text" icon="el-icon-plus" @click="handlerCatalogCreate" />
               </el-tooltip>
             </el-form-item>
           </el-form>
@@ -31,19 +31,20 @@
             default-expand-all
             :filter-node-method="filterNode"
             :expand-on-click-node="false"
+            highlight-current
           >
             <span slot-scope="{ node, data }" class="custom-tree-node" @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
               <span>{{ node.label }}</span>
               <span>
-                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-plus" @click="alert('新增')" />
-                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-edit" @click="alert('修改')" />
-                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-delete" @click="alert('删除')" />
+                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-plus" @click="handlerCatalogCreate(node, data)" />
+                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-edit" @click="handlerCatalogEdit(node, data)" />
+                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-delete" @click="handlerCatalogDelete(node, data)" />
               </span>
             </span>
           </el-tree>
         </el-card>
       </el-col>
-      <el-col :span="19" style="margin-left:5px">
+      <!-- <el-col :span="19" style="margin-left:5px">
         <el-card shadow="never">
           <el-form :inline="true">
             <el-row>
@@ -60,7 +61,7 @@
               </el-col>
             </el-row>
             <el-row>
-              <!-- <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
+              <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
                 <el-table-column align="center" type="selection" width="55" />
                 <el-table-column label="姓名" prop="fullname" align="center" />
                 <el-table-column label="账号" prop="username" align="center" />
@@ -83,37 +84,38 @@
                     <el-button type="text" size="small" @click="handlerDelete(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
-              </el-table> -->
+              </el-table>
             </el-row>
           </el-form>
         </el-card>
-      </el-col>
+      </el-col> -->
     </el-row>
 
-    <el-drawer :title="drawerAttribute.title" :visible.sync="drawerAttribute.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="70%">
-      <el-card shadow="nerer">
-        <el-row>
-          <el-form :inline="true">
-            <el-form-item label="用例名称">
-              <el-input placeholder="用例名称" />
-            </el-form-item>
-            <el-form-item label="用例等级">
-              <el-select v-model="apiForm.level" placeholder="请选优先级" clearable style="width:184px">
-                <el-option v-for="item in levelList" :key="item.type" :label="item.name" :value="item.type" />
-              </el-select>
-            </el-form-item>
-          </el-form>
-        </el-row>
-        <span>我来啦!</span>
-      </el-card>
+    <el-dialog :title="dialogCatalog.title" :visible.sync="dialogCatalog.show" width="20%" @close="cancelCatalog">
+      <el-form ref="catalogForm" :model="catalogForm" :rules="catalogFormRules" label-width="55px">
+        <el-form-item label="目录" prop="name">
+          <el-input v-model="catalogForm.name" placeholder="目录" />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="cancelCatalog">取 消</el-button>
+        <el-button type="primary" :loading="dialogCatalog.save" @click="saveCatalog">{{ dialogCatalog.save ? '提交中 ...' : '确 定' }}</el-button>
+      </span>
+    </el-dialog>
+
+    <el-drawer :title="drawerApi.title" :visible.sync="drawerApi.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="70%">
+      <Detail />
     </el-drawer>
   </div>
 </template>
 
 <script>
 import { listProject } from '@/api/system/project'
+import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '@/api/system/catalog'
+import Detail from '@/views/http/api/detail'
 
 export default {
+  components: { Detail },
   data() {
     return {
       userList: null,
@@ -122,6 +124,17 @@ export default {
       projectId: '',
       q: '',
       filterText: '',
+      catalogForm: {
+        id: '',
+        name: '',
+        project_id: '',
+        parent_id: null
+      },
+      catalogFormRules: {
+        name: [
+          { required: true, message: '目录名不能为空', trigger: 'blur' }
+        ]
+      },
       paging: {
         page: 1,
         limit: 10,
@@ -147,10 +160,15 @@ export default {
         children: 'children',
         label: 'label'
       },
-      drawerAttribute: {
+      dialogCatalog: {
+        title: '新增',
         show: false,
-        direction: 'rtl',
-        title: '添加用例'
+        save: false,
+        create: 1
+      },
+      drawerApi: {
+        show: true,
+        title: '新增'
       }
     }
   },
@@ -160,11 +178,13 @@ export default {
     },
     projectId(val) {
       localStorage.setItem('projectId', val)
+      this.getCatalogTree()
     }
   },
   created() {
     this.getAllProjects()
     this.initProject()
+    this.getCatalogTree()
   },
   methods: {
     initProject() {
@@ -172,6 +192,14 @@ export default {
       if (projectId) {
         this.projectId = parseInt(projectId)
       }
+    },
+    async getAllProjects() {
+      const params = {
+        project_type: 0
+      }
+      await listProject(params).then(response => {
+        this.projects = response.data
+      })
     },
     filterNode(value, data) {
       if (!value) return true
@@ -183,18 +211,85 @@ export default {
     mouseleave(data) {
       this.$set(data, 'del', false)
     },
-    async getAllProjects() {
-      const params = {
-        project_type: 0
-      }
-      await listProject(params).then(response => {
-        this.projects = response.data
-      })
-    },
     handlerProjectChange(val) {
       // todo 获取所有目录，用例
       console.log(val)
     },
+    // Catalog
+    handlerCatalogCreate(node = null, data = null) {
+      this.dialogCatalog.show = true
+      this.dialogCatalog.create = 1
+      this.catalogForm = this.$resetForm(this.catalogForm)
+      this.catalogForm.project_id = this.projectId
+      if (data) {
+        this.catalogForm.parent_id = data.id
+      }
+    },
+    handlerCatalogEdit(node = null, data) {
+      this.dialogCatalog.show = true
+      this.dialogCatalog.create = 0
+      this.catalogForm.id = data.id
+      this.catalogForm.name = data.label
+      this.catalogForm.parent_id = data.parent_id
+      this.catalogForm.project_id = data.project_id
+    },
+    async handlerCatalogDelete(node = null, data) {
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const { msg } = await deleteCatalog(data.id)
+        this.$message.success(msg)
+        await this.getCatalogTree()
+      })
+    },
+    async getCatalogTree() {
+      const params = { project_id: this.projectId }
+      searchCatalogTree(params).then(res => {
+        this.catalogs = res.data
+      })
+    },
+    saveCatalog() {
+      this.$refs.catalogForm.validate(validate => {
+        if (validate) {
+          this.dialogCatalog.save = true
+          if (this.dialogCatalog.create === 1) {
+            this.create()
+          } else {
+            this.update()
+          }
+          this.cancelCatalog()
+          this.getCatalogTree()
+        }
+      })
+    },
+    create() {
+      var catalog = this.catalogForm
+      if (this.catalogForm.parent_id === '') {
+        delete catalog['parent_id']
+        delete catalog['id']
+      }
+      createCatalog(catalog).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        this.$message.error(error.response.data['message'])
+      })
+    },
+    update() {
+      updateCatalog(this.catalogForm).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        this.$message.error(error.response.data['message'])
+      })
+    },
+    cancelCatalog() {
+      this.dialogCatalog.save = false
+      this.dialogCatalog.show = false
+      this.$refs['catalogForm'].clearValidate()
+    },
+    // Api
     handlerCreate() {
       this.drawerAttribute.show = true
       this.drawerAttribute.title = '添加用例'

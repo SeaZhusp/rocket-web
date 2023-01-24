@@ -158,7 +158,6 @@ export default {
         const { msg } = await deleteProject(row.id)
         this.$message.success(msg)
         await this.getProjectList()
-      }).catch(() => {
       })
     },
     async handleCurrentChange(val) {
@@ -191,6 +190,8 @@ export default {
           } else {
             this.update()
           }
+          this.cancelSubmit()
+          this.getProjectList()
         }
       })
     },
@@ -198,22 +199,14 @@ export default {
       updateProject(this.projectForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
-        console.log(error)
         this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelSubmit()
-        this.getProjectList()
       })
     },
     create() {
       createProject(this.projectForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
-        console.log(error)
         this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelSubmit()
-        this.getProjectList()
       })
     },
     cancelSubmit() {

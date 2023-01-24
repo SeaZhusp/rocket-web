@@ -182,7 +182,6 @@ export default {
         const { msg } = await deleteUser(row.id)
         this.$message.success(msg)
         await this.getUserList()
-      }).catch(() => {
       })
     },
     async handleCurrentChange(val) {
@@ -215,6 +214,8 @@ export default {
           } else {
             this.update()
           }
+          this.cancelSubmit()
+          this.getUserList()
         }
       })
     },
@@ -222,22 +223,14 @@ export default {
       updateUser(this.userForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
-        console.log(error)
         this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelSubmit()
-        this.getUserList()
       })
     },
     create() {
       createUser(this.userForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
-        console.log(error)
         this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelSubmit()
-        this.getUserList()
       })
     },
     cancelSubmit() {

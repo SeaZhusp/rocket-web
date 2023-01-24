@@ -241,32 +241,25 @@ export default {
     this.getDictList()
   },
   methods: {
-    handlerCreate() {
-      this.dialogAttribute.show = true
-      this.dialogAttribute.create = 1
-      this.dictForm = this.$resetForm(this.dictForm)
-    },
     handlerSetting(row) {
       this.drawerAttribute.show = true
       this.dictSetId = row.id
       this.getDictItemList()
     },
+    async handleCurrentChange(val) {
+      this.paging.page = val
+      await this.getDictList()
+    },
+    async handleSearch() {
+      this.paging.page = 1
+      await this.getDictList()
+    },
+    // DictItem
     handerDictItemCreate() {
       this.dialogItemAttribute.show = true
       this.dictItemForm = this.$resetForm(this.dictItemForm)
       this.dictItemForm.dict_id = this.dictSetId
       this.dialogItemAttribute.create = 1
-    },
-    handlerEdit(row) {
-      this.dialogAttribute.show = true
-      this.dialogAttribute.create = 0
-      this.dialogAttribute.title = '编辑'
-      this.dictForm.id = row.id
-      this.dictForm.name = row.name
-      this.dictForm.type = row.type
-      this.dictForm.code = row.code
-      this.dictForm.description = row.description
-      this.dictForm.status = row.status
     },
     handlerItemEdit(row) {
       this.dialogItemAttribute.show = true
@@ -280,18 +273,56 @@ export default {
       this.dictItemForm.dict_id = row.dict_id
       this.dictItemForm.status = row.status
     },
-    async handlerDelete(row) {
-      this.$confirm('确定要删除吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        lockScroll: false,
-        type: 'warning'
-      }).then(async() => {
-        const { msg } = await deleteDict(row.id)
-        this.$message.success(msg)
-        await this.getDictList()
-      }).catch(() => {
+    async selectItemChange(row) {
+      const { msg } = await updateItemDict(row)
+      this.$message.success(msg)
+      await this.getDictItemList()
+    },
+    async handleItemSearch() {
+      this.getDictItemList()
+    },
+    async getDictItemList() {
+      this.itemListLoading = true
+      const params = {
+        search: this.dictSetId
+      }
+      await searchDictItem(params).then(response => {
+        this.dictItemList = response.data
+        this.itemListLoading = false
       })
+    },
+    saveItemSubmit() {
+      this.$refs.dictItemForm.validate(validate => {
+        if (validate) {
+          this.dialogItemAttribute.save = true
+          if (this.dialogItemAttribute.create === 1) {
+            this.createItem()
+          } else {
+            this.updateItem()
+          }
+          this.cancelItemSubmit()
+          this.getDictItemList()
+        }
+      })
+    },
+    updateItem() {
+      updateItemDict(this.dictItemForm).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        this.$message.error(error.response.data['message'])
+      })
+    },
+    createItem() {
+      createDictItem(this.dictItemForm).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        this.$message.error(error.response.data['message'])
+      })
+    },
+    cancelItemSubmit() {
+      this.dialogItemAttribute.save = false
+      this.dialogItemAttribute.show = false
+      this.$refs['dictItemForm'].clearValidate()
     },
     async handlerItemDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
@@ -303,29 +334,29 @@ export default {
         const { msg } = await deleteItemDict(row.id)
         this.$message.success(msg)
         await this.getDictItemList()
-      }).catch(() => {
       })
+    },
+    // Dict
+    handlerCreate() {
+      this.dialogAttribute.show = true
+      this.dialogAttribute.create = 1
+      this.dictForm = this.$resetForm(this.dictForm)
+    },
+    handlerEdit(row) {
+      this.dialogAttribute.show = true
+      this.dialogAttribute.create = 0
+      this.dialogAttribute.title = '编辑'
+      this.dictForm.id = row.id
+      this.dictForm.name = row.name
+      this.dictForm.type = row.type
+      this.dictForm.code = row.code
+      this.dictForm.description = row.description
+      this.dictForm.status = row.status
     },
     async selectChange(row) {
       const { msg } = await updateDict(row)
       this.$message.success(msg)
       await this.getDictList()
-    },
-    async selectItemChange(row) {
-      const { msg } = await updateItemDict(row)
-      this.$message.success(msg)
-      await this.getDictItemList()
-    },
-    async handleCurrentChange(val) {
-      this.paging.page = val
-      await this.getDictList()
-    },
-    async handleSearch() {
-      this.paging.page = 1
-      await this.getDictList()
-    },
-    async handleItemSearch() {
-      this.getDictItemList()
     },
     async getDictList() {
       this.listLoading = true
@@ -340,16 +371,6 @@ export default {
         this.listLoading = false
       })
     },
-    async getDictItemList() {
-      this.itemListLoading = true
-      const params = {
-        search: this.dictSetId
-      }
-      await searchDictItem(params).then(response => {
-        this.dictItemList = response.data
-        this.itemListLoading = false
-      })
-    },
     saveSubmit() {
       this.$refs.dictForm.validate(validate => {
         if (validate) {
@@ -359,18 +380,8 @@ export default {
           } else {
             this.update()
           }
-        }
-      })
-    },
-    saveItemSubmit() {
-      this.$refs.dictItemForm.validate(validate => {
-        if (validate) {
-          this.dialogItemAttribute.save = true
-          if (this.dialogItemAttribute.create === 1) {
-            this.createItem()
-          } else {
-            this.updateItem()
-          }
+          this.cancelSubmit()
+          this.getDictList()
         }
       })
     },
@@ -378,44 +389,14 @@ export default {
       updateDict(this.dictForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
-        console.log(error)
         this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelSubmit()
-        this.getDictList()
-      })
-    },
-    updateItem() {
-      updateItemDict(this.dictItemForm).then(res => {
-        this.$message.success(res.msg)
-      }).catch(error => {
-        console.log(error)
-        this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelItemSubmit()
-        this.getDictItemList()
       })
     },
     create() {
       createDict(this.dictForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
-        console.log(error)
         this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelSubmit()
-        this.getDictList()
-      })
-    },
-    createItem() {
-      createDictItem(this.dictItemForm).then(res => {
-        this.$message.success(res.msg)
-      }).catch(error => {
-        console.log(error)
-        this.$message.error(error.response.data['message'])
-      }).finally(() => {
-        this.cancelItemSubmit()
-        this.getDictItemList()
       })
     },
     cancelSubmit() {
@@ -423,10 +404,17 @@ export default {
       this.dialogAttribute.show = false
       this.$refs['dictForm'].clearValidate()
     },
-    cancelItemSubmit() {
-      this.dialogItemAttribute.save = false
-      this.dialogItemAttribute.show = false
-      this.$refs['dictItemForm'].clearValidate()
+    async handlerDelete(row) {
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const { msg } = await deleteDict(row.id)
+        this.$message.success(msg)
+        await this.getDictList()
+      })
     }
   }
 }
