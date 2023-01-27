@@ -293,6 +293,9 @@ export default {
     handlerCreate() {
       this.drawerAttribute.show = true
       this.drawerAttribute.title = '添加用例'
+    },
+    handleClose() {
+
     }
 
   }

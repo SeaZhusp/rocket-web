@@ -124,13 +124,37 @@
             <div v-if="caseForm.body_type === 'raw'">
               <editor
                 v-model="caseForm.body"
-                style="font-size: 15px"
+                style="font-size: 1px"
                 lang="json"
                 theme="chrome"
-                height="575px"
-                :options="{}"
+                :height="height"
+                @init="editorInit"
               />
             </div>
+
+            <el-table v-if="caseForm.body_type==='form-data'" :data="caseForm.body">
+              <el-table-column prop="key" label="Key">
+                <template slot-scope="scope">
+                  <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="key" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="value" label="Value">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.value" placeholder="value" />
+                </template>
+              </el-table-column>
+              <el-table-column prop="description" label="DESCRIPTION">
+                <template slot-scope="scope">
+                  <el-input v-model.trim="scope.row.description" :value="scope.row.description" placeholder="description" />
+                </template>
+              </el-table-column>
+              <el-table-column>
+                <template slot-scope="scope">
+                  <el-button type="text" icon="el-icon-delete" @click="delTableRow('body',scope.$index)" />
+                </template>
+              </el-table-column>
+            </el-table>
+
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
@@ -143,6 +167,9 @@
 
 <script>
 export default {
+  components: {
+    editor: require('vue2-ace-editor')
+  },
   data() {
     return {
       userList: null,
@@ -150,6 +177,7 @@ export default {
       projects: [],
       projectId: '',
       q: '',
+      saveRunStatus: false,
       activeStep: 'request',
       activeReq: 'body',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
@@ -163,8 +191,8 @@ export default {
         service: '',
         body_type: 'raw',
         body: '',
-        headers: [{ key: '', value: '', description: '' }],
-        params: [{ key: '', value: '' }]
+        headers: [{ key: null, value: null, remark: null }],
+        params: [{ key: null, value: null }]
       },
       levelOptions: [
         {
@@ -205,6 +233,9 @@ export default {
     }
   },
   computed: {
+    height() {
+      return window.screen.height - 464
+    }
     // monitorPath() {
     //   return this.caseForm.path
     // },
@@ -226,32 +257,50 @@ export default {
           this.caseForm.params = [{ key: '', value: '' }]
           return
         }
-        let url = this.caseForm.path.split('?')
-        url.splice(0, 1)
-        url = url.join('?')
-        if (!url) {
-          this.caseForm.params = [{ key: '', value: '' }]
-          return
-        }
-        const strParam = url.split('&')
-        if (strParam[0]) {
-          this.caseForm.params = []
-          for (let i = 0; i < strParam.length; i++) {
-            if (strParam[i].indexOf('=') !== -1) {
-              const _array = strParam[i].split('=')
-
-              const d = _array[0]
-              _array.splice(0, 1)
-
-              this.caseForm.params.push({
-                key: d,
-                value: _array.join('=')
-              })
-            } else {
-              this.caseForm.params.push({ key: strParam[i], value: '' })
+        if (this.caseForm.path.indexOf('?') !== -1) {
+          const urls = this.caseForm.path.split('?')
+          const newParams = []
+          urls.splice(0, 1)
+          console.log(urls)
+          urls.forEach(url => {
+            if (url.indexOf('=') !== -1) {
+              const _array = url.split('=')
+              const k = _array[0]
+              const v = _array[1]
+              if (v !== '') {
+                newParams.push({ key: k, value: v })
+              }
+              console.log(_array)
             }
+          })
+          if (newParams.length > 0) {
+            this.caseForm.params = newParams
           }
         }
+        // const new_urls = urls.join('?')
+        // const strParam = new_urls.split('&')
+        // if (strParam[0]) {
+        //   this.caseForm.params = []
+        //   for (let i = 0; i < strParam.length; i++) {
+        //     if (strParam[i].indexOf('=') !== -1) {
+        //       console.log('有=号')
+        //       const _array = strParam[i].split('=')
+        //       console.log(_array)
+
+        //       const d = _array[0]
+        //       const v = _array[1]
+        //       _array.splice(0, 1)
+        //       if (v) {
+        //         this.caseForm.params.push({ key: d, value: v })
+        //       } else {
+        //         this.caseForm.params.push({ key: d, value: _array.join('=') })
+        //       }
+        //       console.log(this.caseForm)
+        //     } else {
+        //       this.caseForm.params.push({ key: strParam[i] })
+        //     }
+        //   }
+        // }
       }
     },
     'caseForm.params': {
@@ -300,6 +349,15 @@ export default {
 
   },
   methods: {
+    editorInit() {
+      require('brace/ext/language_tools')
+      require('brace/mode/json')
+      require('brace/theme/chrome')
+      require('brace/snippets/json')
+    },
+    handleClick() {
+
+    },
     addTableRow(type) {
       if (type === 'variable') {
         this.caseForm.variable.push({ key: '', value: '', param_type: 'string', remark: '' })
