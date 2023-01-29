@@ -60,19 +60,49 @@
       </el-row>
     </el-form>
     <el-tabs v-model="activeStep" @tab-click="handleClick">
-      <el-tab-pane label="数据管理" name="variables">数据管理</el-tab-pane>
-      <el-tab-pane label="前置处理" name="setup">前置处理</el-tab-pane>
-      <el-tab-pane label="接口请求" name="request">
+      <el-tab-pane label="Variables" name="variables">
+        <el-table :data="caseForm.variables">
+          <el-table-column prop="key" label="变量名">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="变量名" />
+            </template>
+          </el-table-column>
+          <el-table-column label="类型">
+            <template slot-scope="scope">
+              <el-autocomplete
+                v-model="scope.row.type"
+                placeholder="请选择"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column prop="value" label="变量值">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.value" placeholder="变量值" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="描述">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="描述" />
+            </template>
+          </el-table-column>
+          <el-table-column>
+            <template slot-scope="scope">
+              <el-button type="text" icon="el-icon-delete" @click="delTableRow('extract',scope.$index)" />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="Request" name="request">
         <el-tabs v-model="activeReq" @tab-click="handleClick">
           <el-tab-pane label="Params" name="params">
             <b class="custom-reqinfo-name">Query Params</b>
             <el-table :data="caseForm.params">
-              <el-table-column property="key" label="Key">
+              <el-table-column property="key" label="KEY">
                 <template slot-scope="scope">
                   <el-input v-model="scope.row.key" placeholder="key" />
                 </template>
               </el-table-column>
-              <el-table-column property="value" label="Value">
+              <el-table-column property="value" label="VALUE">
                 <template slot-scope="scope">
                   <el-input v-model="scope.row.value" placeholder="value" />
                 </template>
@@ -97,9 +127,9 @@
                   <el-input v-model.trim="scope.row.value" :value="scope.row.value" placeholder="value" />
                 </template>
               </el-table-column>
-              <el-table-column prop="description" label="DESCRIPTION">
+              <el-table-column prop="remark" label="REMARK">
                 <template slot-scope="scope">
-                  <el-input v-model.trim="scope.row.description" :value="scope.row.description" placeholder="description" />
+                  <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="remark" />
                 </template>
               </el-table-column>
               <el-table-column label="操作">
@@ -112,13 +142,13 @@
           <el-tab-pane label="Body" name="body">
             <el-form>
               <el-radio-group v-model="caseForm.body_type">
-                <el-radio label="none">none</el-radio>
+                <!-- <el-radio label="none">none</el-radio> -->
                 <el-radio label="form-data">form-data</el-radio>
-                <el-radio label="x-www-form-urlencoded">x-www-form-urlencoded</el-radio>
+                <!-- <el-radio label="x-www-form-urlencoded">x-www-form-urlencoded</el-radio> -->
                 <el-radio label="raw">raw</el-radio>
                 <el-radio label="binary">binary</el-radio>
               </el-radio-group>
-              <el-button v-show="caseForm.body_type === 'raw'" type="text" class="btn-format" @click="formatData()">格式化</el-button>
+              <el-button v-show="caseForm.body_type === 'raw'" type="text" class="custom-btn-format" @click="formatData()">格式化</el-button>
             </el-form>
 
             <div v-if="caseForm.body_type === 'raw'">
@@ -132,13 +162,13 @@
               />
             </div>
 
-            <el-table v-if="caseForm.body_type==='form-data'" :data="caseForm.body">
-              <el-table-column prop="key" label="Key">
+            <el-table v-if="caseForm.body_type==='form-data'" :data="caseForm.form_data">
+              <el-table-column prop="key" label="KEY">
                 <template slot-scope="scope">
                   <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="key" />
                 </template>
               </el-table-column>
-              <el-table-column prop="value" label="Value">
+              <el-table-column prop="value" label="VALUE">
                 <template slot-scope="scope">
                   <el-input v-model="scope.row.value" placeholder="value" />
                 </template>
@@ -150,17 +180,100 @@
               </el-table-column>
               <el-table-column>
                 <template slot-scope="scope">
-                  <el-button type="text" icon="el-icon-delete" @click="delTableRow('body',scope.$index)" />
+                  <el-button type="text" icon="el-icon-delete" @click="delTableRow('form_data',scope.$index)" />
                 </template>
               </el-table-column>
             </el-table>
 
+            <el-upload
+              v-if="caseForm.body_type === 'binary'"
+              class="upload-demo"
+              drag
+              action="https://jsonplaceholder.typicode.com/posts/"
+              multiple
+            >
+              <i class="el-icon-upload" />
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+              <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+            </el-upload>
+
           </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
-      <el-tab-pane label="提取参数" name="extract">提取参数</el-tab-pane>
-      <el-tab-pane label="断言" name="assert">断言</el-tab-pane>
-      <el-tab-pane label="后置处理" name="teardown">后置处理</el-tab-pane>
+      <el-tab-pane label="Extract" name="extract">
+        <el-table :data="caseForm.extract">
+          <el-table-column prop="key" label="变量名">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="变量名" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="value" label="表达式">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.value" placeholder="表达式" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="REMARK">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="remark" />
+            </template>
+          </el-table-column>
+          <el-table-column>
+            <template slot-scope="scope">
+              <el-button type="text" icon="el-icon-delete" @click="delTableRow('extract',scope.$index)" />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="Validate" name="validate">
+        <el-table :data="caseForm.validate">
+          <el-table-column prop="key" label="实际返回">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.key" placeholder="实际返回" />
+            </template>
+          </el-table-column>
+          <el-table-column label="断言类型">
+            <template slot-scope="scope">
+              <el-autocomplete
+                v-model="scope.row.comparator"
+                class="inline-input"
+                :fetch-suggestions="querySearch"
+                placeholder="请选择"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column label="数据类型">
+            <template slot-scope="scope">
+              <el-autocomplete
+                v-model="scope.row.comparator"
+                class="inline-input"
+                :fetch-suggestions="querySearch"
+                placeholder="请选择"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column property="value" label="期望返回">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.value" placeholder="value" />
+            </template>
+          </el-table-column>
+          <el-table-column label="备注">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.remark" placeholder="备注" />
+            </template>
+          </el-table-column>
+          <el-table-column property="value" label="操作" header-align="center" width="80">
+            <template slot-scope="scope">
+              <el-button
+                type="text"
+                icon="el-icon-delete"
+                size="mini"
+                @click.native="delTableRow('validate',scope.$index)"
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="Hooks" name="hooks">Hooks</el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -191,8 +304,11 @@ export default {
         service: '',
         body_type: 'raw',
         body: '',
+        variables: [{ key: null, value: null, remark: null }],
         headers: [{ key: null, value: null, remark: null }],
-        params: [{ key: null, value: null }]
+        extract: [{ key: null, value: null, remark: null }],
+        params: [{ key: null, value: null }],
+        form_data: [{ key: null, value: null }]
       },
       levelOptions: [
         {
@@ -236,15 +352,6 @@ export default {
     height() {
       return window.screen.height - 464
     }
-    // monitorPath() {
-    //   return this.caseForm.path
-    // },
-    // monitorParams() {
-    //   return this.caseForm.params
-    // },
-    // monitorHeader() {
-    //   return this.caseForm.headers
-    // }
   },
   watch: {
     'caseForm.path': {
@@ -257,50 +364,33 @@ export default {
           this.caseForm.params = [{ key: '', value: '' }]
           return
         }
-        if (this.caseForm.path.indexOf('?') !== -1) {
-          const urls = this.caseForm.path.split('?')
-          const newParams = []
-          urls.splice(0, 1)
-          console.log(urls)
-          urls.forEach(url => {
-            if (url.indexOf('=') !== -1) {
-              const _array = url.split('=')
-              const k = _array[0]
-              const v = _array[1]
-              if (v !== '') {
-                newParams.push({ key: k, value: v })
-              }
-              console.log(_array)
+
+        let url = this.caseForm.path.split('?')
+        url.splice(0, 1)
+        url = url.join('?')
+        if (!url) {
+          this.caseForm.params = [{ key: '', value: '' }]
+          return
+        }
+        const strParam = url.split('&')
+        if (strParam[0]) {
+          this.caseForm.params = []
+          for (let i = 0; i < strParam.length; i++) {
+            if (strParam[i].indexOf('=') !== -1) {
+              const _array = strParam[i].split('=')
+
+              const d = _array[0]
+              _array.splice(0, 1)
+
+              this.caseForm.params.push({
+                key: d,
+                value: _array.join('=')
+              })
+            } else {
+              this.caseForm.params.push({ key: strParam[i], value: '' })
             }
-          })
-          if (newParams.length > 0) {
-            this.caseForm.params = newParams
           }
         }
-        // const new_urls = urls.join('?')
-        // const strParam = new_urls.split('&')
-        // if (strParam[0]) {
-        //   this.caseForm.params = []
-        //   for (let i = 0; i < strParam.length; i++) {
-        //     if (strParam[i].indexOf('=') !== -1) {
-        //       console.log('有=号')
-        //       const _array = strParam[i].split('=')
-        //       console.log(_array)
-
-        //       const d = _array[0]
-        //       const v = _array[1]
-        //       _array.splice(0, 1)
-        //       if (v) {
-        //         this.caseForm.params.push({ key: d, value: v })
-        //       } else {
-        //         this.caseForm.params.push({ key: d, value: _array.join('=') })
-        //       }
-        //       console.log(this.caseForm)
-        //     } else {
-        //       this.caseForm.params.push({ key: strParam[i] })
-        //     }
-        //   }
-        // }
       }
     },
     'caseForm.params': {
@@ -343,6 +433,17 @@ export default {
         }
       },
       deep: true
+    },
+    'caseForm.form_data': {
+      handler: function() {
+        if (this.caseForm.form_data.length === 0) {
+          this.addTableRow('form_data')
+        }
+        if (this.caseForm.form_data[this.caseForm.form_data.length - 1]['key'] || this.caseForm.form_data[this.caseForm.form_data.length - 1]['value']) {
+          this.addTableRow('form_data')
+        }
+      },
+      deep: true
     }
   },
   created() {
@@ -355,12 +456,24 @@ export default {
       require('brace/theme/chrome')
       require('brace/snippets/json')
     },
+    formatData() {
+      try {
+        this.caseForm.body = JSON.parse(this.caseForm.body)
+        this.caseForm.body = JSON.stringify(this.caseForm.body, null, 4)
+      } catch (err) {
+        this.$message({
+          showClose: true,
+          message: 'json格式错误',
+          type: 'warning'
+        })
+      }
+    },
     handleClick() {
 
     },
     addTableRow(type) {
-      if (type === 'variable') {
-        this.caseForm.variable.push({ key: '', value: '', param_type: 'string', remark: '' })
+      if (type === 'form_data') {
+        this.caseForm.form_data.push({ key: '', value: '', remark: '' })
       } else if (type === 'headers') {
         this.caseForm.headers.push({ key: '', value: '' })
       } else if (type === 'validate') {
@@ -372,14 +485,14 @@ export default {
       }
     },
     delTableRow(type, index) {
-      if (type === 'variable') {
-        this.caseForm.variable.push(index, 1)
+      if (type === 'form_data') {
+        this.caseForm.form_data.splice(index, 1)
       } else if (type === 'headers') {
         this.caseForm.headers.splice(index, 1)
       } else if (type === 'validate') {
-        this.caseForm.validate.push(index, 1)
+        this.caseForm.validate.splice(index, 1)
       } else if (type === 'extract') {
-        this.caseForm.extract.push(index, 1)
+        this.caseForm.extract.splice(index, 1)
       } else if (type === 'params') {
         this.caseForm.params.splice(index, 1)
       }
@@ -395,5 +508,8 @@ export default {
 .custom-reqinfo-name {
   font-size: 14px;
   color: gray;
+}
+.custom-btn-format{
+  margin-left: 20px;
 }
 </style>
