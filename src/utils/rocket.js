@@ -9,7 +9,7 @@ export function getUserInfo(userInfo) {
 export function getFullname() {
   var userInfo = JSON.parse(localStorage.getItem('userInfo'))
   if (userInfo) {
-    return userInfo.getItem('fullname')
+    return userInfo['fullname']
   } else {
     return ''
   }

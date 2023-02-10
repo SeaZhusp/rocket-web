@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-row>
       <el-form :inline="true">
         <el-row>
           <el-col :span="8">
@@ -44,12 +44,12 @@
           <template slot-scope="scope">
             <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
             <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
-            <el-button type="text" @click="handlerSetting(scope.row)">字典配置</el-button>
+            <el-button type="text" @click="handlerSetting(scope.row)">配置</el-button>
           </template>
         </el-table-column>
       </el-table>
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getDictList" />
-    </el-card>
+    </el-row>
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="cancelSubmit">
       <el-form ref="dictForm" :model="dictForm" :rules="dictFormRules" label-width="55px">

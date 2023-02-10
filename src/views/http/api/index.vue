@@ -11,15 +11,15 @@
       </el-form-item>
     </el-form>
     <el-row>
-      <el-col :span="4">
+      <el-col :span="4.1">
         <el-card shadow="never">
           <el-form :inline="true">
             <el-form-item>
               <el-input v-model="filterText" suffix-icon="el-icon-search" placeholder="关键字过滤" />
             </el-form-item>
             <el-form-item>
-              <el-tooltip class="item" effect="dark" content="点击创建根目录，子目录在树上建" placement="top-start">
-                <el-button type="text" icon="el-icon-plus" @click="handlerCatalogCreate" />
+              <el-tooltip class="item" effect="dark" content="点击创建根目录，子目录请在节点创建" placement="top-start">
+                <el-button type="text" icon="el-icon-folder-add" @click="handlerCatalogCreate">新增</el-button>
               </el-tooltip>
             </el-form-item>
           </el-form>
@@ -28,7 +28,6 @@
             class="filter-tree"
             :data="catalogs"
             :props="defaultProps"
-            default-expand-all
             :filter-node-method="filterNode"
             :expand-on-click-node="false"
             highlight-current
@@ -36,59 +35,83 @@
             <span slot-scope="{ node, data }" class="custom-tree-node" @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
               <span>{{ node.label }}</span>
               <span>
-                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-plus" @click="handlerCatalogCreate(node, data)" />
-                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-edit" @click="handlerCatalogEdit(node, data)" />
-                <el-button v-show="data.del" type="text" size="mini" icon="el-icon-delete" @click="handlerCatalogDelete(node, data)" />
+                <el-button v-show="data.del" type="text" icon="el-icon-folder-add" @click="handlerCatalogCreate(node, data)" />
+                <el-button v-show="data.del" type="text" icon="el-icon-edit" @click="handlerCatalogEdit(node, data)" />
+                <el-button v-show="data.del" type="text" icon="el-icon-delete" @click="handlerCatalogDelete(node, data)" />
               </span>
             </span>
           </el-tree>
         </el-card>
       </el-col>
-      <!-- <el-col :span="19" style="margin-left:5px">
-        <el-card shadow="never">
+      <el-col :span="19" style="margin-left:5px">
+        <el-row shadow="never">
           <el-form :inline="true">
             <el-row>
-              <el-col :span="8">
+              <el-col>
                 <el-form-item>
-                  <el-input v-model="q" placeholder="请输入姓名" />
+                  <el-input v-model="search.q" placeholder="输入接口名搜索" />
+                </el-form-item>
+                <el-form-item>
+                  <el-select v-model="search.level" placeholder="优先级" clearable class="custom-form-item-search">
+                    <el-option v-for="item in levelOptions" :key="item.value" :label="item.label" :value="item.value" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item>
+                  <el-select v-model="search.status" placeholder="状态" clearable class="custom-form-item-search">
+                    <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
+                  </el-select>
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="handleSearch">搜索</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" @click="handlerCreate">添加用例</el-button>
+                  <el-button type="primary" @click="handlerCreate">新增接口</el-button>
+                </el-form-item>
+                <el-form-item>
+                  <el-dropdown>
+                    <el-button> 更多操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item disabled>批量执行</el-dropdown-item>
+                      <el-dropdown-item disabled>批量删除</el-dropdown-item>
+                      <el-dropdown-item disabled>导入接口</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
                 <el-table-column align="center" type="selection" width="55" />
-                <el-table-column label="姓名" prop="fullname" align="center" />
-                <el-table-column label="账号" prop="username" align="center" />
-                <el-table-column label="职责" align="center">
-                  <template slot-scope="{row}">
-                    <el-tag :type="row.duty === 0 ? 'info': row.duty === 1 ? 'success': 'danger' ">{{ row.duty | dutyName }}</el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column label="邮箱" prop="email" align="center" />
-                <el-table-column label="手机号" prop="phone" align="center" />
-                <el-table-column label="状态" align="center">
+                <el-table-column label="接口名称" prop="fullname" />
+                <el-table-column label="方法" prop="username" />
+                <el-table-column label="路径" prop="email" />
+                <el-table-column label="状态">
                   <template slot-scope="{row}">
                     <el-tag effect="dark" :type="row.status === 1 ? 'success':'info' ">{{ row.status===1? "启用":"禁用" }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="创建日期" prop="create_time" align="center" />
-                <el-table-column fixed="right" align="center" label="操作" min-width="80px">
+                <el-table-column label="创建人" prop="phone" />
+                <el-table-column label="创建日期" prop="create_time" />
+                <el-table-column fixed="right" label="操作" min-width="80px">
                   <template slot-scope="scope">
+                    <el-button type="text" size="small" @click="handlerEdit(scope.row)">执行</el-button>
                     <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
-                    <el-button type="text" size="small" @click="handlerDelete(scope.row)">删除</el-button>
+                    <el-dropdown @command="handleCommand">
+                      <span class="el-dropdown-link">
+                        更多<i class="el-icon-arrow-down el-icon--right" />
+                      </span>
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="a">复制</el-dropdown-item>
+                        <el-dropdown-item command="b">删除</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
                   </template>
                 </el-table-column>
               </el-table>
             </el-row>
           </el-form>
-        </el-card>
-      </el-col> -->
+        </el-row>
+      </el-col>
     </el-row>
 
     <el-dialog :title="dialogCatalog.title" :visible.sync="dialogCatalog.show" width="20%" @close="cancelCatalog">
@@ -103,7 +126,7 @@
       </span>
     </el-dialog>
 
-    <el-drawer :title="drawerApi.title" :visible.sync="drawerApi.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="100%">
+    <el-drawer :title="drawerApi.title" :visible.sync="drawerApi.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="75%">
       <Detail />
     </el-drawer>
   </div>
@@ -118,11 +141,15 @@ export default {
   components: { Detail },
   data() {
     return {
-      userList: null,
+      userList: [{ user: '12' }],
       listLoading: false,
       projects: [],
       projectId: '',
-      q: '',
+      search: {
+        q: '',
+        level: null,
+        status: null
+      },
       filterText: '',
       catalogForm: {
         id: '',
@@ -143,18 +170,8 @@ export default {
       apiForm: {
         level: null
       },
-      levelList: [
-        {
-          type: 0,
-          name: 'P0'
-        },
-        { type: 1,
-          name: 'P1'
-        },
-        { type: 2,
-          name: 'P2'
-        }
-      ],
+      levelOptions: [{ value: 0, label: 'P0' }, { value: 1, label: 'P1' }, { value: 2, label: 'P2' }],
+      statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }],
       catalogs: [],
       defaultProps: {
         children: 'children',
@@ -167,7 +184,7 @@ export default {
         create: 1
       },
       drawerApi: {
-        show: true,
+        show: false,
         title: '新增'
       }
     }
@@ -291,24 +308,35 @@ export default {
     },
     // Api
     handlerCreate() {
-      this.drawerAttribute.show = true
-      this.drawerAttribute.title = '添加用例'
+      this.drawerApi.show = true
+      this.drawerApi.title = '添加用例'
     },
     handleClose() {
-
+      this.drawerApi.show = false
     }
-
   }
 }
 </script>
 
 <style scoped>
 .custom-tree-node {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding-right: 8px;
-  }
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+.custom-form-item-search {
+  width:110px
+}
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+  font-size: 12px;
+  margin-left: 10px;
+}
+.el-icon-arrow-down {
+  font-size: 11px;
+}
 </style>

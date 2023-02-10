@@ -93,143 +93,96 @@
           </template>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="Request" name="request">
-        <el-tabs v-model="activeReq" @tab-click="handleClick">
-          <el-tab-pane label="Headers" name="headers">
-            <el-table :data="caseForm.headers">
-              <el-table-column prop="key" label="KEY">
-                <template slot-scope="scope">
-                  <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="key" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="value" label="VALUE">
-                <template slot-scope="scope">
-                  <el-input v-model.trim="scope.row.value" :value="scope.row.value" placeholder="value" />
-                </template>
-              </el-table-column>
-              <el-table-column prop="remark" label="REMARK">
-                <template slot-scope="scope">
-                  <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="remark" />
-                </template>
-              </el-table-column>
-              <el-table-column>
-                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-plus" size="mini" circle @click.native="addTableRow('headers',scope.$index)" />
-                  <el-button type="danger" icon="el-icon-delete" size="mini" circle @click.native="delTableRow('headers',scope.$index)" />
-                </template>
-              </el-table-column>
-              <template slot="empty">
-                <el-button type="text" icon="el-icon-plus" @click="addTableRow('headers')">添加一行数据</el-button>
-              </template>
-
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="Body" name="body">
-            <el-form>
-              <el-radio-group v-model="caseForm.body_type">
-                <el-radio label="formdata">form-data</el-radio>
-                <el-radio label="raw">raw</el-radio>
-                <el-radio label="binary">binary</el-radio>
-              </el-radio-group>
-              <el-button v-show="caseForm.body_type === 'raw'" type="text" class="custom-btn-format" @click="formatData()">格式化</el-button>
-            </el-form>
-
-            <div v-if="caseForm.body_type === 'raw'">
-              <editor
-                v-model="caseForm.body"
-                style="font-size: 14px"
-                lang="json"
-                theme="chrome"
-                :height="height"
-                @init="editorInit"
-              />
-            </div>
-
-            <el-table v-if="caseForm.body_type==='formdata'" :data="caseForm.formdata">
-              <el-table-column prop="key" label="KEY">
-                <template slot-scope="scope">
-                  <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="key" />
-                </template>
-              </el-table-column>
-              <el-table-column label="TYPE" width="140">
-                <template slot-scope="scope">
-                  <el-autocomplete
-                    v-model="scope.row.type"
-                    :fetch-suggestions="formDataTypeQuerySearch"
-                    placeholder="数据类型"
-                    style="width:120px"
-                  />
-                </template>
-              </el-table-column>
-              <el-table-column label="Value" header-align="center" min-width="200">
-                <template slot-scope="scope">
-                  <div v-if="scope.row.type === 'file'">
-                    <el-row :gutter="10">
-                      <el-col :span="18">
-                        <el-input v-model="scope.row.value" size="mini" :disabled="true" />
-                      </el-col>
-                      <el-col :span="2">
-                        <el-upload
-                          class="upload-demo"
-                          :action="uploadAddress"
-                          :headers="myHeader"
-                          :show-file-list="false"
-                          list-type="picture"
-                          :on-success="fileChange"
-                        >
-                          <el-button size="mini" type="primary" @click="setTempNum(scope.$index)">点击上传</el-button>
-                        </el-upload>
-                      </el-col>
-                    </el-row>
-                  </div>
-                  <div v-else>
-                    <el-input v-model="scope.row.value" placeholder="value" />
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column prop="remark" label="REMARK">
-                <template slot-scope="scope">
-                  <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="remark" />
-                </template>
-              </el-table-column>
-              <el-table-column>
-                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-plus" size="mini" circle @click.native="addTableRow('formdata',scope.$index)" />
-                  <el-button type="danger" icon="el-icon-delete" size="mini" circle @click.native="delTableRow('formdata',scope.$index)" />
-                </template>
-              </el-table-column>
-              <template slot="empty">
-                <el-button type="text" icon="el-icon-plus" @click="addTableRow('formdata')">添加一行数据</el-button>
-              </template>
-            </el-table>
-          </el-tab-pane>
-        </el-tabs>
-      </el-tab-pane>
-      <el-tab-pane label="Extract" name="extract">
-        <el-table :data="caseForm.extract">
-          <el-table-column prop="key" label="变量名">
+      <el-tab-pane label="Headers" name="headers">
+        <el-table :data="caseForm.headers">
+          <el-table-column prop="key" label="KEY">
             <template slot-scope="scope">
-              <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="变量名" />
+              <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="key" />
             </template>
           </el-table-column>
-          <el-table-column prop="value" label="表达式">
+          <el-table-column prop="value" label="VALUE">
             <template slot-scope="scope">
-              <el-input v-model="scope.row.value" placeholder="表达式" />
+              <el-input v-model.trim="scope.row.value" :value="scope.row.value" placeholder="value" />
             </template>
           </el-table-column>
-          <el-table-column prop="remark" label="备注">
+          <el-table-column prop="remark" label="REMARK">
             <template slot-scope="scope">
-              <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="备注" />
+              <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="remark" />
             </template>
           </el-table-column>
           <el-table-column>
             <template slot-scope="scope">
-              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click.native="addTableRow('extract',scope.$index)" />
-              <el-button type="danger" icon="el-icon-delete" size="mini" circle @click.native="delTableRow('extract',scope.$index)" />
+              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click.native="addTableRow('headers',scope.$index)" />
+              <el-button type="danger" icon="el-icon-delete" size="mini" circle @click.native="delTableRow('headers',scope.$index)" />
             </template>
           </el-table-column>
           <template slot="empty">
-            <el-button type="text" icon="el-icon-plus" @click="addTableRow('extract')">添加一行数据</el-button>
+            <el-button type="text" icon="el-icon-plus" @click="addTableRow('headers')">添加一行数据</el-button>
+          </template>
+
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="Request" name="request">
+        <el-form>
+          <el-radio-group v-model="caseForm.body_type">
+            <el-radio label="formdata">form-data</el-radio>
+            <el-radio label="raw">raw</el-radio>
+          </el-radio-group>
+          <el-button v-show="caseForm.body_type === 'raw'" type="text" class="custom-btn-format" @click="formatData()">格式化</el-button>
+        </el-form>
+        <div v-if="caseForm.body_type === 'raw'">
+          <editor v-model="caseForm.body" style="font-size: 14px" lang="json" theme="chrome" :height="height" @init="editorInit" />
+        </div>
+        <el-table v-if="caseForm.body_type==='formdata'" :data="caseForm.formdata">
+          <el-table-column prop="key" label="KEY">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="key" />
+            </template>
+          </el-table-column>
+          <el-table-column label="TYPE" width="140">
+            <template slot-scope="scope">
+              <el-autocomplete v-model="scope.row.type" :fetch-suggestions="formDataTypeQuerySearch" placeholder="数据类型" style="width:120px" />
+            </template>
+          </el-table-column>
+          <el-table-column label="Value" header-align="center" min-width="200">
+            <template slot-scope="scope">
+              <div v-if="scope.row.type === 'file'">
+                <el-row :gutter="10">
+                  <el-col :span="18">
+                    <el-input v-model="scope.row.value" size="mini" :disabled="true" />
+                  </el-col>
+                  <el-col :span="2">
+                    <el-upload
+                      class="upload-demo"
+                      :action="uploadAddress"
+                      :headers="myHeader"
+                      :show-file-list="false"
+                      list-type="picture"
+                      :on-success="fileChange"
+                    >
+                      <el-button size="mini" type="primary" @click="setTempNum(scope.$index)">点击上传</el-button>
+                    </el-upload>
+                  </el-col>
+                </el-row>
+              </div>
+              <div v-else>
+                <el-input v-model="scope.row.value" placeholder="value" />
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="REMARK">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="remark" />
+            </template>
+          </el-table-column>
+          <el-table-column>
+            <template slot-scope="scope">
+              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click.native="addTableRow('formdata',scope.$index)" />
+              <el-button type="danger" icon="el-icon-delete" size="mini" circle @click.native="delTableRow('formdata',scope.$index)" />
+            </template>
+          </el-table-column>
+          <template slot="empty">
+            <el-button type="text" icon="el-icon-plus" @click="addTableRow('formdata')">添加一行数据</el-button>
           </template>
         </el-table>
       </el-tab-pane>
@@ -281,6 +234,34 @@
           </template>
         </el-table>
       </el-tab-pane>
+      <el-tab-pane label="Extract" name="extract">
+        <el-table :data="caseForm.extract">
+          <el-table-column prop="key" label="变量名">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="变量名" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="value" label="表达式">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.value" placeholder="表达式" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="备注">
+            <template slot-scope="scope">
+              <el-input v-model.trim="scope.row.remark" :value="scope.row.remark" placeholder="备注" />
+            </template>
+          </el-table-column>
+          <el-table-column>
+            <template slot-scope="scope">
+              <el-button type="primary" icon="el-icon-plus" size="mini" circle @click.native="addTableRow('extract',scope.$index)" />
+              <el-button type="danger" icon="el-icon-delete" size="mini" circle @click.native="delTableRow('extract',scope.$index)" />
+            </template>
+          </el-table-column>
+          <template slot="empty">
+            <el-button type="text" icon="el-icon-plus" @click="addTableRow('extract')">添加一行数据</el-button>
+          </template>
+        </el-table>
+      </el-tab-pane>
       <el-tab-pane label="Hooks" name="Hooks">
         <el-table :data="caseForm.setup_hooks">
           <el-table-column prop="setup_hooks" label="setup_hooks">
@@ -327,23 +308,11 @@ export default {
   },
   data() {
     return {
-      userList: null,
-      listLoading: false,
-      projects: [],
-      projectId: '',
       tempNum: '',
       uploadAddress: uploadUrl,
       myHeader: { token: localStorage.getItem('token') },
-      q: '',
       saveRunStatus: false,
       activeStep: 'request',
-      activeReq: 'body',
-      methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
-      variableTypes: [{ 'value': 'string' }, { 'value': 'integer' }, { 'value': 'float' }, { 'value': 'boolean' }, { 'value': 'list' }, { 'value': 'dict' }],
-      formDataTypes: [{ 'value': 'string' }, { 'value': 'integer' }, { 'value': 'float' }, { 'value': 'boolean' }, { 'value': 'file' }],
-      comparators: [{ 'value': 'equals' }, { 'value': 'less_than' }, { 'value': 'less_than_or_equals' }, { 'value': 'greater_than' }, { 'value': 'greater_than_or_equals' },
-        { 'value': 'not_equals' }, { 'value': 'string_equals' }, { 'value': 'length_equals' }, { 'value': 'length_greater_than' }, { 'value': 'count_greater_than_or_equals' },
-        { 'value': 'length_less_than' }, { 'value': 'length_less_than_or_equals' }],
       caseForm: {
         level: null,
         path: '',
@@ -362,6 +331,12 @@ export default {
         setup_hooks: [],
         teardown_hooks: []
       },
+      methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
+      variableTypes: [{ 'value': 'string' }, { 'value': 'integer' }, { 'value': 'float' }, { 'value': 'boolean' }, { 'value': 'list' }, { 'value': 'dict' }],
+      formDataTypes: [{ 'value': 'string' }, { 'value': 'integer' }, { 'value': 'float' }, { 'value': 'boolean' }, { 'value': 'file' }],
+      comparators: [{ 'value': 'equals' }, { 'value': 'less_than' }, { 'value': 'less_than_or_equals' }, { 'value': 'greater_than' }, { 'value': 'greater_than_or_equals' },
+        { 'value': 'not_equals' }, { 'value': 'string_equals' }, { 'value': 'length_equals' }, { 'value': 'length_greater_than' }, { 'value': 'count_greater_than_or_equals' },
+        { 'value': 'length_less_than' }, { 'value': 'length_less_than_or_equals' }],
       levelOptions: [{ value: 0, label: 'P0' }, { value: 1, label: 'P1' }, { value: 2, label: 'P2' }],
       statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }],
       tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],

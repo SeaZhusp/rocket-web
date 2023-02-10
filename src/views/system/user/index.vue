@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-row>
       <el-form :inline="true">
         <el-row>
           <el-col :span="8">
@@ -42,7 +42,7 @@
         </el-table-column>
       </el-table>
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getUserList" />
-    </el-card>
+    </el-row>
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="cancelSubmit">
       <el-form ref="userForm" :inline="true" :model="userForm" :rules="userFormRules" label-width="55px">
