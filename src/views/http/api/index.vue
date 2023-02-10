@@ -103,7 +103,7 @@
       </span>
     </el-dialog>
 
-    <el-drawer :title="drawerApi.title" :visible.sync="drawerApi.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="70%">
+    <el-drawer :title="drawerApi.title" :visible.sync="drawerApi.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="100%">
       <Detail />
     </el-drawer>
   </div>

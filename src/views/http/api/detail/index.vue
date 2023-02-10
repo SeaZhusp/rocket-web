@@ -36,13 +36,13 @@
     <el-form>
       <el-row :gutter="10">
         <el-col :span="4">
-          <el-form-item label="Service">
+          <el-form-item label="Service" label-width="70px">
             <el-select v-model="caseForm.service" style="width: 140px" placeholder="Service">
               <el-option v-for="item in serviceOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="17">
+        <el-col :span="16">
           <el-form-item prop="path">
             <el-input v-model="caseForm.path" placeholder="Enter request PATH">
               <el-select slot="prepend" v-model="caseForm.method" size="medium" style="width: 100px" placeholder="Method">
@@ -137,7 +137,7 @@
             <div v-if="caseForm.body_type === 'raw'">
               <editor
                 v-model="caseForm.body"
-                style="font-size: 15px"
+                style="font-size: 14px"
                 lang="json"
                 theme="chrome"
                 :height="height"
@@ -235,7 +235,7 @@
       </el-tab-pane>
       <el-tab-pane label="Validate" name="validate">
         <el-table :data="caseForm.validate">
-          <el-table-column prop="key" label="实际返回" width="290">
+          <el-table-column prop="key" label="实际返回" width="240">
             <template slot-scope="scope">
               <el-input v-model="scope.row.key" placeholder="实际返回" />
             </template>
@@ -250,17 +250,17 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="数据类型" width="140">
+          <el-table-column label="数据类型" width="120">
             <template slot-scope="scope">
               <el-autocomplete
                 v-model="scope.row.type"
                 :fetch-suggestions="variableTypeQuerySearch"
                 placeholder="数据类型"
-                style="width:120px"
+                style="width:110px"
               />
             </template>
           </el-table-column>
-          <el-table-column property="value" label="期望返回" width="290">
+          <el-table-column property="value" label="期望返回" width="240">
             <template slot-scope="scope">
               <el-input v-model="scope.row.value" placeholder="期望返回" />
             </template>

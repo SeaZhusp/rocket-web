@@ -1,12 +1,12 @@
 import { login } from '@/api/system/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
-import { setUserInfo, getUserInfo } from '@/utils/rocket'
+import { setUserInfo, getFullname } from '@/utils/rocket'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    fullname: getUserInfo()['fullname'],
+    fullname: getFullname(),
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif'
   }
 }
