@@ -91,7 +91,7 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 540
+      return window.screen.height - 586
     }
   },
   watch: {

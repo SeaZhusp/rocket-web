@@ -85,7 +85,7 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 540
+      return window.screen.height - 586
     }
   },
   watch: {
@@ -100,18 +100,18 @@ export default {
   },
   methods: {
     queryKeySearch(queryString, cb) {
-      const validateOptions = this.headerKeyOptions
-      const results = queryString ? validateOptions.filter(this.createFilter(queryString)) : validateOptions
+      const keyOptions = this.headerKeyOptions
+      const results = queryString ? keyOptions.filter(this.createFilter(queryString)) : keyOptions
       cb(results)
     },
     queryValueSearch(queryString, cb) {
-      const validateOptions = this.headerValueOptions
-      const results = queryString ? validateOptions.filter(this.createFilter(queryString)) : validateOptions
+      const valueOptions = this.headerValueOptions
+      const results = queryString ? valueOptions.filter(this.createFilter(queryString)) : valueOptions
       cb(results)
     },
     createFilter(queryString) {
-      return (validateOptions) => {
-        return (validateOptions.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      return (options) => {
+        return (options.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
       }
     },
     cellMouseEnter(row) {

@@ -2,15 +2,15 @@
   <div>
     <el-form>
       <el-radio-group v-model="dataType">
-        <el-radio label="formdata">form-data</el-radio>
-        <el-radio label="raw">raw</el-radio>
+        <el-radio label="form">form</el-radio>
+        <el-radio label="json">json</el-radio>
       </el-radio-group>
-      <el-button v-show="dataType === 'raw'" type="text" class="custom-btn-format" @click="formatData()">格式化</el-button>
+      <el-button v-show="dataType === 'json'" type="text" class="custom-btn-format" @click="formatData()">格式化</el-button>
     </el-form>
-    <div v-if="dataType === 'raw'">
+    <div v-if="dataType === 'json'">
       <editor
         v-model="jsonData"
-        style="font-size: 14px"
+        style="font-size: 14px;margin-top:10px;"
         lang="json"
         theme="chrome"
         :height="height"
@@ -18,7 +18,7 @@
       />
     </div>
     <el-table
-      v-if="dataType==='formdata'"
+      v-if="dataType==='form'"
       highlight-current-row
       strpe
       :height="height"
@@ -106,7 +106,7 @@ export default {
   data() {
     return {
       currentRow: '',
-      dataType: 'raw',
+      dataType: 'json',
       tempNum: '',
       jsonData: '',
       uploadAddress: uploadUrl,
@@ -132,7 +132,7 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 540
+      return window.screen.height - 586
     }
   },
   watch: {

@@ -1,41 +1,33 @@
 <template>
   <el-card shadow="nerer">
     <el-row>
-      <el-form>
-        <el-form-item>
-          <el-button @click.native="saveAndRun()">取消</el-button>
-          <el-button type="primary" style="margin-left:10px" @click.native="addApiMsg()">保存</el-button>
-        </el-form-item>
-      </el-form>
-    </el-row>
-    <el-row>
       <el-form :inline="true" label-width="70px">
-        <el-form-item label="名称">
-          <el-input v-model="caseForm.name" placeholder="用例名称" class="custom-form-item" />
+        <el-form-item label="接口名称">
+          <el-input v-model="caseForm.name" placeholder="接口名称" class="custom-form-item" />
         </el-form-item>
-        <el-form-item label="等级">
-          <el-select v-model="caseForm.level" placeholder="优先级" class="custom-form-item">
+        <el-form-item label="优先级">
+          <el-select v-model="caseForm.level" placeholder="优先级" class="custom-form-item-select">
             <el-option v-for="item in levelOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="caseForm.status" placeholder="请选优先级" class="custom-form-item">
+          <el-select v-model="caseForm.status" placeholder="状态" class="custom-form-item-select">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="标签">
+        <!-- <el-form-item label="标签">
           <el-select
             v-model="caseForm.tag"
             multiple
             filterable
             allow-create
             remote
-            placeholder="用例标签"
+            placeholder="接口标签"
             class="custom-form-item"
           >
             <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="描述">
           <el-input v-model="caseForm.description" type="textarea" placeholder="描述" class="custom-form-item" />
         </el-form-item>
@@ -50,7 +42,7 @@
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="16">
+        <el-col :span="13">
           <el-form-item prop="path">
             <el-input v-model="caseForm.path" placeholder="Enter request PATH">
               <el-select slot="prepend" v-model="caseForm.method" size="medium" style="width: 100px" placeholder="Method">
@@ -66,11 +58,12 @@
             </el-tooltip>
           </el-form-item>
         </el-col>
-        <el-col :span="1">
+        <el-col :span="3">
           <el-form-item>
             <el-tooltip class="item" effect="dark" content="执行并保存" placement="top-start">
               <el-button type="primary" :loading="saveRunStatus" @click.native="saveAndRun()">Send</el-button>
             </el-tooltip>
+            <el-button type="primary" @click.native="addApi()">Save</el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -93,11 +86,11 @@
           @extract="handleRequest"
         />
       </el-tab-pane>
-      <el-tab-pane label="Validate" name="validate">
-        <Validate
+      <el-tab-pane label="Validator" name="validator">
+        <Validator
           :save="save"
-          :extract="caseForm.validate"
-          @extract="handleValidate"
+          :extract="caseForm.validator"
+          @extract="handleValidator"
         />
       </el-tab-pane>
       <el-tab-pane label="Extract" name="extract">
@@ -108,7 +101,12 @@
         />
       </el-tab-pane>
       <el-tab-pane label="Hooks" name="Hooks">
-        <Hooks />
+        <Hooks
+          :save="save"
+          :setup-hooks="caseForm.setup_hooks"
+          :teardown-hooks="caseForm.teardown_hooks"
+          @extract="handleExtract"
+        />
       </el-tab-pane>
     </el-tabs>
   </el-card>
@@ -116,7 +114,7 @@
 
 <script>
 import Extract from './components/Extract'
-import Validate from './components/Validate'
+import Validator from './components/Validator'
 import Headers from './components/Headers'
 import Variables from './components/Variables'
 import Request from './components/Request'
@@ -127,7 +125,7 @@ export default {
     Headers,
     Request,
     Extract,
-    Validate,
+    Validator,
     Hooks
   },
   data() {
@@ -136,10 +134,9 @@ export default {
       activeStep: 'request',
       caseForm: {
         name: '',
-        level: null,
+        level: '',
         status: '',
-        tag: '',
-        description: '',
+        desc: '',
         service: '',
         method: '',
         path: '',
@@ -147,28 +144,24 @@ export default {
         variables: [],
         headers: [],
         request: {},
-        validate: [],
+        validator: [],
         extract: [],
         setup_hooks: [],
         teardown_hooks: []
       },
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
-      levelOptions: [{ value: 0, label: 'P0' }, { value: 1, label: 'P1' }, { value: 2, label: 'P2' }],
-      statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }],
+      levelOptions: [{ value: 'P0', label: 'P0' }, { value: 'P1', label: 'P1' }, { value: 'P2', label: 'P2' }],
+      statusOptions: [{ value: 0, label: '禁用' }, { value: 1, label: '启用' }],
       tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],
       serviceOptions: [{ value: 0, label: 'udp' }]
     }
   },
-  computed: {
-    height() {
-      return window.screen.height - 614
-    }
-  },
+  computed: {},
   created() {
 
   },
   methods: {
-    handleClick() {
+    addApi() {
 
     }
   }

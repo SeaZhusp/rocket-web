@@ -31,6 +31,7 @@
             :filter-node-method="filterNode"
             :expand-on-click-node="false"
             highlight-current
+            @node-click="handlerCatalogClick"
           >
             <span slot-scope="{ node, data }" class="custom-tree-node" @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
               <span>{{ node.label }}</span>
@@ -52,17 +53,17 @@
                   <el-input v-model="search.q" placeholder="输入接口名搜索" />
                 </el-form-item>
                 <el-form-item>
-                  <el-select v-model="search.level" placeholder="优先级" clearable class="custom-form-item-search">
-                    <el-option v-for="item in levelOptions" :key="item.value" :label="item.label" :value="item.value" />
+                  <el-select v-model="search.level" placeholder="优先级" clearable class="custom-form-item-select" @change="getApiList">
+                    <el-option v-for="item in levelOptions" :key="item.label" :label="item.label" :value="item.label" />
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-select v-model="search.status" placeholder="状态" clearable class="custom-form-item-search">
+                  <el-select v-model="search.status" placeholder="状态" clearable class="custom-form-item-select" @change="getApiList">
                     <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
                   </el-select>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" @click="handleSearch">搜索</el-button>
+                  <el-button type="primary" @click="getApiList">搜索</el-button>
                 </el-form-item>
                 <el-form-item>
                   <el-button type="primary" @click="handlerCreate">新增接口</el-button>
@@ -80,34 +81,45 @@
               </el-col>
             </el-row>
             <el-row>
-              <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading" fit highlight-current-row>
+              <el-table v-loading="listLoading" border stripe :data="apiList" element-loading-text="Loading">
                 <el-table-column align="center" type="selection" width="55" />
-                <el-table-column label="接口名称" prop="fullname" />
-                <el-table-column label="方法" prop="username" />
-                <el-table-column label="路径" prop="email" />
-                <el-table-column label="状态">
+                <el-table-column label="ID" prop="id" width="60" />
+                <el-table-column label="接口名称" :show-overflow-tooltip="true" prop="name" />
+                <el-table-column label="路径" :show-overflow-tooltip="true" prop="path" />
+                <el-table-column label="请求方式" prop="method" width="100">
                   <template slot-scope="{row}">
-                    <el-tag effect="dark" :type="row.status === 1 ? 'success':'info' ">{{ row.status===1? "启用":"禁用" }}</el-tag>
+                    <el-tag :type="row.method==='GET'?'':row.method==='POST'?'success':row.method==='PUT'?'info':'warning'">{{ row.method }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="创建人" prop="phone" />
-                <el-table-column label="创建日期" prop="create_time" />
-                <el-table-column fixed="right" label="操作" min-width="80px">
+                <el-table-column label="优先级" prop="level" width="100">
+                  <template slot-scope="{row}">
+                    <el-tag :type="row.level==='P0'?'':row.level==='P1'?'success':'info'">{{ row.level }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="状态" width="100">
+                  <template slot-scope="{row}">
+                    <el-tag :type="row.status === 0 ? 'info':'success'">{{ row.status===0? "禁用":"启用" }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="创建日期" prop="create_time" width="150" />
+                <el-table-column label="更新人" prop="update_user" width="100" />
+                <el-table-column fixed="right" label="操作" width="150">
                   <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="handlerEdit(scope.row)">执行</el-button>
                     <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
+                    <el-button type="text" size="small" @click="handlerEdit(scope.row)">删除</el-button>
                     <el-dropdown @command="handleCommand">
                       <span class="el-dropdown-link">
                         更多<i class="el-icon-arrow-down el-icon--right" />
                       </span>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="a">复制</el-dropdown-item>
-                        <el-dropdown-item command="b">删除</el-dropdown-item>
+                        <el-dropdown-item command="a">执行</el-dropdown-item>
+                        <el-dropdown-item command="b">复制</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </template>
                 </el-table-column>
               </el-table>
+              <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getApiList" />
             </el-row>
           </el-form>
         </el-row>
@@ -135,20 +147,23 @@
 <script>
 import { listProject } from '@/api/system/project'
 import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '@/api/system/catalog'
+import { searchApi } from '@/api/http/api'
 import Detail from '@/views/http/api/detail'
+import Pagination from '@/components/Pagination'
 
 export default {
-  components: { Detail },
+  components: { Detail, Pagination },
   data() {
     return {
-      userList: [{ user: '12' }],
+      apiList: [],
       listLoading: false,
       projects: [],
       projectId: '',
+      catalogId: '',
       search: {
         q: '',
-        level: null,
-        status: null
+        level: '',
+        status: ''
       },
       filterText: '',
       catalogForm: {
@@ -170,8 +185,8 @@ export default {
       apiForm: {
         level: null
       },
-      levelOptions: [{ value: 0, label: 'P0' }, { value: 1, label: 'P1' }, { value: 2, label: 'P2' }],
-      statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }],
+      levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
+      statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       catalogs: [],
       defaultProps: {
         children: 'children',
@@ -184,7 +199,7 @@ export default {
         create: 1
       },
       drawerApi: {
-        show: true,
+        show: false,
         title: '新增'
       }
     }
@@ -202,6 +217,7 @@ export default {
     this.getAllProjects()
     this.initProject()
     this.getCatalogTree()
+    this.getApiList()
   },
   methods: {
     initProject() {
@@ -307,6 +323,27 @@ export default {
       this.$refs['catalogForm'].clearValidate()
     },
     // Api
+    handlerCatalogClick(obj, node, data) {
+      this.catalogId = node.data.id
+      this.getApiList()
+    },
+    async getApiList() {
+      this.listLoading = true
+      const params = {
+        page: this.paging.page,
+        limit: this.paging.limit,
+        search: this.search.q,
+        status: this.search.status,
+        level: this.search.level,
+        project_id: this.projectId,
+        catalog_id: this.catalogId
+      }
+      await searchApi(params).then(response => {
+        this.apiList = response.data
+        this.paging = response.paging
+        this.listLoading = false
+      })
+    },
     handlerCreate() {
       this.drawerApi.show = true
       this.drawerApi.title = '新增接口'
@@ -327,7 +364,7 @@ export default {
   font-size: 14px;
   padding-right: 8px;
 }
-.custom-form-item-search {
+.custom-form-item-select {
   width:110px
 }
 .el-dropdown-link {

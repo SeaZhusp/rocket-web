@@ -58,10 +58,10 @@
 <script>
 
 export default {
-  name: 'Validate',
+  name: 'Validator',
   props: {
     save: Boolean,
-    validate: {
+    validator: {
       type: Array,
       require: false,
       default() {
@@ -92,7 +92,7 @@ export default {
         label: 'Dict',
         value: 6
       }],
-      validateOptions: [{
+      validatorOptions: [{
         value: 'equals'
       }, {
         value: 'less_than'
@@ -133,16 +133,16 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 540
+      return window.screen.height - 586
     }
   },
   watch: {
     save: function() {
-      this.$emit('validate', this.parseValidate(), this.tableData)
+      this.$emit('validator', this.parseValidator(), this.tableData)
     },
-    validate: function() {
-      if (this.validate.length !== 0) {
-        this.tableData = this.validate
+    validator: function() {
+      if (this.validator.length !== 0) {
+        this.tableData = this.validator
       }
     }
   },
@@ -220,8 +220,8 @@ export default {
       return tempValue
     },
 
-    parseValidate() {
-      const validate = []
+    parseValidator() {
+      const validator = []
       for (const content of this.tableData) {
         const actual = content['actual']
         const comparator = content['comparator']
@@ -238,19 +238,19 @@ export default {
           obj['type'] = type
           obj['expect'] = expect
           obj['desc'] = desc
-          validate.validate.push(obj)
+          validator.push(obj)
         }
       }
-      return validate
+      return validator
     },
     querySearch(queryString, cb) {
-      const validateOptions = this.validateOptions
-      const results = queryString ? validateOptions.filter(this.createFilter(queryString)) : validateOptions
+      const validatorOptions = this.validatorOptions
+      const results = queryString ? validatorOptions.filter(this.createFilter(queryString)) : validatorOptions
       cb(results)
     },
     createFilter(queryString) {
-      return (validateOptions) => {
-        return (validateOptions.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      return (validatorOptions) => {
+        return (validatorOptions.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
       }
     }
   }
