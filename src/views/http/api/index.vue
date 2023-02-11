@@ -184,7 +184,7 @@ export default {
         create: 1
       },
       drawerApi: {
-        show: false,
+        show: true,
         title: '新增'
       }
     }
@@ -309,7 +309,7 @@ export default {
     // Api
     handlerCreate() {
       this.drawerApi.show = true
-      this.drawerApi.title = '添加用例'
+      this.drawerApi.title = '新增接口'
     },
     handleClose() {
       this.drawerApi.show = false
@@ -318,7 +318,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 .custom-tree-node {
   flex: 1;
   display: flex;
@@ -338,5 +338,8 @@ export default {
 }
 .el-icon-arrow-down {
   font-size: 11px;
+}
+.el-drawer__body {
+  overflow: auto;
 }
 </style>
