@@ -22,7 +22,7 @@
       highlight-current-row
       strpe
       :height="height"
-      :data="tableData"
+      :data="formData"
       @cell-mouse-enter="cellMouseEnter"
       @cell-mouse-leave="cellMouseLeave"
     >
@@ -95,20 +95,32 @@ export default {
   },
   props: {
     save: Boolean,
-    request: {
-      type: Object,
+    dataType: {
+      type: String,
       require: false,
       default() {
-        return {}
+        return ''
+      }
+    },
+    jsonData: {
+      type: String,
+      require: false,
+      default() {
+        return ''
+      }
+    },
+    formData: {
+      type: Array,
+      require: false,
+      default() {
+        return []
       }
     }
   },
   data() {
     return {
       currentRow: '',
-      dataType: 'json',
       tempNum: '',
-      jsonData: '',
       uploadAddress: uploadUrl,
       myHeader: { token: localStorage.getItem('token') },
       tableData: [{ key: '', type: 1, value: '', desc: '' }],
@@ -139,9 +151,9 @@ export default {
     save: function() {
       this.$emit('extract', this.parseExtract(), this.tableData)
     },
-    extract: function() {
-      if (this.extract.length !== 0) {
-        this.tableData = this.extract
+    formData: function() {
+      if (this.formData.length !== 0) {
+        this.tableData = this.formData
       }
     }
   },
@@ -183,8 +195,8 @@ export default {
     },
     formatData() {
       try {
-        this.caseForm.body = JSON.parse(this.caseForm.body)
-        this.caseForm.body = JSON.stringify(this.caseForm.body, null, 4)
+        this.jsonData = JSON.parse(this.jsonData)
+        this.jsonData = JSON.stringify(this.jsonData, null, 4)
       } catch (err) {
         this.$message({
           showClose: true,

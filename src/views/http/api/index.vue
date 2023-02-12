@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form :inline="true">
       <el-form-item label="当前项目" prop="projectId">
-        <el-select v-model="projectId" placeholder="请选择" filterable @change="handlerProjectChange">
+        <el-select v-model="projectId" placeholder="请选择" filterable>
           <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -101,19 +101,19 @@
                     <el-tag :type="row.status === 0 ? 'info':'success'">{{ row.status===0? "禁用":"启用" }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="创建日期" prop="create_time" width="150" />
+                <el-table-column label="更新日期" prop="update_time" width="150" />
                 <el-table-column label="更新人" prop="update_user" width="100" />
                 <el-table-column fixed="right" label="操作" width="150">
                   <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="handlerEdit(scope.row)">编辑</el-button>
-                    <el-button type="text" size="small" @click="handlerEdit(scope.row)">删除</el-button>
-                    <el-dropdown @command="handleCommand">
+                    <el-button type="text" size="small" @click="handlerApiEdit(scope.row)">编辑</el-button>
+                    <el-button type="text" size="small" @click="handlerApiDelete(scope.row)">删除</el-button>
+                    <el-dropdown>
                       <span class="el-dropdown-link">
                         更多<i class="el-icon-arrow-down el-icon--right" />
                       </span>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item command="a">执行</el-dropdown-item>
-                        <el-dropdown-item command="b">复制</el-dropdown-item>
+                        <el-dropdown-item>执行</el-dropdown-item>
+                        <el-dropdown-item>复制</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </template>
@@ -126,7 +126,7 @@
       </el-col>
     </el-row>
 
-    <el-dialog :title="dialogCatalog.title" :visible.sync="dialogCatalog.show" width="20%" @close="cancelCatalog">
+    <el-dialog :title="catalogDialog.title" :visible.sync="catalogDialog.show" width="20%" @close="cancelCatalog">
       <el-form ref="catalogForm" :model="catalogForm" :rules="catalogFormRules" label-width="55px">
         <el-form-item label="目录" prop="name">
           <el-input v-model="catalogForm.name" placeholder="目录" />
@@ -134,12 +134,12 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelCatalog">取 消</el-button>
-        <el-button type="primary" :loading="dialogCatalog.save" @click="saveCatalog">{{ dialogCatalog.save ? '提交中 ...' : '确 定' }}</el-button>
+        <el-button type="primary" :loading="catalogDialog.save" @click="saveCatalog">{{ catalogDialog.save ? '提交中 ...' : '确 定' }}</el-button>
       </span>
     </el-dialog>
 
-    <el-drawer :title="drawerApi.title" :visible.sync="drawerApi.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="75%">
-      <Detail />
+    <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="75%">
+      <Detail :api-form="apiForm?apiForm:initApiForm()" />
     </el-drawer>
   </div>
 </template>
@@ -147,7 +147,7 @@
 <script>
 import { listProject } from '@/api/system/project'
 import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '@/api/system/catalog'
-import { searchApi } from '@/api/http/api'
+import { searchApi, getApiDetail, deleteApi } from '@/api/http/api'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 
@@ -160,6 +160,7 @@ export default {
       projects: [],
       projectId: '',
       catalogId: '',
+      apiForm: null,
       search: {
         q: '',
         level: '',
@@ -182,9 +183,6 @@ export default {
         limit: 10,
         total: 0
       },
-      apiForm: {
-        level: null
-      },
       levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       catalogs: [],
@@ -192,13 +190,13 @@ export default {
         children: 'children',
         label: 'label'
       },
-      dialogCatalog: {
+      catalogDialog: {
         title: '新增',
         show: false,
         save: false,
         create: 1
       },
-      drawerApi: {
+      apiDrawer: {
         show: false,
         title: '新增'
       }
@@ -211,19 +209,47 @@ export default {
     projectId(val) {
       localStorage.setItem('projectId', val)
       this.getCatalogTree()
+      this.getApiList()
     }
   },
   created() {
     this.getAllProjects()
-    this.initProject()
-    this.getCatalogTree()
-    this.getApiList()
+    this.initApiPage()
   },
   methods: {
-    initProject() {
+    initApiPage() {
       const projectId = localStorage.getItem('projectId')
       if (projectId) {
         this.projectId = parseInt(projectId)
+        this.getCatalogTree()
+        this.getApiList()
+      }
+    },
+    initApiForm() {
+      return {
+        name: '',
+        level: '',
+        status: '',
+        desc: '',
+        service: '',
+        method: '',
+        path: '',
+        times: 1,
+        body: {
+          variables: [{ key: '', type: 1, value: '', desc: '' }],
+          headers: [{ key: '', value: '', desc: '' }],
+          request: {
+            data_type: 'json',
+            json_data: '',
+            form_data: [{ key: '', type: 1, value: '', desc: '' }]
+          },
+          validator: [{ actual: '', comparator: 'equals', type: 1, expect: '', desc: '' }],
+          extract: [{ key: '', value: '', desc: '' }],
+          hooks: {
+            setup_hooks: [{ setup_hook: '' }],
+            teardown_hooks: [{ teardown_hook: '' }]
+          }
+        }
       }
     },
     async getAllProjects() {
@@ -232,6 +258,9 @@ export default {
       }
       await listProject(params).then(response => {
         this.projects = response.data
+        if (this.projectId === '') {
+          this.projectId = response.data[0].id
+        }
       })
     },
     filterNode(value, data) {
@@ -244,14 +273,10 @@ export default {
     mouseleave(data) {
       this.$set(data, 'del', false)
     },
-    handlerProjectChange(val) {
-      // todo 获取所有目录，用例
-      console.log(val)
-    },
     // Catalog
     handlerCatalogCreate(node = null, data = null) {
-      this.dialogCatalog.show = true
-      this.dialogCatalog.create = 1
+      this.catalogDialog.show = true
+      this.catalogDialog.create = 1
       this.catalogForm = this.$resetForm(this.catalogForm)
       this.catalogForm.project_id = this.projectId
       if (data) {
@@ -259,8 +284,8 @@ export default {
       }
     },
     handlerCatalogEdit(node = null, data) {
-      this.dialogCatalog.show = true
-      this.dialogCatalog.create = 0
+      this.catalogDialog.show = true
+      this.catalogDialog.create = 0
       this.catalogForm.id = data.id
       this.catalogForm.name = data.label
       this.catalogForm.parent_id = data.parent_id
@@ -287,8 +312,8 @@ export default {
     saveCatalog() {
       this.$refs.catalogForm.validate(validate => {
         if (validate) {
-          this.dialogCatalog.save = true
-          if (this.dialogCatalog.create === 1) {
+          this.catalogDialog.save = true
+          if (this.catalogDialog.create === 1) {
             this.create()
           } else {
             this.update()
@@ -318,14 +343,34 @@ export default {
       })
     },
     cancelCatalog() {
-      this.dialogCatalog.save = false
-      this.dialogCatalog.show = false
+      this.catalogDialog.save = false
+      this.catalogDialog.show = false
       this.$refs['catalogForm'].clearValidate()
     },
     // Api
     handlerCatalogClick(obj, node, data) {
       this.catalogId = node.data.id
       this.getApiList()
+    },
+    handlerApiEdit(row) {
+      getApiDetail(row.id).then(response => {
+        if (response.code === 200) {
+          this.apiForm = response.data.api
+          this.apiDrawer.show = true
+        }
+      })
+    },
+    handlerApiDelete(row) {
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const { msg } = await deleteApi(row.id)
+        this.$message.success(msg)
+        await this.getApiList()
+      })
     },
     async getApiList() {
       this.listLoading = true
@@ -345,11 +390,12 @@ export default {
       })
     },
     handlerCreate() {
-      this.drawerApi.show = true
-      this.drawerApi.title = '新增接口'
+      this.apiDrawer.show = true
+      this.apiDrawer.title = '新增接口'
     },
     handleClose() {
-      this.drawerApi.show = false
+      this.apiDrawer.show = false
+      this.apiForm = this.initApiForm()
     }
   }
 }

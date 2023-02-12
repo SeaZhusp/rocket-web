@@ -39,7 +39,7 @@ const actions = {
         setUserInfo(data.userInfo)
         // commit('SET_TOKEN', data.token)
         // commit('SET_NAME', data.userInfo.fullname)
-        commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
+        // commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
         resolve(data)
       }).catch(error => {
         reject(error)

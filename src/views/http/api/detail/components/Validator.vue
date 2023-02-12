@@ -3,16 +3,16 @@
     highlight-current-row
     strpe
     :height="height"
-    :data="tableData"
+    :data="validator"
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
-    <el-table-column prop="key" label="实际返回" width="240">
+    <el-table-column prop="actual" label="实际返回" width="240">
       <template slot-scope="scope">
-        <el-input v-model="scope.row.key" placeholder="实际返回" />
+        <el-input v-model="scope.row.actual" placeholder="实际返回" />
       </template>
     </el-table-column>
-    <el-table-column label="断言类型" width="250">
+    <el-table-column prop="comparator" label="断言类型" width="250">
       <template slot-scope="scope">
         <el-autocomplete
           v-model="scope.row.comparator"
@@ -22,7 +22,7 @@
         />
       </template>
     </el-table-column>
-    <el-table-column label="数据类型" width="120">
+    <el-table-column prop="type" label="数据类型" width="120">
       <template slot-scope="scope">
         <el-select v-model="scope.row.type">
           <el-option
@@ -34,12 +34,12 @@
         </el-select>
       </template>
     </el-table-column>
-    <el-table-column property="value" label="期望返回" width="240">
+    <el-table-column prop="expect" label="期望返回" width="240">
       <template slot-scope="scope">
-        <el-input v-model="scope.row.value" placeholder="期望返回" />
+        <el-input v-model="scope.row.expect" placeholder="期望返回" />
       </template>
     </el-table-column>
-    <el-table-column label="描述">
+    <el-table-column prop="desc" label="描述">
       <template slot-scope="scope">
         <el-input v-model="scope.row.desc" placeholder="描述" />
       </template>
@@ -48,7 +48,7 @@
       <template slot-scope="scope">
         <el-row v-show="scope.row === currentRow">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
-          <el-button v-show="tableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
+          <el-button v-show="validator.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
         </el-row>
       </template>
     </el-table-column>
@@ -72,7 +72,6 @@ export default {
   data() {
     return {
       currentRow: '',
-      tableData: [{ actual: '', comparator: 'equals', type: 1, expect: '', desc: '' }],
       dataTypeOptions: [{
         label: 'String',
         value: 1
@@ -138,12 +137,7 @@ export default {
   },
   watch: {
     save: function() {
-      this.$emit('validator', this.parseValidator(), this.tableData)
-    },
-    validator: function() {
-      if (this.validator.length !== 0) {
-        this.tableData = this.validator
-      }
+      this.$emit('validator', this.parseValidator(), this.validator)
     }
   },
   methods: {
@@ -155,10 +149,10 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.tableData.splice(index + 1, 0, { actual: '', comparator: 'equals', type: 1, expect: '', desc: '' })
+      this.validator.splice(index + 1, 0, { actual: '', comparator: 'equals', type: 1, expect: '', desc: '' })
     },
     delTableRow(index) {
-      this.tableData.splice(index, 1)
+      this.validator.splice(index, 1)
     },
     // 类型转换
     parseType(type, value) {
@@ -222,7 +216,7 @@ export default {
 
     parseValidator() {
       const validator = []
-      for (const content of this.tableData) {
+      for (const content of this.validator) {
         const actual = content['actual']
         const comparator = content['comparator']
         const type = content['type']

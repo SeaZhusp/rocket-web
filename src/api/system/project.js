@@ -33,7 +33,7 @@ export function updateProject(data) {
 
 export function listProject(params) {
   return request({
-    url: '/sys/project/listall',
+    url: '/sys/project/all',
     method: 'get',
     params
   })

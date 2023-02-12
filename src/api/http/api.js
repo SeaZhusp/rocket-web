@@ -7,3 +7,17 @@ export function searchApi(params) {
     params
   })
 }
+
+export function getApiDetail(id) {
+  return request({
+    url: `/http/api/${id}`,
+    method: 'get'
+  })
+}
+
+export function deleteApi(id) {
+  return request({
+    url: `/http/api/delete/${id}`,
+    method: 'delete'
+  })
+}

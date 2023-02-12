@@ -3,7 +3,7 @@
     highlight-current-row
     strpe
     :height="height"
-    :data="tableData"
+    :data="variables"
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
@@ -38,7 +38,7 @@
       <template slot-scope="scope">
         <el-row v-show="scope.row === currentRow">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
-          <el-button v-show="tableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
+          <el-button v-show="variables.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
         </el-row>
       </template>
     </el-table-column>
@@ -62,12 +62,6 @@ export default {
   data() {
     return {
       currentRow: '',
-      tableData: [{
-        key: '',
-        value: '',
-        type: 1,
-        desc: ''
-      }],
       dataTypeOptions: [{
         label: 'String',
         value: 1
@@ -96,12 +90,7 @@ export default {
   },
   watch: {
     save: function() {
-      this.$emit('variables', this.parseVariables(), this.tableData)
-    },
-    variables: function() {
-      if (this.variables.length !== 0) {
-        this.tableData = this.variables
-      }
+      this.$emit('variables', this.parseVariables(), this.variables)
     }
   },
   methods: {
@@ -113,10 +102,10 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.tableData.splice(index + 1, 0, { key: '', type: 1, value: '', desc: '' })
+      this.variables.splice(index + 1, 0, { key: '', type: 1, value: '', desc: '' })
     },
     delTableRow(index) {
-      this.tableData.splice(index, 1)
+      this.variables.splice(index, 1)
     },
     // 类型转换
     parseType(type, value) {
@@ -180,7 +169,7 @@ export default {
     // 变量格式化variables
     parseVariables() {
       const variables = []
-      for (const content of this.tableData) {
+      for (const content of this.variables) {
         const key = content['key']
         const type = content['type']
         const desc = content['desc']

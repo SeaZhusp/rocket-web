@@ -3,7 +3,7 @@
     highlight-current-row
     strpe
     :height="height"
-    :data="tableData"
+    :data="extract"
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
@@ -26,7 +26,7 @@
       <template slot-scope="scope">
         <el-row v-show="scope.row === currentRow">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
-          <el-button v-show="tableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
+          <el-button v-show="extract.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
         </el-row>
       </template>
     </el-table-column>
@@ -49,8 +49,7 @@ export default {
   },
   data() {
     return {
-      currentRow: '',
-      tableData: [{ key: '', value: '', desc: '' }]
+      currentRow: ''
     }
   },
   computed: {
@@ -60,12 +59,7 @@ export default {
   },
   watch: {
     save: function() {
-      this.$emit('extract', this.parseExtract(), this.tableData)
-    },
-    extract: function() {
-      if (this.extract.length !== 0) {
-        this.tableData = this.extract
-      }
+      this.$emit('extract', this.parseExtract(), this.extract)
     }
   },
   methods: {
@@ -77,15 +71,15 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.tableData.splice(index + 1, 0, { key: '', value: '', desc: '' })
+      this.extract.splice(index + 1, 0, { key: '', value: '', desc: '' })
     },
     delTableRow(index) {
-      this.tableData.splice(index, 1)
+      this.extract.splice(index, 1)
     },
     // 抽取格式化
     parseExtract() {
       const extract = []
-      for (const content of this.tableData) {
+      for (const content of this.extract) {
         const key = content['key']
         const value = content['value']
         const desc = content['desc']
