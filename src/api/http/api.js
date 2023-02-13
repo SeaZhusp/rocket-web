@@ -21,3 +21,19 @@ export function deleteApi(id) {
     method: 'delete'
   })
 }
+
+export function updateApi(data) {
+  return request({
+    url: '/http/api/update',
+    method: 'put',
+    data
+  })
+}
+
+export function createApi(data) {
+  return request({
+    url: '/http/api/create',
+    method: 'post',
+    data
+  })
+}

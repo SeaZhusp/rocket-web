@@ -66,7 +66,7 @@
                   <el-button type="primary" @click="getApiList">搜索</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" @click="handlerCreate">新增接口</el-button>
+                  <el-button type="primary" @click="handlerApiCreate">新增接口</el-button>
                 </el-form-item>
                 <el-form-item>
                   <el-dropdown>
@@ -139,7 +139,7 @@
     </el-dialog>
 
     <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="75%">
-      <Detail :api-form="apiForm?apiForm:initApiForm()" />
+      <Detail :api-form="apiForm" :api-create-flag="apiCreateFlag" :catalogs="catalogs" />
     </el-drawer>
   </div>
 </template>
@@ -157,9 +157,10 @@ export default {
     return {
       apiList: [],
       listLoading: false,
+      apiCreateFlag: true,
       projects: [],
       projectId: '',
-      catalogId: '',
+      catalogId: null,
       apiForm: null,
       search: {
         q: '',
@@ -227,6 +228,8 @@ export default {
     },
     initApiForm() {
       return {
+        project_id: this.projectId,
+        catalog_id: this.catalogId,
         name: '',
         level: '',
         status: '',
@@ -357,6 +360,7 @@ export default {
         if (response.code === 200) {
           this.apiForm = response.data.api
           this.apiDrawer.show = true
+          this.apiCreateFlag = false
         }
       })
     },
@@ -389,9 +393,11 @@ export default {
         this.listLoading = false
       })
     },
-    handlerCreate() {
+    handlerApiCreate() {
+      this.apiForm = this.initApiForm()
       this.apiDrawer.show = true
       this.apiDrawer.title = '新增接口'
+      this.apiCreateFlag = true
     },
     handleClose() {
       this.apiDrawer.show = false

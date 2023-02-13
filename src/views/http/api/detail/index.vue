@@ -1,29 +1,45 @@
 <template>
   <el-card shadow="nerer">
-    <el-row>
-      <el-form :inline="true" label-width="70px">
-        <el-form-item label="接口名称">
+    <el-form ref="apiForm" :inline="true" :model="apiForm" :rules="apiFormRules" label-width="70px">
+      <el-row>
+        <el-form-item label="接口名称" label-width="110" prop="name">
           <el-input v-model="apiForm.name" placeholder="接口名称" class="custom-form-item" />
         </el-form-item>
-        <el-form-item label="优先级">
+        <el-form-item label="目录" label-width="110" prop="catalog_id">
+          <el-select
+            ref="select"
+            v-model="apiForm.catalog_id"
+            clearable
+            class="custom-form-item"
+          >
+            <el-option :value="apiForm.catalog_id" :label="value" style="height: auto;">
+              <el-tree
+                ref="treeForm"
+                :data="catalogs"
+                :expand-on-click-node="false"
+                highlight-current
+                @node-click="handleNodeClick"
+              />
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="优先级" prop="level">
           <el-select v-model="apiForm.level" placeholder="优先级" class="custom-form-item-select">
             <el-option v-for="item in levelOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item label="状态" prop="status">
           <el-select v-model="apiForm.status" placeholder="状态" class="custom-form-item-select">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="描述">
+        <el-form-item label="描述" prop="desc">
           <el-input v-model="apiForm.desc" type="textarea" placeholder="描述" class="custom-form-item" />
         </el-form-item>
-      </el-form>
-    </el-row>
-    <el-form>
-      <el-row :gutter="10">
+      </el-row>
+      <el-row>
         <el-col :span="4">
-          <el-form-item label="Service" label-width="70px">
+          <el-form-item label="Service" prop="service" label-width="70px">
             <el-select v-model="apiForm.service" style="width: 140px" placeholder="Service">
               <el-option v-for="item in serviceOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
@@ -31,7 +47,7 @@
         </el-col>
         <el-col :span="13">
           <el-form-item prop="path">
-            <el-input v-model="apiForm.path" placeholder="Enter request PATH">
+            <el-input v-model="apiForm.path" placeholder="Enter request PATH" style="width:730px">
               <el-select slot="prepend" v-model="apiForm.method" size="medium" style="width: 100px" placeholder="Method">
                 <el-option v-for="item in methodOptions" :key="item" :label="item" :value="item" />
               </el-select>
@@ -39,7 +55,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="2">
-          <el-form-item>
+          <el-form-item prop="times">
             <el-tooltip class="item" effect="dark" content="循环次数" placement="top-start">
               <el-input-number v-model="apiForm.times" style="width:100px" controls-position="right" :min="1" :max="100" />
             </el-tooltip>
@@ -50,7 +66,7 @@
             <el-tooltip class="item" effect="dark" content="执行并保存" placement="top-start">
               <el-button type="primary" :loading="saveRunStatus" @click.native="saveAndRun()">Send</el-button>
             </el-tooltip>
-            <el-button type="primary" @click.native="addApi()">Save</el-button>
+            <el-button type="primary" @click.native="handlerSave()">Save</el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -92,6 +108,7 @@
 </template>
 
 <script>
+import { createApi, updateApi } from '@/api/http/api'
 import Extract from './components/Extract'
 import Validator from './components/Validator'
 import Headers from './components/Headers'
@@ -108,6 +125,14 @@ export default {
     Hooks
   },
   props: {
+    apiCreateFlag: {
+      type: Boolean,
+      require: true
+    },
+    catalogs: {
+      type: Array,
+      required: true
+    },
     apiForm: {
       type: Object,
       require: false,
@@ -118,13 +143,37 @@ export default {
   },
   data() {
     return {
+      value: '',
       saveRunStatus: false,
       activeStep: 'request',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
       levelOptions: [{ value: 'P0', label: 'P0' }, { value: 'P1', label: 'P1' }, { value: 'P2', label: 'P2' }],
       statusOptions: [{ value: 0, label: '禁用' }, { value: 1, label: '启用' }],
       tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],
-      serviceOptions: [{ value: 0, label: 'udp' }]
+      serviceOptions: [{ value: 0, label: 'udp' }],
+      apiFormRules: {
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ],
+        level: [
+          { required: true, message: '优先级不能为空', trigger: 'blur' }
+        ],
+        status: [
+          { required: true, message: '状态不能为空', trigger: 'blur' }
+        ],
+        service: [
+          { required: true, message: 'service不能为空', trigger: 'blur' }
+        ],
+        method: [
+          { required: true, message: 'method不能为空', trigger: 'blur' }
+        ],
+        path: [
+          { required: true, message: 'path不能为空', trigger: 'blur' }
+        ],
+        times: [
+          { required: true, message: 'times不能为空', trigger: 'blur' }
+        ]
+      }
     }
   },
   computed: {},
@@ -132,8 +181,22 @@ export default {
 
   },
   methods: {
-    addApi() {
-
+    handleNodeClick(data) {
+      console.log(data)
+      this.apiForm.catalog_id = data.id
+      this.value = data.label
+      this.$refs.select.blur()
+    },
+    handlerSave() {
+      this.$refs.apiForm.validate(validate => {
+        if (validate) {
+          if (this.apiCreateFlag) {
+            createApi(this.apiForm)
+          } else {
+            updateApi(this.apiForm)
+          }
+        }
+      })
     }
   }
 }
