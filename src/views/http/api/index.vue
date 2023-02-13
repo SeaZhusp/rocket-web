@@ -139,7 +139,7 @@
     </el-dialog>
 
     <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="75%">
-      <Detail :api-form="apiForm" :api-create-flag="apiCreateFlag" :catalogs="catalogs" />
+      <Detail :api-form="apiForm" :api-create-flag="apiCreateFlag" :catalogs="catalogs" :catalog-select-options="catalogSelectOptions" />
     </el-drawer>
   </div>
 </template>
@@ -158,6 +158,7 @@ export default {
       apiList: [],
       listLoading: false,
       apiCreateFlag: true,
+      catalogSelectOptions: [],
       projects: [],
       projectId: '',
       catalogId: null,
@@ -359,8 +360,13 @@ export default {
       getApiDetail(row.id).then(response => {
         if (response.code === 200) {
           this.apiForm = response.data.api
+          this.apiCatalog = response.data.catalog
           this.apiDrawer.show = true
           this.apiCreateFlag = false
+          this.catalogSelectOptions = [{
+            id: response.data.catalog.id,
+            label: response.data.catalog.name
+          }]
         }
       })
     },
@@ -398,6 +404,7 @@ export default {
       this.apiDrawer.show = true
       this.apiDrawer.title = '新增接口'
       this.apiCreateFlag = true
+      this.catalogSelectOptions = this.catalogs
     },
     handleClose() {
       this.apiDrawer.show = false

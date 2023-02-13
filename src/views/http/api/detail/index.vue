@@ -9,18 +9,36 @@
           <el-select
             ref="select"
             v-model="apiForm.catalog_id"
+            placeholder="请选择"
             clearable
-            class="custom-form-item"
+            filterable
+            :filter-method="singleTreeFilterMethod"
+            popper-class="customSelectPopper"
+            @focus="singleTreeFocus"
+            @clear="singleTreeClear"
           >
-            <el-option :value="apiForm.catalog_id" :label="value" style="height: auto;">
+            <el-option
+              v-for="item in catalogOptions"
+              v-show="false"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+            />
+            <div class="singleTree">
               <el-tree
-                ref="treeForm"
+                ref="selectTree"
+                key
                 :data="catalogs"
-                :expand-on-click-node="false"
+                node-key="id"
+                empty-text="无匹配数据"
+                :default-expanded-keys="defaultExpandedkeys"
                 highlight-current
+                :expand-on-click-node="false"
+                :props="{'label': 'label', children: 'children'}"
+                :filter-node-method="filterNode"
                 @node-click="handleNodeClick"
               />
-            </el-option>
+            </div>
           </el-select>
         </el-form-item>
         <el-form-item label="优先级" prop="level">
@@ -139,11 +157,19 @@ export default {
       default() {
         return {}
       }
+    },
+    catalogSelectOptions: {
+      type: Array,
+      require: false,
+      default() {
+        return []
+      }
     }
   },
   data() {
     return {
-      value: '',
+      defaultExpandedkeys: [this.apiForm.catalog_id],
+      catalogOptions: this.catalogSelectOptions,
       saveRunStatus: false,
       activeStep: 'request',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
@@ -177,15 +203,35 @@ export default {
     }
   },
   computed: {},
-  created() {
-
-  },
+  created() {},
   methods: {
+    /**
+     * select 清空按钮点击事件
+     */
+    singleTreeClear() {
+      // do something
+    },
+    singleTreeFilterMethod(val) {
+      this.$refs.selectTree.filter(val)
+    },
+    singleTreeFocus() {
+      this.$refs.selectTree.filter('')
+    },
+    /**
+     * tree 节点过滤
+     * @param {Object} value
+     * @param {Object} data
+     */
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
     handleNodeClick(data) {
       console.log(data)
       this.apiForm.catalog_id = data.id
-      this.value = data.label
-      this.$refs.select.blur()
+      // this.selectModel = data.id // select v-model 赋值
+      this.catalogOptions = [data] // 隐藏的 select option 赋值
+      this.$refs.select.blur() // 收起 select 下拉框
     },
     handlerSave() {
       this.$refs.apiForm.validate(validate => {
@@ -205,5 +251,5 @@ export default {
 <style scoped>
 .custom-form-item {
     width: 330px;
-  }
+}
 </style>
