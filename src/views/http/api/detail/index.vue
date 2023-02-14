@@ -2,10 +2,10 @@
   <el-card shadow="nerer">
     <el-form ref="apiForm" :inline="true" :model="apiForm" :rules="apiFormRules" label-width="70px">
       <el-row>
-        <el-form-item label="接口名称" label-width="110" prop="name">
+        <el-form-item label="名称" prop="name">
           <el-input v-model="apiForm.name" placeholder="接口名称" class="custom-form-item" />
         </el-form-item>
-        <el-form-item label="目录" label-width="110" prop="catalog_id">
+        <!-- <el-form-item label="目录" prop="catalog_id">
           <el-select
             ref="select"
             v-model="apiForm.catalog_id"
@@ -14,6 +14,7 @@
             filterable
             :filter-method="singleTreeFilterMethod"
             popper-class="customSelectPopper"
+            class="custom-form-item"
             @focus="singleTreeFocus"
             @clear="singleTreeClear"
           >
@@ -40,14 +41,14 @@
               />
             </div>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="优先级" prop="level">
-          <el-select v-model="apiForm.level" placeholder="优先级" class="custom-form-item-select">
-            <el-option v-for="item in levelOptions" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="apiForm.level" placeholder="优先级" class="custom-form-item">
+            <el-option v-for="item in levelOptions" :key="item.label" :label="item.label" :value="item.label" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-select v-model="apiForm.status" placeholder="状态" class="custom-form-item-select">
+          <el-select v-model="apiForm.status" placeholder="状态" class="custom-form-item">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -82,7 +83,7 @@
         <el-col :span="3">
           <el-form-item>
             <el-tooltip class="item" effect="dark" content="执行并保存" placement="top-start">
-              <el-button type="primary" :loading="saveRunStatus" @click.native="saveAndRun()">Send</el-button>
+              <el-button type="primary" :loading="saveRunStatus" @click.native="handlerSend()">Send</el-button>
             </el-tooltip>
             <el-button type="primary" @click.native="handlerSave()">Save</el-button>
           </el-form-item>
@@ -173,8 +174,8 @@ export default {
       saveRunStatus: false,
       activeStep: 'request',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
-      levelOptions: [{ value: 'P0', label: 'P0' }, { value: 'P1', label: 'P1' }, { value: 'P2', label: 'P2' }],
-      statusOptions: [{ value: 0, label: '禁用' }, { value: 1, label: '启用' }],
+      levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
+      statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],
       serviceOptions: [{ value: 0, label: 'udp' }],
       apiFormRules: {
@@ -205,44 +206,49 @@ export default {
   computed: {},
   created() {},
   methods: {
-    /**
-     * select 清空按钮点击事件
-     */
-    singleTreeClear() {
-      // do something
-    },
-    singleTreeFilterMethod(val) {
-      this.$refs.selectTree.filter(val)
-    },
-    singleTreeFocus() {
-      this.$refs.selectTree.filter('')
-    },
-    /**
-     * tree 节点过滤
-     * @param {Object} value
-     * @param {Object} data
-     */
-    filterNode(value, data) {
-      if (!value) return true
-      return data.label.indexOf(value) !== -1
-    },
-    handleNodeClick(data) {
-      console.log(data)
-      this.apiForm.catalog_id = data.id
-      // this.selectModel = data.id // select v-model 赋值
-      this.catalogOptions = [data] // 隐藏的 select option 赋值
-      this.$refs.select.blur() // 收起 select 下拉框
-    },
+    // singleTreeClear() {
+    //   // do something
+    // },
+    // singleTreeFilterMethod(val) {
+    //   this.$refs.selectTree.filter(val)
+    // },
+    // singleTreeFocus() {
+    //   this.$refs.selectTree.filter('')
+    // },
+    // filterNode(value, data) {
+    //   if (!value) return true
+    //   return data.label.indexOf(value) !== -1
+    // },
+    // handleNodeClick(data) {
+    //   console.log(data)
+    //   this.apiForm.catalog_id = data.id
+    //   // this.selectModel = data.id // select v-model 赋值
+    //   this.catalogOptions = [data] // 隐藏的 select option 赋值
+    //   this.$refs.select.blur() // 收起 select 下拉框
+    // },
     handlerSave() {
       this.$refs.apiForm.validate(validate => {
         if (validate) {
           if (this.apiCreateFlag) {
-            createApi(this.apiForm)
+            createApi(this.apiForm).then(res => {
+              this.$message.success(res.msg)
+            }).catch(error => {
+              this.$message.error(error.response.data['message'])
+            })
           } else {
-            updateApi(this.apiForm)
+            updateApi(this.apiForm).then(res => {
+              this.$message.success(res.msg)
+            }).catch(error => {
+              this.$message.error(error.response.data['message'])
+            })
           }
+          this.$emit('handleApiDrawerClose')
+          this.$emit('getApiList')
         }
       })
+    },
+    handlerSend() {
+      console.log(this.apiForm)
     }
   }
 }

@@ -9,7 +9,7 @@
     </el-form>
     <div v-if="dataType === 'json'">
       <editor
-        v-model="jsonData"
+        v-model="json_data"
         style="font-size: 14px;margin-top:10px;"
         lang="json"
         theme="chrome"
@@ -119,6 +119,7 @@ export default {
   },
   data() {
     return {
+      json_data: this.jsonData,
       currentRow: '',
       tempNum: '',
       uploadAddress: uploadUrl,

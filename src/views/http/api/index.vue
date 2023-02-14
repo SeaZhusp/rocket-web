@@ -66,7 +66,7 @@
                   <el-button type="primary" @click="getApiList">搜索</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" @click="handlerApiCreate">新增接口</el-button>
+                  <el-button type="primary" :disabled="catalogId === '' " @click="handlerApiCreate">新增接口</el-button>
                 </el-form-item>
                 <el-form-item>
                   <el-dropdown>
@@ -138,8 +138,15 @@
       </span>
     </el-dialog>
 
-    <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleClose" :wrapper-closable="false" size="75%">
-      <Detail :api-form="apiForm" :api-create-flag="apiCreateFlag" :catalogs="catalogs" :catalog-select-options="catalogSelectOptions" />
+    <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleApiDrawerClose" :wrapper-closable="false" size="75%">
+      <Detail
+        :api-form="apiForm"
+        :api-create-flag="apiCreateFlag"
+        :catalogs="catalogs"
+        :catalog-select-options="catalogSelectOptions"
+        @handleApiDrawerClose="handleApiDrawerClose"
+        @getApiList="getApiList"
+      />
     </el-drawer>
   </div>
 </template>
@@ -161,7 +168,7 @@ export default {
       catalogSelectOptions: [],
       projects: [],
       projectId: '',
-      catalogId: null,
+      catalogId: '',
       apiForm: null,
       search: {
         q: '',
@@ -233,10 +240,10 @@ export default {
         catalog_id: this.catalogId,
         name: '',
         level: '',
-        status: '',
+        status: 1,
         desc: '',
         service: '',
-        method: '',
+        method: 'POST',
         path: '',
         times: 1,
         body: {
@@ -382,7 +389,7 @@ export default {
         await this.getApiList()
       })
     },
-    async getApiList() {
+    getApiList() {
       this.listLoading = true
       const params = {
         page: this.paging.page,
@@ -393,7 +400,7 @@ export default {
         project_id: this.projectId,
         catalog_id: this.catalogId
       }
-      await searchApi(params).then(response => {
+      searchApi(params).then(response => {
         this.apiList = response.data
         this.paging = response.paging
         this.listLoading = false
@@ -406,7 +413,7 @@ export default {
       this.apiCreateFlag = true
       this.catalogSelectOptions = this.catalogs
     },
-    handleClose() {
+    handleApiDrawerClose() {
       this.apiDrawer.show = false
       this.apiForm = this.initApiForm()
     }
