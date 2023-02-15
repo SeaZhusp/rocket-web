@@ -9,7 +9,7 @@
     </el-form>
     <div v-if="dataType === 'json'">
       <editor
-        v-model="json_data"
+        v-model="jsonData"
         style="font-size: 14px;margin-top:10px;"
         lang="json"
         theme="chrome"
@@ -78,7 +78,7 @@
         <template slot-scope="scope">
           <el-row v-show="scope.row === currentRow">
             <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
-            <el-button v-show="tableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
+            <el-button v-show="formData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
           </el-row>
         </template>
       </el-table-column>
@@ -95,36 +95,23 @@ export default {
   },
   props: {
     save: Boolean,
-    dataType: {
-      type: String,
-      require: false,
+    request: {
+      type: Object,
+      require: true,
       default() {
-        return ''
-      }
-    },
-    jsonData: {
-      type: String,
-      require: false,
-      default() {
-        return ''
-      }
-    },
-    formData: {
-      type: Array,
-      require: false,
-      default() {
-        return []
+        return {}
       }
     }
   },
   data() {
     return {
-      json_data: this.jsonData,
+      jsonData: this.request.json_data,
+      formData: this.request.form_data,
+      dataType: this.request.data_type,
       currentRow: '',
       tempNum: '',
       uploadAddress: uploadUrl,
       myHeader: { token: localStorage.getItem('token') },
-      tableData: [{ key: '', type: 1, value: '', desc: '' }],
       dataTypeOptions: [{
         label: 'String',
         value: 1
@@ -150,12 +137,12 @@ export default {
   },
   watch: {
     save: function() {
-      this.$emit('extract', this.parseExtract(), this.tableData)
+      this.$emit('request', this.parseRequest())
     },
-    formData: function() {
-      if (this.formData.length !== 0) {
-        this.tableData = this.formData
-      }
+    request: function() {
+      this.formData = this.request.form_data
+      this.dataType = this.request.data_type
+      this.jsonData = this.request.json_data
     }
   },
   methods: {
@@ -166,27 +153,89 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.tableData.splice(index + 1, 0, { key: '', type: 1, value: '', desc: '' })
+      this.formData.splice(index + 1, 0, { key: '', type: 1, value: '', desc: '' })
     },
     delTableRow(index) {
-      this.tableData.splice(index, 1)
+      this.formData.splice(index, 1)
+    },
+    // 类型转换
+    parseType(type, value) {
+      let tempValue
+      const msg = value + ' => ' + this.dataTypeOptions[type - 1].label + ' 转换异常, 该数据自动剔除'
+      switch (type) {
+        case 1:
+          tempValue = value
+          break
+        case 2:
+          // 包含$是引用类型,可以任意类型
+          if (value.indexOf('$') !== -1) {
+            tempValue = value
+          } else {
+            tempValue = parseInt(value)
+          }
+          break
+        case 3:
+          tempValue = parseFloat(value)
+          break
+        case 4:
+          if (value === 'False' || value === 'True') {
+            const bool = {
+              'True': true,
+              'False': false
+            }
+            tempValue = bool[value]
+          } else {
+            this.$notify.error({
+              title: '类型转换错误',
+              message: msg,
+              duration: 2000
+            })
+            return 'exception'
+          }
+          break
+        case 5:
+        case 6:
+          try {
+            tempValue = JSON.parse(value)
+          } catch (err) {
+            // 包含$是引用类型,可以任意类型
+            if (value.indexOf('$') !== -1) {
+              tempValue = value
+            } else {
+              tempValue = false
+            }
+          }
+          break
+      }
+      if (tempValue !== 0 && !tempValue && type !== 4 && type !== 1) {
+        this.$notify.error({
+          title: '类型转换错误',
+          message: msg,
+          duration: 2000
+        })
+        return 'exception'
+      }
+      return tempValue
     },
     // 抽取格式化
-    parseExtract() {
-      const extract = []
-      for (const content of this.tableData) {
+    parseRequest() {
+      const formData = []
+      for (const content of this.formData) {
         const key = content['key']
         const value = content['value']
         const desc = content['desc']
+        const type = content['type']
         if (key !== '' && value !== '') {
           const obj = {}
+          const newvalue = this.parseType(type, value)
           obj['key'] = key
-          obj['value'] = value
+          obj['type'] = type
+          obj['value'] = newvalue
           obj['desc'] = desc
-          extract.push(obj)
+          formData.push(obj)
         }
       }
-      return extract
+      return { data_type: this.dataType, json_data: this.jsonData, form_data: formData }
     },
     editorInit() {
       require('brace/ext/language_tools')

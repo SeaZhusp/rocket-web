@@ -3,7 +3,7 @@
     highlight-current-row
     strpe
     :height="height"
-    :data="validator"
+    :data="tableData"
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
@@ -48,7 +48,7 @@
       <template slot-scope="scope">
         <el-row v-show="scope.row === currentRow">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
-          <el-button v-show="validator.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
+          <el-button v-show="tableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
         </el-row>
       </template>
     </el-table-column>
@@ -72,6 +72,7 @@ export default {
   data() {
     return {
       currentRow: '',
+      tableData: this.validator,
       dataTypeOptions: [{
         label: 'String',
         value: 1
@@ -137,7 +138,10 @@ export default {
   },
   watch: {
     save: function() {
-      this.$emit('validator', this.parseValidator(), this.validator)
+      this.$emit('validator', this.parseValidator())
+    },
+    validator: function() {
+      this.tableData = this.validator
     }
   },
   methods: {
@@ -149,10 +153,10 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.validator.splice(index + 1, 0, { actual: '', comparator: 'equals', type: 1, expect: '', desc: '' })
+      this.tableData.splice(index + 1, 0, { actual: '', comparator: 'equals', type: 1, expect: '', desc: '' })
     },
     delTableRow(index) {
-      this.validator.splice(index, 1)
+      this.tableData.splice(index, 1)
     },
     // 类型转换
     parseType(type, value) {
@@ -174,10 +178,10 @@ export default {
           tempValue = parseFloat(value)
           break
         case 4:
-          if (value === 'False' || value === 'True') {
+          if (value === 'false' || value === 'true') {
             const bool = {
-              'True': true,
-              'False': false
+              'true': true,
+              'false': false
             }
             tempValue = bool[value]
           } else {
@@ -216,7 +220,7 @@ export default {
 
     parseValidator() {
       const validator = []
-      for (const content of this.validator) {
+      for (const content of this.tableData) {
         const actual = content['actual']
         const comparator = content['comparator']
         const type = content['type']

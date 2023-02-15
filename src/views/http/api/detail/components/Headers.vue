@@ -3,7 +3,7 @@
     highlight-current-row
     strpe
     :height="height"
-    :data="headers"
+    :data="tableData"
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
@@ -36,7 +36,7 @@
       <template slot-scope="scope">
         <el-row v-show="scope.row === currentRow">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
-          <el-button v-show="headers.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
+          <el-button v-show="tableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow(scope.$index)" />
         </el-row>
       </template>
     </el-table-column>
@@ -60,6 +60,7 @@ export default {
   data() {
     return {
       currentRow: '',
+      tableData: this.headers,
       headerKeyOptions: [{
         value: 'Content-Type'
       }, {
@@ -89,7 +90,10 @@ export default {
   },
   watch: {
     save: function() {
-      this.$emit('headers', this.parseHeaders(), this.headers)
+      this.$emit('headers', this.parseHeaders())
+    },
+    headers: function() {
+      this.tableData = this.headers
     }
   },
   methods: {
@@ -116,16 +120,16 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.headers.splice(index + 1, 0, { key: '', value: '', desc: '' })
+      this.tableData.splice(index + 1, 0, { key: '', value: '', desc: '' })
     },
     delTableRow(index) {
-      this.headers.splice(index, 1)
+      this.tableData.splice(index, 1)
     },
 
     // 头部信息格式化
     parseHeaders() {
       const headers = []
-      for (const content of this.headers) {
+      for (const content of this.tableData) {
         const key = content['key']
         const value = content['value']
         const desc = content['desc']

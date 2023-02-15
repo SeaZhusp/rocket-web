@@ -5,7 +5,7 @@
         highlight-current-row
         strpe
         :height="height"
-        :data="setupHooks"
+        :data="setupTableData"
         @cell-mouse-enter="cellMouseEnter"
         @cell-mouse-leave="cellMouseLeave"
       >
@@ -18,7 +18,7 @@
           <template slot-scope="scope">
             <el-row v-show="scope.row === currentRow">
               <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow('setup', scope.$index)" />
-              <el-button v-show="setupHooks.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow('setup', scope.$index)" />
+              <el-button v-show="setupTableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow('setup', scope.$index)" />
             </el-row>
           </template>
         </el-table-column>
@@ -29,7 +29,7 @@
         highlight-current-row
         strpe
         :height="height"
-        :data="teardownHooks"
+        :data="teardownTableData"
         @cell-mouse-enter="cellMouseEnter"
         @cell-mouse-leave="cellMouseLeave"
       >
@@ -42,7 +42,7 @@
           <template slot-scope="scope">
             <el-row v-show="scope.row === currentRow">
               <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow('teardown', scope.$index)" />
-              <el-button v-show="teardownHooks.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow('teardown', scope.$index)" />
+              <el-button v-show="teardownTableData.length > 1" type="danger" icon="el-icon-delete" size="mini" @click.native="delTableRow('teardown', scope.$index)" />
             </el-row>
           </template>
         </el-table-column>
@@ -58,24 +58,19 @@ export default {
   name: 'Hooks',
   props: {
     save: Boolean,
-    setupHooks: {
-      type: Array,
+    hooks: {
+      type: Object,
       require: false,
       default() {
-        return []
-      }
-    },
-    teardownHooks: {
-      type: Array,
-      require: false,
-      default() {
-        return []
+        return {}
       }
     }
   },
   data() {
     return {
-      currentRow: ''
+      currentRow: '',
+      setupTableData: this.hooks.setup_hooks,
+      teardownTableData: this.hooks.teardown_hooks
     }
   },
   computed: {
@@ -84,7 +79,13 @@ export default {
     }
   },
   watch: {
-
+    save: function() {
+      this.$emit('hooks', this.parseHooks())
+    },
+    hooks: function() {
+      this.setupTableData = this.hooks.setup_hooks
+      this.teardownTableData = this.hooks.teardown_hooks
+    }
   },
   methods: {
     cellMouseEnter(row) {
@@ -96,17 +97,38 @@ export default {
     },
     addTableRow(t, index) {
       if (t === 'setup') {
-        this.setupHooks.splice(index + 1, 0, { setup_hook: '' })
+        this.setupTableData.splice(index + 1, 0, { setup_hook: '' })
       } else {
-        this.teardownHooks.splice(index + 1, 0, { teardown_hook: '' })
+        this.teardownTableData.splice(index + 1, 0, { teardown_hook: '' })
       }
     },
     delTableRow(t, index) {
       if (t === 'setup') {
-        this.setupHooks.splice(index, 1)
+        this.setupTableData.splice(index, 1)
       } else {
-        this.teardownHooks.splice(index, 1)
+        this.teardownTableData.splice(index, 1)
       }
+    },
+    parseHooks() {
+      const setups = []
+      const teardowns = []
+      for (const content of this.setupTableData) {
+        const setup = content['setup_hook']
+        if (setup !== '') {
+          const obj = {}
+          obj['setup_hook'] = setup
+          setups.push(obj)
+        }
+      }
+      for (const content of this.teardownTableData) {
+        const teardown = content['teardown_hook']
+        if (teardown !== '') {
+          const obj = {}
+          obj['teardown_hook'] = teardown
+          teardowns.push(obj)
+        }
+      }
+      return { setup_hooks: setups, teardown_hooks: teardowns }
     }
   }
 }

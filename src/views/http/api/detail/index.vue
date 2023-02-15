@@ -1,9 +1,9 @@
 <template>
   <el-card shadow="nerer">
-    <el-form ref="apiForm" :inline="true" :model="apiForm" :rules="apiFormRules" label-width="70px">
+    <el-form ref="apiInfo" :inline="true" :model="apiInfo" :rules="apiInfoRules" label-width="70px">
       <el-row>
         <el-form-item label="名称" prop="name">
-          <el-input v-model="apiForm.name" placeholder="接口名称" class="custom-form-item" />
+          <el-input v-model="apiInfo.name" placeholder="接口名称" class="custom-form-item" />
         </el-form-item>
         <!-- <el-form-item label="目录" prop="catalog_id">
           <el-select
@@ -43,31 +43,31 @@
           </el-select>
         </el-form-item> -->
         <el-form-item label="优先级" prop="level">
-          <el-select v-model="apiForm.level" placeholder="优先级" class="custom-form-item">
+          <el-select v-model="apiInfo.level" placeholder="优先级" class="custom-form-item">
             <el-option v-for="item in levelOptions" :key="item.label" :label="item.label" :value="item.label" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-select v-model="apiForm.status" placeholder="状态" class="custom-form-item">
+          <el-select v-model="apiInfo.status" placeholder="状态" class="custom-form-item">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="描述" prop="desc">
-          <el-input v-model="apiForm.desc" type="textarea" placeholder="描述" class="custom-form-item" />
+          <el-input v-model="apiInfo.desc" type="textarea" placeholder="描述" class="custom-form-item" />
         </el-form-item>
       </el-row>
       <el-row>
         <el-col :span="4">
           <el-form-item label="Service" prop="service" label-width="70px">
-            <el-select v-model="apiForm.service" style="width: 140px" placeholder="Service">
-              <el-option v-for="item in serviceOptions" :key="item.value" :label="item.label" :value="item.value" />
+            <el-select v-model="apiInfo.service" style="width: 140px" placeholder="Service">
+              <el-option v-for="item in serviceOptions" :key="item.label" :label="item.label" :value="item.label" />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="13">
           <el-form-item prop="path">
-            <el-input v-model="apiForm.path" placeholder="Enter request PATH" style="width:730px">
-              <el-select slot="prepend" v-model="apiForm.method" size="medium" style="width: 100px" placeholder="Method">
+            <el-input v-model="apiInfo.path" placeholder="Enter request PATH" style="width:730px">
+              <el-select slot="prepend" v-model="apiInfo.method" size="medium" style="width: 100px" placeholder="Method">
                 <el-option v-for="item in methodOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </el-input>
@@ -76,7 +76,7 @@
         <el-col :span="2">
           <el-form-item prop="times">
             <el-tooltip class="item" effect="dark" content="循环次数" placement="top-start">
-              <el-input-number v-model="apiForm.times" style="width:100px" controls-position="right" :min="1" :max="100" />
+              <el-input-number v-model="apiInfo.times" style="width:100px" controls-position="right" :min="1" :max="100" />
             </el-tooltip>
           </el-form-item>
         </el-col>
@@ -92,34 +92,45 @@
     </el-form>
     <el-tabs v-model="activeStep">
       <el-tab-pane label="Variables" name="variables">
-        <Variables :variables="apiForm?apiForm.body.variables:[]" />
+        <Variables
+          :save="save"
+          :variables="apiInfo.body.variables"
+          @variables="handlerVariables"
+        />
       </el-tab-pane>
       <el-tab-pane label="Headers" name="headers">
         <Headers
-          :headers="apiForm?apiForm.body.headers:[]"
+          :save="save"
+          :headers="apiInfo.body.headers"
+          @headers="handlerHeaders"
         />
       </el-tab-pane>
       <el-tab-pane label="Request" name="request">
         <Request
-          :data-type="apiForm.body.request.data_type"
-          :json-data="apiForm.body.request.json_data"
-          :form-data="apiForm.body.request.form_data"
+          :save="save"
+          :request="apiInfo.body.request"
+          @request="handlerRequest"
         />
       </el-tab-pane>
       <el-tab-pane label="Validator" name="validator">
         <Validator
-          :validator="apiForm?apiForm.body.validator:[]"
+          :save="save"
+          :validator="apiInfo.body.validator"
+          @validator="handlerValidator"
         />
       </el-tab-pane>
       <el-tab-pane label="Extract" name="extract">
         <Extract
-          :extract="apiForm?apiForm.body.extract:[]"
+          :save="save"
+          :extract="apiInfo.body.extract"
+          @extract="handlerExtract"
         />
       </el-tab-pane>
       <el-tab-pane label="Hooks" name="Hooks">
         <Hooks
-          :setup-hooks="apiForm?apiForm.body.hooks.setup_hooks:[]"
-          :teardown-hooks="apiForm?apiForm.body.hooks.teardown_hooks:[]"
+          :save="save"
+          :hooks="apiInfo.body.hooks"
+          @hooks="handlerHooks"
         />
       </el-tab-pane>
     </el-tabs>
@@ -169,16 +180,40 @@ export default {
   },
   data() {
     return {
+      save: false,
       defaultExpandedkeys: [this.apiForm.catalog_id],
       catalogOptions: this.catalogSelectOptions,
       saveRunStatus: false,
+      apiInfo: {
+        project_id: this.apiForm.project_id,
+        catalog_id: this.apiForm.catalog_id,
+        name: this.apiForm.name,
+        level: this.apiForm.level,
+        status: this.apiForm.status,
+        desc: this.apiForm.desc,
+        service: this.apiForm.service,
+        method: this.apiForm.method,
+        path: this.apiForm.path,
+        times: this.apiForm.times,
+        body: {
+          variables: this.apiForm.body.variables,
+          headers: this.apiForm.body.headers,
+          request: this.apiForm.body.request,
+          validator: this.apiForm.body.validator,
+          extract: this.apiForm.body.extract,
+          hooks: {
+            setup_hooks: this.apiForm.body.hooks.setup_hooks,
+            teardown_hooks: this.apiForm.body.hooks.teardown_hooks
+          }
+        }
+      },
       activeStep: 'request',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
       levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],
-      serviceOptions: [{ value: 0, label: 'udp' }],
-      apiFormRules: {
+      serviceOptions: [{ label: 'udp' }],
+      apiInfoRules: {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
@@ -226,17 +261,37 @@ export default {
     //   this.catalogOptions = [data] // 隐藏的 select option 赋值
     //   this.$refs.select.blur() // 收起 select 下拉框
     // },
+    handlerVariables(variables) {
+      this.apiInfo.body.variables = variables
+    },
+    handlerHeaders(headers) {
+      this.apiInfo.body.headers = headers
+    },
+    handlerRequest(request) {
+      console.log(request)
+      this.apiInfo.body.request = request
+    },
+    handlerValidator(validator) {
+      this.apiInfo.body.validator = validator
+    },
+    handlerExtract(extract) {
+      this.apiInfo.body.extract = extract
+    },
+    handlerHooks(hooks) {
+      this.apiInfo.body.hooks = hooks
+    },
     handlerSave() {
-      this.$refs.apiForm.validate(validate => {
+      this.save = !this.save
+      this.$refs.apiInfo.validate(validate => {
         if (validate) {
           if (this.apiCreateFlag) {
-            createApi(this.apiForm).then(res => {
+            createApi(this.apiInfo).then(res => {
               this.$message.success(res.msg)
             }).catch(error => {
               this.$message.error(error.response.data['message'])
             })
           } else {
-            updateApi(this.apiForm).then(res => {
+            updateApi(this.apiInfo).then(res => {
               this.$message.success(res.msg)
             }).catch(error => {
               this.$message.error(error.response.data['message'])
