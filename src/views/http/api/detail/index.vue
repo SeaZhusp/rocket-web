@@ -93,44 +93,38 @@
     <el-tabs v-model="activeStep">
       <el-tab-pane label="Variables" name="variables">
         <Variables
-          :save="save"
+          ref="variables"
           :variables="apiInfo.body.variables"
-          @variables="handlerVariables"
         />
       </el-tab-pane>
       <el-tab-pane label="Headers" name="headers">
         <Headers
-          :save="save"
+          ref="headers"
           :headers="apiInfo.body.headers"
-          @headers="handlerHeaders"
         />
       </el-tab-pane>
       <el-tab-pane label="Request" name="request">
         <Request
-          :save="save"
+          ref="request"
           :request="apiInfo.body.request"
-          @request="handlerRequest"
         />
       </el-tab-pane>
       <el-tab-pane label="Validator" name="validator">
         <Validator
-          :save="save"
+          ref="validator"
           :validator="apiInfo.body.validator"
-          @validator="handlerValidator"
         />
       </el-tab-pane>
       <el-tab-pane label="Extract" name="extract">
         <Extract
-          :save="save"
+          ref="extract"
           :extract="apiInfo.body.extract"
-          @extract="handlerExtract"
         />
       </el-tab-pane>
       <el-tab-pane label="Hooks" name="Hooks">
         <Hooks
-          :save="save"
+          ref="hooks"
           :hooks="apiInfo.body.hooks"
-          @hooks="handlerHooks"
         />
       </el-tab-pane>
     </el-tabs>
@@ -163,7 +157,7 @@ export default {
       type: Array,
       required: true
     },
-    apiForm: {
+    apiInfo: {
       type: Object,
       require: false,
       default() {
@@ -180,33 +174,9 @@ export default {
   },
   data() {
     return {
-      save: false,
-      defaultExpandedkeys: [this.apiForm.catalog_id],
-      catalogOptions: this.catalogSelectOptions,
+      // defaultExpandedkeys: [this.apiForm.catalog_id],
+      // catalogOptions: this.catalogSelectOptions,
       saveRunStatus: false,
-      apiInfo: {
-        project_id: this.apiForm.project_id,
-        catalog_id: this.apiForm.catalog_id,
-        name: this.apiForm.name,
-        level: this.apiForm.level,
-        status: this.apiForm.status,
-        desc: this.apiForm.desc,
-        service: this.apiForm.service,
-        method: this.apiForm.method,
-        path: this.apiForm.path,
-        times: this.apiForm.times,
-        body: {
-          variables: this.apiForm.body.variables,
-          headers: this.apiForm.body.headers,
-          request: this.apiForm.body.request,
-          validator: this.apiForm.body.validator,
-          extract: this.apiForm.body.extract,
-          hooks: {
-            setup_hooks: this.apiForm.body.hooks.setup_hooks,
-            teardown_hooks: this.apiForm.body.hooks.teardown_hooks
-          }
-        }
-      },
       activeStep: 'request',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
       levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
@@ -239,6 +209,11 @@ export default {
     }
   },
   computed: {},
+  watch: {
+    // apiInfo: function() {
+    //   this.name = this.apiInfo.name
+    // }
+  },
   created() {},
   methods: {
     // singleTreeClear() {
@@ -261,37 +236,41 @@ export default {
     //   this.catalogOptions = [data] // 隐藏的 select option 赋值
     //   this.$refs.select.blur() // 收起 select 下拉框
     // },
-    handlerVariables(variables) {
-      this.apiInfo.body.variables = variables
-    },
-    handlerHeaders(headers) {
-      this.apiInfo.body.headers = headers
-    },
-    handlerRequest(request) {
-      console.log(request)
-      this.apiInfo.body.request = request
-    },
-    handlerValidator(validator) {
-      this.apiInfo.body.validator = validator
-    },
-    handlerExtract(extract) {
-      this.apiInfo.body.extract = extract
-    },
-    handlerHooks(hooks) {
-      this.apiInfo.body.hooks = hooks
+    getApiInfo() {
+      return {
+        id: this.apiInfo.id,
+        create_user: this.apiInfo.create_user,
+        project_id: this.apiInfo.project_id,
+        catalog_id: this.apiInfo.catalog_id,
+        name: this.apiInfo.name,
+        level: this.apiInfo.level,
+        status: this.apiInfo.status,
+        desc: this.apiInfo.desc,
+        service: this.apiInfo.service,
+        method: this.apiInfo.method,
+        path: this.apiInfo.path,
+        times: this.apiInfo.times,
+        body: {
+          variables: this.$refs.variables.parseVariables(),
+          headers: this.$refs.headers.parseHeaders(),
+          request: this.$refs.request.parseRequest(),
+          validator: this.$refs.validator.parseValidator(),
+          extract: this.$refs.extract.parseExtract(),
+          hooks: this.$refs.hooks.parseHooks()
+        }
+      }
     },
     handlerSave() {
-      this.save = !this.save
       this.$refs.apiInfo.validate(validate => {
         if (validate) {
           if (this.apiCreateFlag) {
-            createApi(this.apiInfo).then(res => {
+            createApi(this.getApiInfo()).then(res => {
               this.$message.success(res.msg)
             }).catch(error => {
               this.$message.error(error.response.data['message'])
             })
           } else {
-            updateApi(this.apiInfo).then(res => {
+            updateApi(this.getApiInfo()).then(res => {
               this.$message.success(res.msg)
             }).catch(error => {
               this.$message.error(error.response.data['message'])

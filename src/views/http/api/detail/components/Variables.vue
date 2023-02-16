@@ -42,6 +42,9 @@
         </el-row>
       </template>
     </el-table-column>
+    <template slot="empty">
+      <el-button type="text" icon="el-icon-plus" @click="addTableRow(0)">添加一行数据</el-button>
+    </template>
   </el-table>
 </template>
 
@@ -50,7 +53,7 @@
 export default {
   name: 'Variables',
   props: {
-    save: Boolean,
+    // save: Boolean,
     variables: {
       type: Array,
       require: false,
@@ -90,9 +93,6 @@ export default {
     }
   },
   watch: {
-    save: function() {
-      this.$emit('variables', this.parseVariables())
-    },
     variables: function() {
       this.tableData = this.variables
     }
@@ -149,7 +149,8 @@ export default {
         case 5:
         case 6:
           try {
-            tempValue = JSON.parse(value)
+            // tempValue = JSON.parse(value)
+            tempValue = value
           } catch (err) {
             // 包含$是引用类型,可以任意类型
             if (value.indexOf('$') !== -1) {

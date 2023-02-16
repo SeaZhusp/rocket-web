@@ -140,7 +140,7 @@
 
     <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleApiDrawerClose" :wrapper-closable="false" size="75%">
       <Detail
-        :api-form="apiForm"
+        :api-info="apiInfo"
         :api-create-flag="apiCreateFlag"
         :catalogs="catalogs"
         :catalog-select-options="catalogSelectOptions"
@@ -169,7 +169,7 @@ export default {
       projects: [],
       projectId: '',
       catalogId: '',
-      apiForm: null,
+      apiInfo: null,
       search: {
         q: '',
         level: '',
@@ -234,7 +234,7 @@ export default {
         this.getApiList()
       }
     },
-    initApiForm() {
+    initApiInfo() {
       return {
         project_id: this.projectId,
         catalog_id: this.catalogId,
@@ -366,7 +366,7 @@ export default {
     handlerApiEdit(row) {
       getApiDetail(row.id).then(response => {
         if (response.code === 200) {
-          this.apiForm = response.data.api
+          this.apiInfo = response.data.api
           this.apiCatalog = response.data.catalog
           this.apiDrawer.show = true
           this.apiCreateFlag = false
@@ -407,7 +407,7 @@ export default {
       })
     },
     handlerApiCreate() {
-      this.apiForm = this.initApiForm()
+      this.apiInfo = this.initApiInfo()
       this.apiDrawer.show = true
       this.apiDrawer.title = '新增接口'
       this.apiCreateFlag = true
@@ -415,7 +415,7 @@ export default {
     },
     handleApiDrawerClose() {
       this.apiDrawer.show = false
-      this.apiForm = this.initApiForm()
+      this.apiInfo = this.initApiInfo()
     }
   }
 }

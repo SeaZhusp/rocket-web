@@ -52,6 +52,9 @@
         </el-row>
       </template>
     </el-table-column>
+    <template slot="empty">
+      <el-button type="text" icon="el-icon-plus" @click="addTableRow(0)">添加一行数据</el-button>
+    </template>
   </el-table>
 </template>
 
@@ -60,7 +63,7 @@
 export default {
   name: 'Validator',
   props: {
-    save: Boolean,
+    // save: Boolean,
     validator: {
       type: Array,
       require: false,
@@ -137,9 +140,6 @@ export default {
     }
   },
   watch: {
-    save: function() {
-      this.$emit('validator', this.parseValidator())
-    },
     validator: function() {
       this.tableData = this.validator
     }
@@ -178,10 +178,10 @@ export default {
           tempValue = parseFloat(value)
           break
         case 4:
-          if (value === 'false' || value === 'true') {
+          if (value === 'False' || value === 'True') {
             const bool = {
-              'true': true,
-              'false': false
+              'True': true,
+              'False': false
             }
             tempValue = bool[value]
           } else {
