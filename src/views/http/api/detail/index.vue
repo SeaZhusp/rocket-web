@@ -5,10 +5,10 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="apiInfo.name" placeholder="接口名称" class="custom-form-item" />
         </el-form-item>
-        <!-- <el-form-item label="目录" prop="catalog_id">
+        <el-form-item label="目录" prop="catalog_id">
           <el-select
             ref="select"
-            v-model="apiForm.catalog_id"
+            v-model="apiInfo.catalog_id"
             placeholder="请选择"
             clearable
             filterable
@@ -41,7 +41,7 @@
               />
             </div>
           </el-select>
-        </el-form-item> -->
+        </el-form-item>
         <el-form-item label="优先级" prop="level">
           <el-select v-model="apiInfo.level" placeholder="优先级" class="custom-form-item">
             <el-option v-for="item in levelOptions" :key="item.label" :label="item.label" :value="item.label" />
@@ -174,8 +174,8 @@ export default {
   },
   data() {
     return {
-      // defaultExpandedkeys: [this.apiForm.catalog_id],
-      // catalogOptions: this.catalogSelectOptions,
+      defaultExpandedkeys: [this.apiInfo.catalog_id],
+      catalogOptions: this.catalogSelectOptions,
       saveRunStatus: false,
       activeStep: 'request',
       methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
@@ -210,32 +210,31 @@ export default {
   },
   computed: {},
   watch: {
-    // apiInfo: function() {
-    //   this.name = this.apiInfo.name
-    // }
+    catalogSelectOptions: function() {
+      this.catalogOptions = this.catalogSelectOptions
+    }
   },
   created() {},
   methods: {
-    // singleTreeClear() {
-    //   // do something
-    // },
-    // singleTreeFilterMethod(val) {
-    //   this.$refs.selectTree.filter(val)
-    // },
-    // singleTreeFocus() {
-    //   this.$refs.selectTree.filter('')
-    // },
-    // filterNode(value, data) {
-    //   if (!value) return true
-    //   return data.label.indexOf(value) !== -1
-    // },
-    // handleNodeClick(data) {
-    //   console.log(data)
-    //   this.apiForm.catalog_id = data.id
-    //   // this.selectModel = data.id // select v-model 赋值
-    //   this.catalogOptions = [data] // 隐藏的 select option 赋值
-    //   this.$refs.select.blur() // 收起 select 下拉框
-    // },
+    singleTreeClear() {
+      // do something
+    },
+    singleTreeFilterMethod(val) {
+      this.$refs.selectTree.filter(val)
+    },
+    singleTreeFocus() {
+      this.$refs.selectTree.filter('')
+    },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    handleNodeClick(data) {
+      this.apiInfo.catalog_id = data.id
+      // this.selectModel = data.id // select v-model 赋值
+      this.catalogOptions = [data] // 隐藏的 select option 赋值
+      this.$refs.select.blur() // 收起 select 下拉框
+    },
     getApiInfo() {
       return {
         id: this.apiInfo.id,

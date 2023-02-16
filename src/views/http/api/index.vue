@@ -119,7 +119,13 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getApiList" />
+              <pagination
+                v-show="paging.total > 0"
+                :total="paging.total"
+                :page.sync="paging.page"
+                :limit.sync="paging.limit"
+                @pagination="getApiList"
+              />
             </el-row>
           </el-form>
         </el-row>
@@ -367,6 +373,7 @@ export default {
       getApiDetail(row.id).then(response => {
         if (response.code === 200) {
           this.apiInfo = response.data.api
+          this.apiInfo.catalog_id = response.data.api.catalog_id
           this.apiCatalog = response.data.catalog
           this.apiDrawer.show = true
           this.apiCreateFlag = false
@@ -416,6 +423,7 @@ export default {
     handleApiDrawerClose() {
       this.apiDrawer.show = false
       this.apiInfo = this.initApiInfo()
+      this.catalogSelectOptions = []
     }
   }
 }
