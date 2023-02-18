@@ -7,7 +7,7 @@
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
-    <el-table-column prop="key" label="微服务" width="150">
+    <el-table-column prop="service" label="微服务" width="150">
       <template slot-scope="scope">
         <el-select v-model="scope.row.key" style="width: 140px" filterable placeholder="Service">
           <el-option v-for="item in serviceOptions" :key="item.value" :label="item.value" :value="item.value" />

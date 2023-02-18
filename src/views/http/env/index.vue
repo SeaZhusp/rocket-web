@@ -19,7 +19,7 @@
       <el-table v-loading="listLoading" :data="envList" element-loading-text="Loading">
         <el-table-column label="序号" type="index" width="55" />
         <el-table-column label="环境名" prop="name" />
-        <el-table-column label="描述" prop="description" />
+        <el-table-column label="描述" prop="desc" />
         <el-table-column label="创建时间" prop="create_time" />
         <el-table-column label="更新时间" prop="update_time" />
         <el-table-column fixed="right" label="操作" min-width="80px">
@@ -44,8 +44,8 @@
           <el-form-item label="环境名称" prop="name" label-width="80px">
             <el-input v-model="envForm.name" placeholder="环境名称" />
           </el-form-item>
-          <el-form-item label="描述" prop="description" label-width="80px">
-            <el-input v-model="envForm.description" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
+          <el-form-item label="描述" prop="desc" label-width="80px">
+            <el-input v-model="envForm.desc" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
           </el-form-item>
           <el-form-item label="状态" prop="status" label-width="80px">
             <el-radio v-model="envForm.status" :label="1">启用</el-radio>
@@ -90,8 +90,7 @@
 </template>
 
 <script>
-import { createDict, deleteDict, updateDict } from '@/api/system/dict'
-import { searchEnv } from '@/api/http/env'
+import { searchEnv, deletEnv, createEnv, updateEnv } from '@/api/http/env'
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/httprunner/Headers'
 import Variables from '@/components/httprunner/Variables'
@@ -160,7 +159,7 @@ export default {
         id: '',
         name: '',
         status: 1,
-        description: '',
+        desc: '',
         config: {
           variables: [{ key: '', type: 1, value: '', desc: '' }],
           headers: [{ key: '', value: '', desc: '' }],
@@ -183,15 +182,9 @@ export default {
       this.drawerAttribute.title = '编辑环境'
       this.envForm.id = row.id
       this.envForm.name = row.name
-      this.envForm.type = row.type
-      this.envForm.code = row.code
-      this.envForm.description = row.description
       this.envForm.status = row.status
-    },
-    async selectChange(row) {
-      const { msg } = await updateDict(row)
-      this.$message.success(msg)
-      await this.getEnvList()
+      this.envForm.desc = row.desc
+      this.envForm.status = row.status
     },
     async getEnvList() {
       this.listLoading = true
@@ -206,8 +199,21 @@ export default {
         this.listLoading = false
       })
     },
+    getEnvForm() {
+      return {
+        id: this.envForm.id,
+        name: this.envForm.name,
+        status: this.envForm.status,
+        desc: this.envForm.desc,
+        config: {
+          variables: this.$refs.variables.parseVariables(),
+          headers: this.$refs.headers.parseHeaders(),
+          service: this.$refs.service.parseService(),
+          hooks: this.$refs.hooks.parseHooks()
+        }
+      }
+    },
     handleSave() {
-      console.log(this.envForm)
       this.$refs.envForm.validate(validate => {
         if (validate) {
           this.drawerAttribute.save = true
@@ -222,14 +228,14 @@ export default {
       })
     },
     update() {
-      updateDict(this.envForm).then(res => {
+      updateEnv(this.getEnvForm()).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
       })
     },
     create() {
-      createDict(this.envForm).then(res => {
+      createEnv(this.getEnvForm()).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
@@ -246,7 +252,7 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        const { msg } = await deleteDict(row.id)
+        const { msg } = await deletEnv(row.id)
         this.$message.success(msg)
         await this.getEnvList()
       })

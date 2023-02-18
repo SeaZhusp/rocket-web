@@ -8,31 +8,24 @@ export function searchEnv(params) {
   })
 }
 
-export function getApiDetail(id) {
+export function deletEnv(id) {
   return request({
-    url: `/http/api/${id}`,
-    method: 'get'
-  })
-}
-
-export function deleteApi(id) {
-  return request({
-    url: `/http/api/delete/${id}`,
+    url: `/http/env/delete/${id}`,
     method: 'delete'
   })
 }
 
-export function updateApi(data) {
+export function updateEnv(data) {
   return request({
-    url: '/http/api/update',
+    url: '/http/env/update',
     method: 'put',
     data
   })
 }
 
-export function createApi(data) {
+export function createEnv(data) {
   return request({
-    url: '/http/api/create',
+    url: '/http/env/create',
     method: 'post',
     data
   })
