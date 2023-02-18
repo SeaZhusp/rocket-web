@@ -249,7 +249,7 @@ export default {
         status: 1,
         desc: '',
         service: '',
-        method: 'POST',
+        method: 'GET',
         path: '',
         times: 1,
         body: {

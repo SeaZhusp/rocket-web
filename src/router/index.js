@@ -66,6 +66,12 @@ export const constantRoutes = [
         name: '接口管理',
         component: () => import('@/views/http/api'),
         meta: { title: '接口管理' }
+      },
+      {
+        path: '/http/env',
+        name: '环境管理',
+        component: () => import('@/views/http/env'),
+        meta: { title: '环境管理' }
       }
 
     ]

@@ -7,14 +7,16 @@
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
-    <el-table-column prop="key" label="变量名">
+    <el-table-column prop="key" label="微服务" width="150">
       <template slot-scope="scope">
-        <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="变量名" />
+        <el-select v-model="scope.row.key" style="width: 140px" filterable placeholder="Service">
+          <el-option v-for="item in serviceOptions" :key="item.value" :label="item.value" :value="item.value" />
+        </el-select>
       </template>
     </el-table-column>
-    <el-table-column prop="value" label="表达式">
+    <el-table-column prop="value" label="域名" width="430">
       <template slot-scope="scope">
-        <el-input v-model="scope.row.value" placeholder="表达式" />
+        <el-input v-model="scope.row.value" placeholder="domain" style="width:420px" />
       </template>
     </el-table-column>
     <el-table-column prop="desc" label="描述">
@@ -39,35 +41,40 @@
 <script>
 
 export default {
-  name: 'Extract',
+  name: 'Service',
   props: {
-    save: Boolean,
-    extract: {
+    service: {
       type: Array,
       require: false,
       default() {
         return []
       }
+    },
+    customHeight: {
+      type: Number,
+      require: false,
+      default() { return 586 }
     }
   },
   data() {
     return {
       currentRow: '',
-      tableData: this.extract
+      tableData: this.service,
+      serviceOptions: JSON.parse(localStorage.getItem('dicts'))['http_service'] || []
     }
   },
   computed: {
     height() {
-      return window.screen.height - 586
+      return window.screen.height - this.customHeight
     }
   },
   watch: {
-    save: function() {
-      this.$emit('extract', this.parseExtract())
-    },
-    extract: function() {
-      this.tableData = this.extract
+    service: function() {
+      this.tableData = this.service
     }
+  },
+  created() {
+
   },
   methods: {
     cellMouseEnter(row) {
@@ -84,8 +91,8 @@ export default {
       this.tableData.splice(index, 1)
     },
     // 抽取格式化
-    parseExtract() {
-      const extract = []
+    parseService() {
+      const service = []
       for (const content of this.tableData) {
         const key = content['key']
         const value = content['value']
@@ -95,10 +102,10 @@ export default {
           obj['key'] = key
           obj['value'] = value
           obj['desc'] = desc
-          extract.push(obj)
+          service.push(obj)
         }
       }
-      return extract
+      return service
     }
   }
 }

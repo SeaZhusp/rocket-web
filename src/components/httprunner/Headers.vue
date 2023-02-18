@@ -13,7 +13,7 @@
           v-model="scope.row.key"
           :fetch-suggestions="queryKeySearch"
           placeholder="请求头标签"
-          style="width:320px"
+          :style="customStyle"
         />
       </template>
     </el-table-column>
@@ -23,7 +23,7 @@
           v-model="scope.row.value"
           :fetch-suggestions="queryValueSearch"
           placeholder="请求头内容"
-          style="width:320px"
+          :style="customStyle"
         />
       </template>
     </el-table-column>
@@ -51,13 +51,22 @@
 export default {
   name: 'Headers',
   props: {
-    save: Boolean,
     headers: {
       type: Array,
       require: false,
       default() {
         return []
       }
+    },
+    customStyle: {
+      type: String,
+      require: false,
+      default() { return 'width:320px' }
+    },
+    customHeight: {
+      type: Number,
+      require: false,
+      default() { return 586 }
     }
   },
   data() {
@@ -88,13 +97,10 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 586
+      return window.screen.height - this.customHeight
     }
   },
   watch: {
-    save: function() {
-      this.$emit('headers', this.parseHeaders())
-    },
     headers: function() {
       this.tableData = this.headers
     }

@@ -87,7 +87,7 @@
           </el-form-item>
         </el-form>
 
-        <el-table v-loading="listItemLoading" :data="dictItemList" element-loading-text="Loading">
+        <el-table v-loading="listItemLoading" :data="dictItemList" element-loading-text="Loading" :height="height">
           <el-table-column label="Label" prop="label" />
           <el-table-column label="Value" prop="value" />
           <el-table-column label="排序" prop="sort" />
@@ -235,6 +235,11 @@ export default {
           name: 'number'
         }
       ]
+    }
+  },
+  computed: {
+    height() {
+      return window.screen.height - 365
     }
   },
   created() {

@@ -63,13 +63,17 @@
 export default {
   name: 'Hooks',
   props: {
-    save: Boolean,
     hooks: {
       type: Object,
       require: false,
       default() {
         return {}
       }
+    },
+    customHeight: {
+      type: Number,
+      require: false,
+      default() { return 586 }
     }
   },
   data() {
@@ -81,13 +85,10 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 586
+      return window.screen.height - this.customHeight
     }
   },
   watch: {
-    save: function() {
-      this.$emit('hooks', this.parseHooks())
-    },
     hooks: function() {
       this.setupTableData = this.hooks.setup_hooks
       this.teardownTableData = this.hooks.teardown_hooks

@@ -1,7 +1,7 @@
 import { login } from '@/api/system/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
-import { setUserInfo, getFullname } from '@/utils/rocket'
+import { setUserInfo, getFullname, setDictItem, removeAll } from '@/utils/rocket'
 
 const getDefaultState = () => {
   return {
@@ -37,6 +37,7 @@ const actions = {
         const { data } = response
         setToken(data.token)
         setUserInfo(data.userInfo)
+        setDictItem(data.dicts)
         // commit('SET_TOKEN', data.token)
         // commit('SET_NAME', data.userInfo.fullname)
         // commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
@@ -72,6 +73,7 @@ const actions = {
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
       removeToken() // must remove  token  first
+      removeAll()
       resetRouter()
       commit('RESET_STATE')
       resolve()

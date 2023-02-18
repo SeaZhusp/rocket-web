@@ -2,6 +2,10 @@ export function setUserInfo(userInfo) {
   localStorage.setItem('userInfo', JSON.stringify(userInfo))
 }
 
+export function setDictItem(dicts) {
+  localStorage.setItem('dicts', JSON.stringify(dicts))
+}
+
 export function getUserInfo(userInfo) {
   return JSON.parse(localStorage.getItem('userInfo'))
 }
@@ -20,4 +24,9 @@ export function resetForm(form) {
     form[key] = ''
   }
   return form
+}
+
+export function removeAll() {
+  localStorage.removeItem('userInfo')
+  localStorage.removeItem('dicts')
 }

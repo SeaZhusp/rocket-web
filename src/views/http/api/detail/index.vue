@@ -60,7 +60,7 @@
         <el-col :span="4">
           <el-form-item label="Service" prop="service" label-width="70px">
             <el-select v-model="apiInfo.service" style="width: 140px" placeholder="Service">
-              <el-option v-for="item in serviceOptions" :key="item.label" :label="item.label" :value="item.label" />
+              <el-option v-for="item in serviceOptions" :key="item.value" :label="item.value" :value="item.value" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -68,7 +68,7 @@
           <el-form-item prop="path">
             <el-input v-model="apiInfo.path" placeholder="Enter request PATH" style="width:730px">
               <el-select slot="prepend" v-model="apiInfo.method" size="medium" style="width: 100px" placeholder="Method">
-                <el-option v-for="item in methodOptions" :key="item" :label="item" :value="item" />
+                <el-option v-for="item in methodOptions" :key="item.value" :label="item.value" :value="item.value" />
               </el-select>
             </el-input>
           </el-form-item>
@@ -133,12 +133,12 @@
 
 <script>
 import { createApi, updateApi } from '@/api/http/api'
-import Extract from './components/Extract'
-import Validator from './components/Validator'
-import Headers from './components/Headers'
-import Variables from './components/Variables'
-import Request from './components/Request'
-import Hooks from './components/Hooks'
+import Extract from '@/components/httprunner/Extract'
+import Validator from '@/components/httprunner/Validator'
+import Headers from '@/components/httprunner/Headers'
+import Variables from '@/components/httprunner/Variables'
+import Request from '@/components/httprunner/Request'
+import Hooks from '@/components/httprunner/Hooks'
 export default {
   components: {
     Variables,
@@ -178,11 +178,11 @@ export default {
       catalogOptions: this.catalogSelectOptions,
       saveRunStatus: false,
       activeStep: 'request',
-      methodOptions: ['POST', 'GET', 'PUT', 'DELETE'],
+      methodOptions: JSON.parse(localStorage.getItem('dicts'))['http_method'] || [],
       levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],
-      serviceOptions: [{ label: 'udp' }],
+      serviceOptions: JSON.parse(localStorage.getItem('dicts'))['http_service'] || [],
       apiInfoRules: {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }

@@ -7,12 +7,22 @@
     @cell-mouse-enter="cellMouseEnter"
     @cell-mouse-leave="cellMouseLeave"
   >
-    <el-table-column prop="key" label="变量名">
+    <el-table-column prop="actual" label="实际返回" width="240">
       <template slot-scope="scope">
-        <el-input v-model.trim="scope.row.key" :value="scope.row.key" placeholder="变量名" />
+        <el-input v-model="scope.row.actual" placeholder="实际返回" />
       </template>
     </el-table-column>
-    <el-table-column label="类型" width="120">
+    <el-table-column prop="comparator" label="断言类型" width="250">
+      <template slot-scope="scope">
+        <el-autocomplete
+          v-model="scope.row.comparator"
+          :fetch-suggestions="querySearch"
+          placeholder="断言类型"
+          style="width:240px"
+        />
+      </template>
+    </el-table-column>
+    <el-table-column prop="type" label="数据类型" width="120">
       <template slot-scope="scope">
         <el-select v-model="scope.row.type">
           <el-option
@@ -24,17 +34,17 @@
         </el-select>
       </template>
     </el-table-column>
-    <el-table-column prop="value" label="变量值">
+    <el-table-column prop="expect" label="期望返回" width="240">
       <template slot-scope="scope">
-        <el-input v-model="scope.row.value" placeholder="变量值" />
+        <el-input v-model="scope.row.expect" placeholder="期望返回" />
       </template>
     </el-table-column>
     <el-table-column prop="desc" label="描述">
       <template slot-scope="scope">
-        <el-input v-model.trim="scope.row.desc" :value="scope.row.desc" placeholder="描述" />
+        <el-input v-model="scope.row.desc" placeholder="描述" />
       </template>
     </el-table-column>
-    <el-table-column>
+    <el-table-column width="120">
       <template slot-scope="scope">
         <el-row v-show="scope.row === currentRow">
           <el-button type="primary" icon="el-icon-plus" size="mini" @click.native="addTableRow(scope.$index)" />
@@ -51,21 +61,25 @@
 <script>
 
 export default {
-  name: 'Variables',
+  name: 'Validator',
   props: {
-    // save: Boolean,
-    variables: {
+    validator: {
       type: Array,
       require: false,
       default() {
         return []
       }
+    },
+    customHeight: {
+      type: Number,
+      require: false,
+      default() { return 586 }
     }
   },
   data() {
     return {
       currentRow: '',
-      tableData: this.variables,
+      tableData: this.validator,
       dataTypeOptions: [{
         label: 'String',
         value: 1
@@ -84,17 +98,18 @@ export default {
       }, {
         label: 'Dict',
         value: 6
-      }]
+      }],
+      validatorOptions: JSON.parse(localStorage.getItem('dicts'))['http_validator'] || []
     }
   },
   computed: {
     height() {
-      return window.screen.height - 586
+      return window.screen.height - this.customHeight
     }
   },
   watch: {
-    variables: function() {
-      this.tableData = this.variables
+    validator: function() {
+      this.tableData = this.validator
     }
   },
   methods: {
@@ -106,7 +121,7 @@ export default {
       this.currentRow = ''
     },
     addTableRow(index) {
-      this.tableData.splice(index + 1, 0, { key: '', type: 1, value: '', desc: '' })
+      this.tableData.splice(index + 1, 0, { actual: '', comparator: 'equals', type: 1, expect: '', desc: '' })
     },
     delTableRow(index) {
       this.tableData.splice(index, 1)
@@ -149,8 +164,7 @@ export default {
         case 5:
         case 6:
           try {
-            // tempValue = JSON.parse(value)
-            tempValue = value
+            tempValue = JSON.parse(value)
           } catch (err) {
             // 包含$是引用类型,可以任意类型
             if (value.indexOf('$') !== -1) {
@@ -171,27 +185,39 @@ export default {
       }
       return tempValue
     },
-    // 变量格式化variables
-    parseVariables() {
-      const variables = []
+
+    parseValidator() {
+      const validator = []
       for (const content of this.tableData) {
-        const key = content['key']
+        const actual = content['actual']
+        const comparator = content['comparator']
         const type = content['type']
         const desc = content['desc']
-        if (key !== '') {
+        if (actual !== '') {
           const obj = {}
-          const value = this.parseType(type, content['value'])
-          if (value === 'exception') {
+          const expect = this.parseType(content['type'], content['expect'])
+          if (expect === 'exception') {
             continue
           }
-          obj['key'] = key
+          obj['actual'] = actual
+          obj['comparator'] = comparator
           obj['type'] = type
-          obj['value'] = value
+          obj['expect'] = expect
           obj['desc'] = desc
-          variables.push(obj)
+          validator.push(obj)
         }
       }
-      return variables
+      return validator
+    },
+    querySearch(queryString, cb) {
+      const validatorOptions = this.validatorOptions
+      const results = queryString ? validatorOptions.filter(this.createFilter(queryString)) : validatorOptions
+      cb(results)
+    },
+    createFilter(queryString) {
+      return (validatorOptions) => {
+        return (validatorOptions.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+      }
     }
   }
 }

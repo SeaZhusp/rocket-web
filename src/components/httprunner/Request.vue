@@ -97,13 +97,17 @@ export default {
     editor: require('vue2-ace-editor')
   },
   props: {
-    save: Boolean,
     request: {
       type: Object,
       require: true,
       default() {
         return {}
       }
+    },
+    customHeight: {
+      type: Number,
+      require: false,
+      default() { return 586 }
     }
   },
   data() {
@@ -135,13 +139,10 @@ export default {
   },
   computed: {
     height() {
-      return window.screen.height - 586
+      return window.screen.height - this.customHeight
     }
   },
   watch: {
-    save: function() {
-      this.$emit('request', this.parseRequest())
-    },
     request: function() {
       this.formData = this.request.form_data
       this.dataType = this.request.data_type
