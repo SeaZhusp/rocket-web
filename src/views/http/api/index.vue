@@ -19,7 +19,7 @@
             </el-form-item>
             <el-form-item>
               <el-tooltip class="item" effect="dark" content="点击创建根目录，子目录请在节点创建" placement="top-start">
-                <el-button type="text" icon="el-icon-folder-add" @click="handlerCatalogCreate">新增</el-button>
+                <el-button type="text" icon="el-icon-folder-add" @click="handleCurrentChange">新增</el-button>
               </el-tooltip>
             </el-form-item>
           </el-form>
@@ -31,14 +31,14 @@
             :filter-node-method="filterNode"
             :expand-on-click-node="false"
             highlight-current
-            @node-click="handlerCatalogClick"
+            @node-click="handleCatalogClick"
           >
             <span slot-scope="{ node, data }" class="custom-tree-node" @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
               <span>{{ node.label }}</span>
               <span>
-                <el-button v-show="data.del" type="text" icon="el-icon-folder-add" @click="handlerCatalogCreate(node, data)" />
-                <el-button v-show="data.del" type="text" icon="el-icon-edit" @click="handlerCatalogEdit(node, data)" />
-                <el-button v-show="data.del" type="text" icon="el-icon-delete" @click="handlerCatalogDelete(node, data)" />
+                <el-button v-show="data.del" type="text" icon="el-icon-folder-add" @click="handleCurrentChange(node, data)" />
+                <el-button v-show="data.del" type="text" icon="el-icon-edit" @click="handleCatalogEdit(node, data)" />
+                <el-button v-show="data.del" type="text" icon="el-icon-delete" @click="handleCatalogDelete(node, data)" />
               </span>
             </span>
           </el-tree>
@@ -66,7 +66,7 @@
                   <el-button type="primary" @click="getApiList">搜索</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" :disabled="catalogId === '' " @click="handlerApiCreate">新增接口</el-button>
+                  <el-button type="primary" :disabled="catalogId === '' " @click="handleApiCreate">新增接口</el-button>
                 </el-form-item>
                 <el-form-item>
                   <el-dropdown>
@@ -105,8 +105,8 @@
                 <el-table-column label="更新人" prop="update_user" width="100" />
                 <el-table-column fixed="right" label="操作" width="150">
                   <template slot-scope="scope">
-                    <el-button type="text" size="small" @click="handlerApiEdit(scope.row)">编辑</el-button>
-                    <el-button type="text" size="small" @click="handlerApiDelete(scope.row)">删除</el-button>
+                    <el-button type="text" size="small" @click="handleApiEdit(scope.row)">编辑</el-button>
+                    <el-button type="text" size="small" @click="handleApiDelete(scope.row)">删除</el-button>
                     <el-dropdown>
                       <span class="el-dropdown-link">
                         更多<i class="el-icon-arrow-down el-icon--right" />
@@ -291,7 +291,7 @@ export default {
       this.$set(data, 'del', false)
     },
     // Catalog
-    handlerCatalogCreate(node = null, data = null) {
+    handleCurrentChange(node = null, data = null) {
       this.catalogDialog.show = true
       this.catalogDialog.create = 1
       this.catalogForm = this.$resetForm(this.catalogForm)
@@ -300,7 +300,7 @@ export default {
         this.catalogForm.parent_id = data.id
       }
     },
-    handlerCatalogEdit(node = null, data) {
+    handleCatalogEdit(node = null, data) {
       this.catalogDialog.show = true
       this.catalogDialog.create = 0
       this.catalogForm.id = data.id
@@ -308,7 +308,7 @@ export default {
       this.catalogForm.parent_id = data.parent_id
       this.catalogForm.project_id = data.project_id
     },
-    async handlerCatalogDelete(node = null, data) {
+    async handleCatalogDelete(node = null, data) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -365,11 +365,11 @@ export default {
       this.$refs['catalogForm'].clearValidate()
     },
     // Api
-    handlerCatalogClick(obj, node, data) {
+    handleCatalogClick(obj, node, data) {
       this.catalogId = node.data.id
       this.getApiList()
     },
-    handlerApiEdit(row) {
+    handleApiEdit(row) {
       getApiDetail(row.id).then(response => {
         if (response.code === 200) {
           this.apiInfo = response.data.api
@@ -384,7 +384,7 @@ export default {
         }
       })
     },
-    handlerApiDelete(row) {
+    handleApiDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -413,7 +413,7 @@ export default {
         this.listLoading = false
       })
     },
-    handlerApiCreate() {
+    handleApiCreate() {
       this.apiInfo = this.initApiInfo()
       this.apiDrawer.show = true
       this.apiDrawer.title = '新增接口'

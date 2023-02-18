@@ -83,9 +83,9 @@
         <el-col :span="3">
           <el-form-item>
             <el-tooltip class="item" effect="dark" content="执行并保存" placement="top-start">
-              <el-button type="primary" :loading="saveRunStatus" @click.native="handlerSend()">Send</el-button>
+              <el-button type="primary" :loading="saveRunStatus" @click.native="handleSend()">Send</el-button>
             </el-tooltip>
-            <el-button type="primary" @click.native="handlerSave()">Save</el-button>
+            <el-button type="primary" @click.native="handleSave()">Save</el-button>
           </el-form-item>
         </el-col>
       </el-row>
@@ -259,7 +259,7 @@ export default {
         }
       }
     },
-    handlerSave() {
+    handleSave() {
       this.$refs.apiInfo.validate(validate => {
         if (validate) {
           if (this.apiCreateFlag) {
@@ -280,7 +280,7 @@ export default {
         }
       })
     },
-    handlerSend() {
+    handleSend() {
       console.log(this.apiForm)
     }
   }

@@ -11,7 +11,7 @@
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handlerCreate">新增</el-button>
+              <el-button type="primary" @click="handleCreate">新增</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -24,63 +24,67 @@
         <el-table-column label="更新时间" prop="update_time" />
         <el-table-column fixed="right" label="操作" min-width="80px">
           <template slot-scope="scope">
-            <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
-            <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
+            <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getEnvList" />
     </el-row>
 
-    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="60%" @close="handlerClose">
-      <el-form ref="envForm" :model="envForm" :rules="envFormRules">
-        <el-form-item label="环境名称" prop="name" label-width="80px">
-          <el-input v-model="envForm.name" placeholder="环境名称" />
-        </el-form-item>
-        <el-form-item label="描述" prop="description" label-width="80px">
-          <el-input v-model="envForm.description" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status" label-width="80px">
-          <el-radio v-model="envForm.status" :label="1">启用</el-radio>
-          <el-radio v-model="envForm.status" :label="0">禁用</el-radio>
-        </el-form-item>
-      </el-form>
-      <el-tabs v-model="activeStep" type="card">
-        <el-tab-pane label="Service" name="service">
-          <Service
-            ref="service"
-            :service="envForm.config.service"
-            :custom-height="767"
-          />
-        </el-tab-pane>
-        <el-tab-pane label="Variables" name="variables">
-          <Variables
-            ref="variables"
-            :variables="envForm.config.variables"
-            :custom-height="767"
-          />
-        </el-tab-pane>
-        <el-tab-pane label="Headers" name="headers">
-          <Headers
-            ref="headers"
-            :headers="envForm.config.headers"
-            :custom-style="'width:255px'"
-            :custom-height="767"
-          />
-        </el-tab-pane>
-        <el-tab-pane label="Hooks" name="Hooks">
-          <Hooks
-            ref="hooks"
-            :hooks="envForm.config.hooks"
-            :custom-height="767"
-          />
-        </el-tab-pane>
-      </el-tabs>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="handlerClose">取 消</el-button>
-        <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
-      </span>
-    </el-dialog>
+    <el-drawer
+      :title="drawerAttribute.title"
+      :visible.sync="drawerAttribute.show"
+      :wrapper-closable="false"
+      size="55%"
+      @close="handleClose"
+    >
+      <el-card shadow="nerer">
+        <el-form ref="envForm" :model="envForm" :rules="envFormRules">
+          <el-form-item label="环境名称" prop="name" label-width="80px">
+            <el-input v-model="envForm.name" placeholder="环境名称" />
+          </el-form-item>
+          <el-form-item label="描述" prop="description" label-width="80px">
+            <el-input v-model="envForm.description" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
+          </el-form-item>
+          <el-form-item label="状态" prop="status" label-width="80px">
+            <el-radio v-model="envForm.status" :label="1">启用</el-radio>
+            <el-radio v-model="envForm.status" :label="0">禁用</el-radio>
+          </el-form-item>
+        </el-form>
+        <el-tabs v-model="activeStep">
+          <el-tab-pane label="Service" name="service">
+            <Service
+              ref="service"
+              :service="envForm.config.service"
+            />
+          </el-tab-pane>
+          <el-tab-pane label="Variables" name="variables">
+            <Variables
+              ref="variables"
+              :variables="envForm.config.variables"
+            />
+          </el-tab-pane>
+          <el-tab-pane label="Headers" name="headers">
+            <Headers
+              ref="headers"
+              :headers="envForm.config.headers"
+              :custom-style="'width:235px'"
+            />
+          </el-tab-pane>
+          <el-tab-pane label="Hooks" name="Hooks">
+            <Hooks
+              ref="hooks"
+              :hooks="envForm.config.hooks"
+            />
+          </el-tab-pane>
+        </el-tabs>
+      </el-card>
+      <div class="demo-drawer__footer draw-btn-right">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" :loading="drawerAttribute.save" @click="handleSave">{{ drawerAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
+      </div>
+    </el-drawer>
 
   </div>
 </template>
@@ -108,8 +112,8 @@ export default {
         limit: 10,
         total: 0
       },
-      dialogAttribute: {
-        title: '新增',
+      drawerAttribute: {
+        title: '新增环境',
         create: 1,
         show: false,
         save: false
@@ -126,7 +130,7 @@ export default {
         id: '',
         name: '',
         status: 1,
-        description: '',
+        desc: '',
         config: {
           variables: [{ key: '', type: 1, value: '', desc: '' }],
           headers: [{ key: '', value: '', desc: '' }],
@@ -168,15 +172,15 @@ export default {
         }
       }
     },
-    handlerCreate() {
-      this.dialogAttribute.show = true
-      this.dialogAttribute.create = 1
+    handleCreate() {
+      this.drawerAttribute.show = true
+      this.drawerAttribute.create = 1
       this.envForm = this.initEnvForm()
     },
-    handlerEdit(row) {
-      this.dialogAttribute.show = true
-      this.dialogAttribute.create = 0
-      this.dialogAttribute.title = '编辑'
+    handleEdit(row) {
+      this.drawerAttribute.show = true
+      this.drawerAttribute.create = 0
+      this.drawerAttribute.title = '编辑环境'
       this.envForm.id = row.id
       this.envForm.name = row.name
       this.envForm.type = row.type
@@ -202,17 +206,17 @@ export default {
         this.listLoading = false
       })
     },
-    saveSubmit() {
+    handleSave() {
       console.log(this.envForm)
       this.$refs.envForm.validate(validate => {
         if (validate) {
-          this.dialogAttribute.save = true
-          if (this.dialogAttribute.create === 1) {
+          this.drawerAttribute.save = true
+          if (this.drawerAttribute.create === 1) {
             this.create()
           } else {
             this.update()
           }
-          this.handlerClose()
+          this.handleClose()
           this.getEnvList()
         }
       })
@@ -231,12 +235,11 @@ export default {
         this.$message.error(error.response.data['message'])
       })
     },
-    handlerClose() {
-      this.dialogAttribute.save = false
-      this.dialogAttribute.show = false
-      this.$refs['envForm'].clearValidate()
+    handleClose() {
+      this.drawerAttribute.save = false
+      this.drawerAttribute.show = false
     },
-    async handlerDelete(row) {
+    async handleDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

@@ -11,7 +11,7 @@
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handlerCreate">新增</el-button>
+              <el-button type="primary" @click="handleCreate">新增</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -30,9 +30,9 @@
           <el-table-column label="创建日期" prop="create_time" />
           <el-table-column fixed="right" label="操作" min-width="80px">
             <template slot-scope="scope">
-              <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
-              <!-- <el-button type="text" @click="handlerEdit(scope.row)">成员</el-button> -->
-              <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
+              <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
+              <!-- <el-button type="text" @click="handleEdit(scope.row)">成员</el-button> -->
+              <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -134,12 +134,12 @@ export default {
     this.getProjectList()
   },
   methods: {
-    handlerCreate() {
+    handleCreate() {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
       this.projectForm = this.$resetForm(this.projectForm)
     },
-    handlerEdit(row) {
+    handleEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
       this.dialogAttribute.title = '编辑'
@@ -148,7 +148,7 @@ export default {
       this.projectForm.type = row.type
       this.projectForm.description = row.description
     },
-    async handlerDelete(row) {
+    async handleDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

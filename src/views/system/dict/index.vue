@@ -11,7 +11,7 @@
               <el-button type="primary" @click="handleSearch">搜索</el-button>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handlerCreate">新增</el-button>
+              <el-button type="primary" @click="handleCreate">新增</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -42,9 +42,9 @@
         <el-table-column label="更新时间" prop="update_time" />
         <el-table-column fixed="right" label="操作" min-width="80px">
           <template slot-scope="scope">
-            <el-button type="text" @click="handlerEdit(scope.row)">编辑</el-button>
-            <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
-            <el-button type="text" @click="handlerSetting(scope.row)">配置</el-button>
+            <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="text" @click="handleSetting(scope.row)">配置</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -105,8 +105,8 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" min-width="80px">
             <template slot-scope="scope">
-              <el-button type="text" @click="handlerItemEdit(scope.row)">编辑</el-button>
-              <el-button type="text" @click="handlerItemDelete(scope.row)">删除</el-button>
+              <el-button type="text" @click="handleItemEdit(scope.row)">编辑</el-button>
+              <el-button type="text" @click="handleItemDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -246,7 +246,7 @@ export default {
     this.getDictList()
   },
   methods: {
-    handlerSetting(row) {
+    handleSetting(row) {
       this.drawerAttribute.show = true
       this.dictSetId = row.id
       this.getDictItemList()
@@ -266,7 +266,7 @@ export default {
       this.dictItemForm.dict_id = this.dictSetId
       this.dialogItemAttribute.create = 1
     },
-    handlerItemEdit(row) {
+    handleItemEdit(row) {
       this.dialogItemAttribute.show = true
       this.dialogItemAttribute.create = 0
       this.dialogItemAttribute.title = '编辑'
@@ -329,7 +329,7 @@ export default {
       this.dialogItemAttribute.show = false
       this.$refs['dictItemForm'].clearValidate()
     },
-    async handlerItemDelete(row) {
+    async handleItemDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -342,12 +342,12 @@ export default {
       })
     },
     // Dict
-    handlerCreate() {
+    handleCreate() {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
       this.dictForm = this.$resetForm(this.dictForm)
     },
-    handlerEdit(row) {
+    handleEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
       this.dialogAttribute.title = '编辑'
@@ -409,7 +409,7 @@ export default {
       this.dialogAttribute.show = false
       this.$refs['dictForm'].clearValidate()
     },
-    async handlerDelete(row) {
+    async handleDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
