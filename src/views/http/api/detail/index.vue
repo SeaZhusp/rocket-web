@@ -288,7 +288,5 @@ export default {
 </script>
 
 <style scoped>
-.custom-form-item {
-    width: 330px;
-}
+
 </style>
