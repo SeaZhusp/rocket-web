@@ -16,4 +16,7 @@ export default {
     right: 0px;
     padding: 10px;
 }
+.custom-form-item {
+    width: 330px;
+}
 </style>
