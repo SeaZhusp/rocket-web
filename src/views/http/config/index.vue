@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="8">
             <el-form-item>
-              <el-input v-model="q" placeholder="输入环境名筛选" />
+              <el-input v-model="q" placeholder="输入名称筛选" @keyup.enter.native="handleSearch" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -18,7 +18,12 @@
       </el-form>
       <el-table v-loading="listLoading" :data="envList" element-loading-text="Loading">
         <el-table-column label="序号" type="index" width="55" />
-        <el-table-column label="环境名" prop="name" />
+        <el-table-column label="名称" prop="name" />
+        <el-table-column label="状态" width="100">
+          <template slot-scope="{row}">
+            <el-tag :type="row.status === 0 ? 'info':'success'">{{ row.status===0? "禁用":"启用" }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="描述" prop="desc" />
         <el-table-column label="创建时间" prop="create_time" />
         <el-table-column label="更新时间" prop="update_time" />
@@ -41,8 +46,8 @@
     >
       <el-card shadow="nerer">
         <el-form ref="configForm" :model="configForm" :rules="configFormRules">
-          <el-form-item label="环境名称" prop="name" label-width="80px">
-            <el-input v-model="configForm.name" placeholder="环境名称" />
+          <el-form-item label="名称" prop="name" label-width="80px">
+            <el-input v-model="configForm.name" placeholder="名称" />
           </el-form-item>
           <el-form-item label="描述" prop="desc" label-width="80px">
             <el-input v-model="configForm.desc" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />

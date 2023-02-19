@@ -69,9 +69,9 @@ export const constantRoutes = [
       },
       {
         path: '/http/config',
-        name: '环境管理',
+        name: '配置管理',
         component: () => import('@/views/http/config'),
-        meta: { title: '环境管理' }
+        meta: { title: '配置管理' }
       }
 
     ]

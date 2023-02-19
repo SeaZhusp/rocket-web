@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="8">
             <el-form-item>
-              <el-input v-model="q" placeholder="输入字典名筛选" />
+              <el-input v-model="q" placeholder="输入字典名筛选" @keyup.enter.native="handleSearch" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleSearch">搜索</el-button>
