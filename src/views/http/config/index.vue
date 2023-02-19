@@ -40,42 +40,42 @@
       @close="handleClose"
     >
       <el-card shadow="nerer">
-        <el-form ref="envForm" :model="envForm" :rules="envFormRules">
+        <el-form ref="configForm" :model="configForm" :rules="configFormRules">
           <el-form-item label="环境名称" prop="name" label-width="80px">
-            <el-input v-model="envForm.name" placeholder="环境名称" />
+            <el-input v-model="configForm.name" placeholder="环境名称" />
           </el-form-item>
           <el-form-item label="描述" prop="desc" label-width="80px">
-            <el-input v-model="envForm.desc" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
+            <el-input v-model="configForm.desc" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
           </el-form-item>
           <el-form-item label="状态" prop="status" label-width="80px">
-            <el-radio v-model="envForm.status" :label="1">启用</el-radio>
-            <el-radio v-model="envForm.status" :label="0">禁用</el-radio>
+            <el-radio v-model="configForm.status" :label="1">启用</el-radio>
+            <el-radio v-model="configForm.status" :label="0">禁用</el-radio>
           </el-form-item>
         </el-form>
         <el-tabs v-model="activeStep">
           <el-tab-pane label="Service" name="service">
             <Service
               ref="service"
-              :service="envForm.config.service"
+              :service="configForm.config.service"
             />
           </el-tab-pane>
           <el-tab-pane label="Variables" name="variables">
             <Variables
               ref="variables"
-              :variables="envForm.config.variables"
+              :variables="configForm.config.variables"
             />
           </el-tab-pane>
           <el-tab-pane label="Headers" name="headers">
             <Headers
               ref="headers"
-              :headers="envForm.config.headers"
+              :headers="configForm.config.headers"
               :custom-style="'width:235px'"
             />
           </el-tab-pane>
           <el-tab-pane label="Hooks" name="Hooks">
             <Hooks
               ref="hooks"
-              :hooks="envForm.config.hooks"
+              :hooks="configForm.config.hooks"
             />
           </el-tab-pane>
         </el-tabs>
@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import { searchEnv, deletEnv, createEnv, updateEnv } from '@/api/http/env'
+import { searchConfig, deletConfig, createConfig, updateConfig } from '@/api/http/config'
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/httprunner/Headers'
 import Variables from '@/components/httprunner/Variables'
@@ -117,7 +117,7 @@ export default {
         show: false,
         save: false
       },
-      envFormRules: {
+      configFormRules: {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
@@ -125,7 +125,7 @@ export default {
           { required: true, message: '状态不能为空', trigger: 'blur' }
         ]
       },
-      envForm: {
+      configForm: {
         id: '',
         name: '',
         status: 1,
@@ -154,7 +154,7 @@ export default {
       this.paging.page = 1
       await this.getEnvList()
     },
-    initEnvForm() {
+    initConfigForm() {
       return {
         id: '',
         name: '',
@@ -174,17 +174,17 @@ export default {
     handleCreate() {
       this.drawerAttribute.show = true
       this.drawerAttribute.create = 1
-      this.envForm = this.initEnvForm()
+      this.configForm = this.initConfigForm()
     },
     handleEdit(row) {
       this.drawerAttribute.show = true
       this.drawerAttribute.create = 0
       this.drawerAttribute.title = '编辑环境'
-      this.envForm.id = row.id
-      this.envForm.name = row.name
-      this.envForm.status = row.status
-      this.envForm.desc = row.desc
-      this.envForm.status = row.status
+      this.configForm.id = row.id
+      this.configForm.name = row.name
+      this.configForm.status = row.status
+      this.configForm.desc = row.desc
+      this.configForm.status = row.status
     },
     async getEnvList() {
       this.listLoading = true
@@ -193,18 +193,18 @@ export default {
         limit: this.paging.limit,
         search: this.q
       }
-      await searchEnv(params).then(response => {
+      await searchConfig(params).then(response => {
         this.envList = response.data
         this.paging = response.paging
         this.listLoading = false
       })
     },
-    getEnvForm() {
+    getConfigForm() {
       return {
-        id: this.envForm.id,
-        name: this.envForm.name,
-        status: this.envForm.status,
-        desc: this.envForm.desc,
+        id: this.configForm.id,
+        name: this.configForm.name,
+        status: this.configForm.status,
+        desc: this.configForm.desc,
         config: {
           variables: this.$refs.variables.parseVariables(),
           headers: this.$refs.headers.parseHeaders(),
@@ -214,7 +214,7 @@ export default {
       }
     },
     handleSave() {
-      this.$refs.envForm.validate(validate => {
+      this.$refs.configForm.validate(validate => {
         if (validate) {
           this.drawerAttribute.save = true
           if (this.drawerAttribute.create === 1) {
@@ -228,14 +228,14 @@ export default {
       })
     },
     update() {
-      updateEnv(this.getEnvForm()).then(res => {
+      updateConfig(this.getConfigForm()).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
       })
     },
     create() {
-      createEnv(this.getEnvForm()).then(res => {
+      createConfig(this.getConfigForm()).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
@@ -252,7 +252,7 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        const { msg } = await deletEnv(row.id)
+        const { msg } = await deletConfig(row.id)
         this.$message.success(msg)
         await this.getEnvList()
       })
