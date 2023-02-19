@@ -23,7 +23,7 @@
           </template>
         </el-table-column>
         <template slot="empty">
-          <el-button type="text" icon="el-icon-plus" @click="addTableRow(0)">添加一行数据</el-button>
+          <el-button type="text" icon="el-icon-plus" @click="addTableRow('setup')">添加一行数据</el-button>
         </template>
       </el-table>
     </el-col>
@@ -50,7 +50,7 @@
           </template>
         </el-table-column>
         <template slot="empty">
-          <el-button type="text" icon="el-icon-plus" @click="addTableRow(0)">添加一行数据</el-button>
+          <el-button type="text" icon="el-icon-plus" @click="addTableRow('teardown')">添加一行数据</el-button>
         </template>
       </el-table>
     </el-col>

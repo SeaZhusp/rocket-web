@@ -189,7 +189,7 @@ export default {
       this.configForm.name = row.name
       this.configForm.status = row.status
       this.configForm.desc = row.desc
-      this.configForm.status = row.status
+      this.configForm.config = JSON.parse(row.config)
     },
     async getEnvList() {
       this.listLoading = true
