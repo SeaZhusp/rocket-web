@@ -154,6 +154,10 @@
         @getApiList="getApiList"
       />
     </el-drawer>
+
+    <el-dialog :visible.sync="reportDialog.show" :close-on-click-modal="false" width="60%">
+      <Report />
+    </el-dialog>
   </div>
 </template>
 
@@ -163,9 +167,10 @@ import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '
 import { searchApi, getApiDetail, deleteApi } from '@/api/http/api'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
+import Report from '@/components/httprunner/Report'
 
 export default {
-  components: { Detail, Pagination },
+  components: { Detail, Pagination, Report },
   data() {
     return {
       apiList: [],
@@ -214,6 +219,9 @@ export default {
       apiDrawer: {
         show: false,
         title: '新增'
+      },
+      reportDialog: {
+        show: true
       }
     }
   },

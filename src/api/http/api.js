@@ -37,3 +37,9 @@ export function createApi(data) {
     data
   })
 }
+
+export function getInfo() {
+  return request({
+    url: '/http/api/run/result',
+  })
+}
