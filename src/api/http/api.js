@@ -45,3 +45,9 @@ export function runSingleApi(data) {
     data
   })
 }
+
+export function getInfo() {
+  return request({
+    url: '/http/api/run/result',
+  })
+}
