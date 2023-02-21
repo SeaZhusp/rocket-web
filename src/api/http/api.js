@@ -37,3 +37,11 @@ export function createApi(data) {
     data
   })
 }
+
+export function runSingleApi(data) {
+  return request({
+    url: '/http/api/run',
+    method: 'post',
+    data
+  })
+}

@@ -72,7 +72,6 @@
                   <el-dropdown>
                     <el-button> 更多操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item disabled>批量执行</el-dropdown-item>
                       <el-dropdown-item disabled>批量删除</el-dropdown-item>
                       <el-dropdown-item disabled>导入接口</el-dropdown-item>
                     </el-dropdown-menu>
