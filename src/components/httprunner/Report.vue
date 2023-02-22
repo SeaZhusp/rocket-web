@@ -1,40 +1,40 @@
 <template>
   <div>
     <el-row>
-      <el-table :data="statTableData" border>
-        <el-table-column prop="strat_time" label="StartTime" align="center" width="160">
+      <el-table :data="summary.stat" border>
+        <el-table-column prop="start_time" label="StartTime" align="center" width="160">
           <template slot-scope="scope">
             <i class="el-icon-time" />
-            <span style="margin-left: 10px">{{ scope.row.strat_time }}</span>
+            <span style="margin-left: 10px">{{ scope.row.start_time }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="end_time" label="EndTime" align="center" width="160">
+        <!-- <el-table-column prop="end_time" label="EndTime" align="center" width="160">
           <template slot-scope="scope">
             <i class="el-icon-time" />
             <span style="margin-left: 10px">{{ scope.row.end_time }}</span>
           </template>
-        </el-table-column>
-        <el-table-column prop="duration" label="Duration" align="center">
+        </el-table-column> -->
+        <el-table-column prop="duration" label="Duration" align="center" width="100">
           <template slot-scope="scope">
-            <span style="margin-left: 10px">{{ scope.row.duration/1000 }} 秒</span>
+            <span style="margin-left: 10px">{{ scope.row.duration }} 秒 </span>
           </template>
         </el-table-column>
-        <el-table-column prop="total" label="Total" align="center">
+        <el-table-column prop="total" label="Total" align="center" width="100">
           <template slot-scope="scope">
             <el-tag type="primary">{{ scope.row.total }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="success" label="Success" align="center">
+        <el-table-column prop="success" label="Success" align="center" width="100">
           <template slot-scope="scope">
             <el-tag type="success">{{ scope.row.success }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="failed" label="Failed" align="center">
+        <el-table-column prop="failed" label="Failed" align="center" width="100">
           <template slot-scope="scope">
             <el-tag type="danger">{{ scope.row.failed }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="error" label="Error" align="center">
+        <!-- <el-table-column prop="error" label="Error" align="center">
           <template slot-scope="scope">
             <el-tag type="warning">{{ scope.row.error }}</el-tag>
           </template>
@@ -43,21 +43,32 @@
           <template slot-scope="scope">
             <el-tag type="info">{{ scope.row.skip }}</el-tag>
           </template>
+        </el-table-column> -->
+        <el-table-column label="Platform" align="center">
+          <template slot-scope="scope">
+            <el-popover trigger="hover" placement="top">
+              <p>HttpRunner: {{ scope.row.platform.httprunner_version }}</p>
+              <p>Python: {{ scope.row.platform.python_version }}</p>
+              <div slot="reference" class="name-wrapper">
+                <el-tag size="medium">{{ scope.row.platform.platform }}</el-tag>
+              </div>
+            </el-popover>
+          </template>
         </el-table-column>
       </el-table>
     </el-row>
 
     <el-row style="margin-top:20px">
       <slot v-for="item in summary.details">
-        <div>
-          <span style="font-weight: bold; font-size: medium">{{ item.name }}</span>
-          <el-popover placement="top-start" width="400" trigger="hover">
-            <pre class="code-block">{{ item.in_out }}</pre>
-            <el-button slot="reference" round type="text">parameters & output</el-button>
-          </el-popover>
-        </div>
+        <!-- <div> -->
+        <span>{{ item.name }}</span>
+        <el-popover placement="top-start" width="400" trigger="hover">
+          <pre class="code-block">{{ item.in_out }}</pre>
+          <el-button slot="reference" round type="text">parameters & output</el-button>
+        </el-popover>
+        <!-- </div> -->
         <el-table
-          :data="item.records"
+          :data="item.step_datas"
           style="width: 100%"
           border
           :header-cell-style="{textAlign:'center', background: '#F8F8FA'}"
@@ -67,21 +78,20 @@
             <template slot-scope="props">
               <el-tabs>
                 <el-tab-pane label="Request">
-                  <pre class="code-block" v-html="handleRequest(props.row.meta_data.request)" />
+                  <pre class="code-block" v-html="handleRequest(props.row.data.req_resps[0].request)" />
                 </el-tab-pane>
-                <el-tab-pane v-if="props.row.meta_data.response.content !== null" label="Content">
+                <el-tab-pane v-if="props.row.data.req_resps[0].response.body !== null" label="Content">
                   <pre
                     class="code-block"
-                    v-text="handleContent(props.row.meta_data.response.content)"
+                    v-text="handleContent(props.row.data.req_resps[0].response.body)"
                   />
                 </el-tab-pane>
                 <el-tab-pane label="Response">
-                  <pre class="code-block" v-text="handleResponse(props.row.meta_data.response)" />
+                  <pre class="code-block" v-text="handleResponse(props.row.data.req_resps[0].response)" />
                 </el-tab-pane>
-                <el-tab-pane v-if="props.row.meta_data.validators.length !== 0" label="Validators">
-                  <!--                                <pre class="code-block" v-html="props.row.meta_data.validators"></pre>-->
+                <el-tab-pane v-if="props.row.data.validators.validate_extractor.length !== 0" label="Validators">
                   <el-table
-                    :data="props.row.meta_data.validators"
+                    :data="props.row.data.validators.validate_extractor"
                     stripe
                     border
                     style="width: 100%"
@@ -96,42 +106,42 @@
                 <el-tab-pane v-if="props.row.attachment !== ''" label="Exception">
                   <pre class="code-block" v-html="props.row.attachment" />
                 </el-tab-pane>
-                <el-tab-pane v-if="props.row.meta_data.response.content !== null" label="Extract">
-                  <ResContent :data="props.row.meta_data.response.content" />
-                </el-tab-pane>
+                <!-- <el-tab-pane v-if="props.row.data.req_resp[0].response.body !== null" label="Extract">
+                  <ResContent :data="props.row.data.req_resp[0].response.body" />
+                </el-tab-pane> -->
               </el-tabs>
             </template>
           </el-table-column>
 
-          <el-table-column label="名 称">
+          <el-table-column label="步骤名称">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column label="请求地址">
+          <el-table-column label="请求地址" show-overflow-tooltip>
             <template slot-scope="scope">
-              <span>{{ scope.row.meta_data.request.url }}</span>
+              <span>{{ scope.row.data.req_resps[0].request.url }}</span>
             </template>
           </el-table-column>
 
           <el-table-column label="请求方法">
             <template slot-scope="scope">
               <span
-                :class="scope.row.meta_data.request.method"
-              >{{ scope.row.meta_data.request.method }}</span>
+                :class="scope.row.data.req_resps[0].request.method"
+              >{{ scope.row.data.req_resps[0].request.method }}</span>
             </template>
           </el-table-column>
 
           <el-table-column label="响应时间 (ms)">
             <template slot-scope="scope">
-              <span>{{ scope.row.meta_data.response.elapsed_ms }}</span>
+              <span>{{ scope.row.data.stat.elapsed_ms }}</span>
             </template>
           </el-table-column>
 
           <el-table-column label="测试结果">
             <template slot-scope="scope">
-              <div :class="scope.row.status">{{ scope.row.status }}</div>
+              <div :class="scope.row.data.success">{{ scope.row.data.success }}</div>
             </template>
           </el-table-column>
 
@@ -142,11 +152,17 @@
 </template>
 
 <script>
-import { getInfo } from '@/api/http/api'
+import { getInfo } from '@/api/http'
 export default {
   name: 'Report',
   props: {
-
+    summary: {
+      type: Object,
+      require: true,
+      default() {
+        return {}
+      }
+    }
   },
   data() {
     return {
@@ -159,8 +175,7 @@ export default {
         failed: 0,
         error: 0,
         skip: 0
-      }],
-      summary: ''
+      }]
     }
   },
   computed: {
@@ -170,13 +185,12 @@ export default {
 
   },
   created() {
-    this.getresult()
+    // this.getresult()
   },
   methods: {
     getresult() {
       getInfo().then(res => {
         this.summary = res.data
-        console.log(this.summary)
       })
     },
     handleRequest(request) {

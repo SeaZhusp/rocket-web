@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { searchProject, createProject, deleteProject, updateProject } from '@/api/http/project'
+import { searchProject, createProject, deleteProject, updateProject } from '@/api/http'
 import Pagination from '@/components/Pagination'
 
 export default {

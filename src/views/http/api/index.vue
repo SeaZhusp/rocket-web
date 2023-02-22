@@ -148,6 +148,7 @@
         :api-info="apiInfo"
         :api-create-flag="apiCreateFlag"
         :catalogs="catalogs"
+        :config-options="configOptions"
         :catalog-select-options="catalogSelectOptions"
         @handleApiDrawerClose="handleApiDrawerClose"
         @getApiList="getApiList"
@@ -161,9 +162,9 @@
 </template>
 
 <script>
-import { listProject } from '@/api/http/project'
-import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '@/api/http/catalog'
-import { searchApi, getApiDetail, deleteApi } from '@/api/http/api'
+import { listProject, getAllConfig,
+  searchCatalogTree, createCatalog, updateCatalog, deleteCatalog,
+  searchApi, getApiDetail, deleteApi } from '@/api/http'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 import Report from '@/components/httprunner/Report'
@@ -177,6 +178,7 @@ export default {
       apiCreateFlag: true,
       catalogSelectOptions: [],
       projects: [],
+      configOptions: [],
       projectId: '',
       catalogId: '',
       apiInfo: null,
@@ -237,6 +239,7 @@ export default {
   created() {
     this.getAllProjects()
     this.initApiPage()
+    this.getAllConfigs()
   },
   methods: {
     initApiPage() {
@@ -251,6 +254,7 @@ export default {
       return {
         project_id: this.projectId,
         catalog_id: this.catalogId,
+        config_id: '',
         name: '',
         level: '',
         status: 1,
@@ -275,6 +279,11 @@ export default {
           }
         }
       }
+    },
+    async getAllConfigs() {
+      await getAllConfig().then(res => {
+        this.configOptions = res.data
+      })
     },
     async getAllProjects() {
       await listProject().then(response => {

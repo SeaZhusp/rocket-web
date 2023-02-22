@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { searchConfig, deletConfig, createConfig, updateConfig } from '@/api/http/config'
+import { searchConfig, deletConfig, createConfig, updateConfig } from '@/api/http'
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/httprunner/Headers'
 import Variables from '@/components/httprunner/Variables'
