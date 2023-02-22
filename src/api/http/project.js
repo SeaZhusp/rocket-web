@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function searchProject(params) {
   return request({
-    url: '/sys/project/list',
+    url: '/http/project/list',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function searchProject(params) {
 
 export function createProject(data) {
   return request({
-    url: '/sys/project/create',
+    url: '/http/project/create',
     method: 'post',
     data
   })
@@ -18,23 +18,22 @@ export function createProject(data) {
 
 export function deleteProject(id) {
   return request({
-    url: `/sys/project/delete/${id}`,
+    url: `/http/project/delete/${id}`,
     method: 'delete'
   })
 }
 
 export function updateProject(data) {
   return request({
-    url: '/sys/project/update',
+    url: '/http/project/update',
     method: 'put',
     data
   })
 }
 
-export function listProject(params) {
+export function listProject() {
   return request({
-    url: '/sys/project/all',
-    method: 'get',
-    params
+    url: '/http/project/all',
+    method: 'get'
   })
 }

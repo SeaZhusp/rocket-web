@@ -161,8 +161,8 @@
 </template>
 
 <script>
-import { listProject } from '@/api/system/project'
-import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '@/api/system/catalog'
+import { listProject } from '@/api/http/project'
+import { searchCatalogTree, createCatalog, updateCatalog, deleteCatalog } from '@/api/http/catalog'
 import { searchApi, getApiDetail, deleteApi } from '@/api/http/api'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
@@ -277,10 +277,7 @@ export default {
       }
     },
     async getAllProjects() {
-      const params = {
-        project_type: 0
-      }
-      await listProject(params).then(response => {
+      await listProject().then(response => {
         this.projects = response.data
         if (this.projectId === '') {
           this.projectId = response.data[0].id

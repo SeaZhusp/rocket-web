@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function searchCatalogTree(params) {
   return request({
-    url: '/sys/catalog/tree',
+    url: '/http/catalog/tree',
     method: 'get',
     params
   })
@@ -10,7 +10,7 @@ export function searchCatalogTree(params) {
 
 export function createCatalog(data) {
   return request({
-    url: '/sys/catalog/create',
+    url: '/http/catalog/create',
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function createCatalog(data) {
 
 export function updateCatalog(data) {
   return request({
-    url: '/sys/catalog/update',
+    url: '/http/catalog/update',
     method: 'put',
     data
   })
@@ -26,7 +26,7 @@ export function updateCatalog(data) {
 
 export function deleteCatalog(id) {
   return request({
-    url: `/sys/catalog/delete/${id}`,
+    url: `/http/catalog/delete/${id}`,
     method: 'delete'
   })
 }

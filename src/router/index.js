@@ -72,6 +72,12 @@ export const constantRoutes = [
         name: '配置管理',
         component: () => import('@/views/http/config'),
         meta: { title: '配置管理' }
+      },
+      {
+        path: 'project',
+        name: '项目管理',
+        component: () => import('@/views/http/project/index'),
+        meta: { title: '项目管理' }
       }
 
     ]
@@ -84,12 +90,6 @@ export const constantRoutes = [
     name: '系统管理',
     meta: { title: '系统管理' },
     children: [
-      {
-        path: 'project',
-        name: '项目管理',
-        component: () => import('@/views/system/project/index'),
-        meta: { title: '项目管理' }
-      },
       {
         path: 'user',
         name: '用户管理',

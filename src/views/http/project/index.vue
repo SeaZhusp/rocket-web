@@ -21,11 +21,6 @@
           <el-table-column label="序号" type="selection" width="55" />
           <el-table-column label="项目" prop="name" />
           <el-table-column label="描述" prop="description" />
-          <el-table-column label="类型">
-            <template slot-scope="{row}">
-              <el-tag :type="row.type === 0 ? 'info': row.type === 1 ? 'success': 'danger' ">{{ row.type | typeName }}</el-tag>
-            </template>
-          </el-table-column>
           <el-table-column label="更新时间" prop="update_time" />
           <el-table-column label="创建日期" prop="create_time" />
           <el-table-column fixed="right" label="操作" min-width="80px">
@@ -42,25 +37,12 @@
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="cancelSubmit">
       <el-form ref="projectForm" :model="projectForm" :rules="projectFormRules" label-width="55px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="项目" prop="name">
-              <el-input v-model="projectForm.name" placeholder="项目" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="类型" prop="type">
-              <el-select v-model="projectForm.type" placeholder="选择类型">
-                <el-option v-for="item in typeList" :key="item.type" :label="item.name" :value="item.type" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-form-item label="描述" prop="description">
-            <el-input v-model="projectForm.description" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" maxlength="200" show-word-limit placeholder="描述" />
-          </el-form-item>
-        </el-row>
+        <el-form-item label="项目" prop="name">
+          <el-input v-model="projectForm.name" placeholder="项目" />
+        </el-form-item>
+        <el-form-item label="描述" prop="description">
+          <el-input v-model="projectForm.description" type="textarea" :autosize="{ minRows: 4, maxRows: 6}" maxlength="200" show-word-limit placeholder="描述" />
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelSubmit">取 消</el-button>
@@ -71,20 +53,12 @@
 </template>
 
 <script>
-import { searchProject, createProject, deleteProject, updateProject } from '@/api/system/project'
+import { searchProject, createProject, deleteProject, updateProject } from '@/api/http/project'
 import Pagination from '@/components/Pagination'
 
 export default {
   components: { Pagination },
   filters: {
-    typeName(type) {
-      const statusMap = {
-        0: 'api',
-        1: 'web',
-        2: 'app'
-      }
-      return statusMap[type]
-    }
   },
   data() {
     return {
@@ -105,29 +79,13 @@ export default {
       projectFormRules: {
         name: [
           { required: true, message: '项目名不能为空', trigger: 'blur' }
-        ],
-        type: [
-          { required: true, message: '类型不能为空', trigger: 'blur' }
         ]
       },
       projectForm: {
         id: '',
         name: '',
-        type: '',
         description: ''
-      },
-      typeList: [
-        {
-          type: 0,
-          name: 'api'
-        },
-        { type: 1,
-          name: 'web'
-        },
-        { type: 2,
-          name: 'app'
-        }
-      ]
+      }
     }
   },
   created() {
@@ -145,7 +103,6 @@ export default {
       this.dialogAttribute.title = '编辑'
       this.projectForm.id = row.id
       this.projectForm.name = row.name
-      this.projectForm.type = row.type
       this.projectForm.description = row.description
     },
     async handleDelete(row) {
