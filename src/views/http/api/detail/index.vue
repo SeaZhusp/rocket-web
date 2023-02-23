@@ -301,13 +301,13 @@ export default {
         }
       })
     },
-    handleSend() {
+    async handleSend() {
       this.runStatus = true
       const params = {
         config_id: this.apiInfo.config_id,
         api_id: this.apiInfo.id
       }
-      runSingleApi(params).then(res => {
+      await runSingleApi(params).then(res => {
         this.$message.success(res.msg)
         this.summary = res.data
         this.reportShow = true

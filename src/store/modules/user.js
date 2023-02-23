@@ -1,4 +1,4 @@
-import { login } from '@/api/system/user'
+import { login } from '@/api/system'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { setUserInfo, getFullname, setDictItem, removeAll } from '@/utils/rocket'

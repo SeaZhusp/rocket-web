@@ -13,8 +13,6 @@ export function createApi(data) { return request({ url: '/http/api/create', meth
 
 export function runSingleApi(data) { return request({ url: '/http/api/run', method: 'post', data }) }
 
-export function getInfo() { return request({ url: '/http/api/run/result' }) }
-
 // catalog
 export function searchCatalogTree(params) { return request({ url: '/http/catalog/tree', method: 'get', params }) }
 

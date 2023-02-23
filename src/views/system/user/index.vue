@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { searchUser, createUser, deleteUser, updateUser } from '@/api/system/user'
+import { searchUser, createUser, deleteUser, updateUser } from '@/api/system'
 import Pagination from '@/components/Pagination'
 
 export default {

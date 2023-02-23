@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import { uploadUrl, uploadFile } from '@/api/system/file'
+import { uploadUrl, uploadFile } from '@/api/system'
 export default {
   name: 'Request',
   components: {

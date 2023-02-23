@@ -135,8 +135,8 @@
 </template>
 
 <script>
-import { searchDict, createDict, deleteDict, updateDict } from '@/api/system/dict'
-import { createDictItem, searchDictItem, updateItemDict, deleteItemDict } from '@/api/system/dict'
+import { searchDict, createDict, deleteDict, updateDict,
+  createDictItem, searchDictItem, updateItemDict, deleteItemDict } from '@/api/system'
 import Pagination from '@/components/Pagination'
 
 export default {
