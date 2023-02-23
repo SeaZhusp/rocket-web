@@ -111,8 +111,8 @@
                         更多<i class="el-icon-arrow-down el-icon--right" />
                       </span>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>执行</el-dropdown-item>
-                        <el-dropdown-item>复制</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleRun(scope.row)">执行</el-dropdown-item>
+                        <el-dropdown-item disabled>复制</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                   </template>
@@ -156,13 +156,13 @@
     </el-drawer>
 
     <el-dialog :visible.sync="reportDialog.show" :close-on-click-modal="false" width="60%">
-      <Report />
+      <Report :summary="summary" />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { listProject, getAllConfig,
+import { listProject, getAllConfig, runSingleApi,
   searchCatalogTree, createCatalog, updateCatalog, deleteCatalog,
   searchApi, getApiDetail, deleteApi } from '@/api/http'
 import Detail from '@/views/http/api/detail'
@@ -179,6 +179,7 @@ export default {
       catalogSelectOptions: [],
       projects: [],
       configOptions: [],
+      summary: {},
       projectId: '',
       catalogId: '',
       apiInfo: null,
@@ -222,7 +223,7 @@ export default {
         title: '新增'
       },
       reportDialog: {
-        show: true
+        show: false
       }
     }
   },
@@ -437,6 +438,17 @@ export default {
       this.apiDrawer.show = false
       this.apiInfo = this.initApiInfo()
       this.catalogSelectOptions = []
+    },
+    handleRun(row) {
+      const params = {
+        api_id: row.id,
+        config_id: row.config_id
+      }
+      runSingleApi(params).then(res => {
+        this.$message.success(res.msg)
+        this.summary = res.data
+      })
+      this.reportDialog.show = true
     }
   }
 }

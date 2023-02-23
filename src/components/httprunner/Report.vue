@@ -89,7 +89,7 @@
                 <el-tab-pane label="Response">
                   <pre class="code-block" v-text="handleResponse(props.row.data.req_resps[0].response)" />
                 </el-tab-pane>
-                <el-tab-pane v-if="props.row.data.validators.validate_extractor.length !== 0" label="Validators">
+                <el-tab-pane v-if="props.row.data.validators" label="Validators">
                   <el-table
                     :data="props.row.data.validators.validate_extractor"
                     stripe
@@ -185,14 +185,8 @@ export default {
 
   },
   created() {
-    // this.getresult()
   },
   methods: {
-    getresult() {
-      getInfo().then(res => {
-        this.summary = res.data
-      })
-    },
     handleRequest(request) {
       const keys = ['start_timestamp']
 
