@@ -68,10 +68,10 @@ export const constantRoutes = [
         meta: { title: '接口管理' }
       },
       {
-        path: '/http/config',
-        name: '配置管理',
-        component: () => import('@/views/http/config'),
-        meta: { title: '配置管理' }
+        path: '/http/envconfig',
+        name: '环境配置',
+        component: () => import('@/views/http/envconfig'),
+        meta: { title: '环境配置' }
       },
       {
         path: 'project',

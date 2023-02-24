@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { searchConfig, deletConfig, createConfig, updateConfig } from '@/api/http'
+import { searchEnvConfig, deleteEnvConfig, createEnvConfig, updateEnvConfig } from '@/api/http'
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/HttpRunner/Headers'
 import Variables from '@/components/HttpRunner/Variables'
@@ -202,7 +202,7 @@ export default {
         limit: this.paging.limit,
         search: this.q
       }
-      await searchConfig(params).then(response => {
+      await searchEnvConfig(params).then(response => {
         this.envList = response.data
         this.paging = response.paging
         this.listLoading = false
@@ -238,14 +238,14 @@ export default {
       })
     },
     update() {
-      updateConfig(this.getConfigForm()).then(res => {
+      updateEnvConfig(this.getConfigForm()).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
       })
     },
     create() {
-      createConfig(this.getConfigForm()).then(res => {
+      createEnvConfig(this.getConfigForm()).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
@@ -262,7 +262,7 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        const { msg } = await deletConfig(row.id)
+        const { msg } = await deleteEnvConfig(row.id)
         this.$message.success(msg)
         await this.getEnvList()
       })

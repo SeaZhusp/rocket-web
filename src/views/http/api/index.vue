@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import { listProject, getAllConfig, runSingleApi,
+import { listProject, getAllEnvConfig, runSingleApi,
   searchCatalogTree, createCatalog, updateCatalog, deleteCatalog,
   searchApi, getApiDetail, deleteApi } from '@/api/http'
 import Detail from '@/views/http/api/detail'
@@ -186,7 +186,7 @@ export default {
   created() {
     this.getAllProjects()
     this.initApiPage()
-    this.getAllConfigs()
+    this.getAllEnvConfigs()
   },
   methods: {
     initApiPage() {
@@ -227,8 +227,8 @@ export default {
         }
       }
     },
-    async getAllConfigs() {
-      await getAllConfig().then(res => {
+    async getAllEnvConfigs() {
+      await getAllEnvConfig().then(res => {
         this.configOptions = res.data
       })
     },

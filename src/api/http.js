@@ -22,16 +22,16 @@ export function updateCatalog(data) { return request({ url: '/http/catalog/updat
 
 export function deleteCatalog(id) { return request({ url: `/http/catalog/delete/${id}`, method: 'delete' }) }
 
-// config
-export function searchConfig(params) { return request({ url: '/http/config/list', method: 'get', params }) }
+// envconfig
+export function searchEnvConfig(params) { return request({ url: '/http/envconfig/list', method: 'get', params }) }
 
-export function deletConfig(id) { return request({ url: `/http/config/delete/${id}`, method: 'delete' }) }
+export function deleteEnvConfig(id) { return request({ url: `/http/envconfig/delete/${id}`, method: 'delete' }) }
 
-export function updateConfig(data) { return request({ url: '/http/config/update', method: 'put', data }) }
+export function updateEnvConfig(data) { return request({ url: '/http/envconfig/update', method: 'put', data }) }
 
-export function createConfig(data) { return request({ url: '/http/config/create', method: 'post', data }) }
+export function createEnvConfig(data) { return request({ url: '/http/envconfig/create', method: 'post', data }) }
 
-export function getAllConfig() { return request({ url: '/http/config/all', method: 'get' }) }
+export function getAllEnvConfig() { return request({ url: '/http/envconfig/all', method: 'get' }) }
 
 // project
 export function searchProject(params) { return request({ url: '/http/project/list', method: 'get', params }) }
