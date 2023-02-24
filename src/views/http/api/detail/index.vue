@@ -142,13 +142,13 @@
 
 <script>
 import { createApi, updateApi, runSingleApi } from '@/api/http'
-import Extract from '@/components/httprunner/Extract'
-import Validator from '@/components/httprunner/Validator'
-import Headers from '@/components/httprunner/Headers'
-import Variables from '@/components/httprunner/Variables'
-import Request from '@/components/httprunner/Request'
-import Hooks from '@/components/httprunner/Hooks'
-import Report from '@/components/httprunner/Report'
+import Extract from '@/components/HttpRunner/Extract'
+import Validator from '@/components/HttpRunner/Validator'
+import Headers from '@/components/HttpRunner/Headers'
+import Variables from '@/components/HttpRunner/Variables'
+import Request from '@/components/HttpRunner/Request'
+import Hooks from '@/components/HttpRunner/Hooks'
+import Report from '@/components/HttpRunner/Report'
 export default {
   components: {
     Variables,
@@ -177,7 +177,7 @@ export default {
     },
     catalogSelectOptions: {
       type: Array,
-      require: false,
+      require: true,
       default() {
         return []
       }
@@ -234,7 +234,8 @@ export default {
       this.catalogOptions = this.catalogSelectOptions
     }
   },
-  created() {},
+  created() {
+  },
   methods: {
     singleTreeClear() {
       // do something
@@ -302,6 +303,11 @@ export default {
       })
     },
     async handleSend() {
+      const loading = this.$loading({
+        lock: true,
+        text: '拼命执行中',
+        spinner: 'el-icon-loading'
+      })
       this.runStatus = true
       const params = {
         config_id: this.apiInfo.config_id,
@@ -313,6 +319,7 @@ export default {
         this.reportShow = true
       })
       this.runStatus = false
+      loading.close()
     }
   }
 }

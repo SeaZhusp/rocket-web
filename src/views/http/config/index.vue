@@ -97,10 +97,10 @@
 <script>
 import { searchConfig, deletConfig, createConfig, updateConfig } from '@/api/http'
 import Pagination from '@/components/Pagination'
-import Headers from '@/components/httprunner/Headers'
-import Variables from '@/components/httprunner/Variables'
-import Hooks from '@/components/httprunner/Hooks'
-import Service from '@/components/httprunner/Service'
+import Headers from '@/components/HttpRunner/Headers'
+import Variables from '@/components/HttpRunner/Variables'
+import Hooks from '@/components/HttpRunner/Hooks'
+import Service from '@/components/HttpRunner/Service'
 
 export default {
   components: { Pagination, Headers, Variables, Hooks, Service },

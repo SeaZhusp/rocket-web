@@ -48,8 +48,8 @@
 
     <el-row style="margin-top:20px">
       <slot v-for="item in summary.details">
-        <el-span style="font-size: 15px;">CaseName: <el-span style="color: #409EFF;margin-right: 5px">{{ item.name }}</el-span></el-span>
-        <el-span style="float:right">{{ item.time.start_at_iso_format }}</el-span>
+        <span :key="item.id" style="font-size: 15px;">CaseName: <span style="color: #409EFF;margin-right: 5px">{{ item.name }}</span></span>
+        <span :key="item.id" style="float:right">{{ item.time.start_at_iso_format }}</span>
         <el-table
           :data="item.step_datas"
           border
@@ -90,23 +90,11 @@
                     <el-table-column prop="expect" label="期望值" />
                   </el-table>
                 </el-tab-pane>
-                <el-tab-pane v-if="item.in_out.variables_list.length !== 0" label="Variables">
-                  <el-table
-                    :data="item.in_out.variables_list"
-                    stripe
-                    border
-                    style="width: 100%"
-                  >
-                    <el-table-column prop="key" label="Key" width="230" />
-                    <el-table-column prop="value" label="Value" show-overflow-tooltip />
-                    <!-- <el-table-column label="Copy" width="110">
-                      <template slot-scope="scope">
-                        <el-tooltip class="item" effect="dark" content="Copy Value" placement="top-start">
-                          <el-button icon="el-icon-document-copy" @click.native="copyValue(scope.row.value)" />
-                        </el-tooltip>
-                      </template>
-                    </el-table-column> -->
-                  </el-table>
+                <el-tab-pane label="Variables">
+                  <vue-json-editor
+                    v-model="item.in_out"
+                    :show-btns="false"
+                  />
                 </el-tab-pane>
               </el-tabs>
             </template>
