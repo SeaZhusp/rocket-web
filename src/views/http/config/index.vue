@@ -18,15 +18,20 @@
       </el-form>
       <el-table v-loading="listLoading" :data="envList" element-loading-text="Loading">
         <el-table-column label="序号" type="index" width="55" />
-        <el-table-column label="名称" prop="name" />
-        <el-table-column label="状态" width="100">
+        <el-table-column label="名称" prop="name" show-overflow-tooltip />
+        <el-table-column label="Pyshell" prop="modules">
+          <template slot-scope="{row}">
+            <el-tag v-for="item in JSON.parse(row.modules)" :key="item" style="margin-right:5px">{{ item }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="描述" prop="desc" show-overflow-tooltip width="200" />
+        <el-table-column label="状态" prop="status" width="100">
           <template slot-scope="{row}">
             <el-tag :type="row.status === 0 ? 'info':'success'">{{ row.status===0? "禁用":"启用" }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="描述" prop="desc" />
-        <el-table-column label="创建时间" prop="create_time" />
-        <el-table-column label="更新时间" prop="update_time" />
+        <el-table-column label="创建时间" prop="create_time" width="160" />
+        <el-table-column label="更新时间" prop="update_time" width="160" />
         <el-table-column fixed="right" label="操作" min-width="80px">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
@@ -51,6 +56,16 @@
           </el-form-item>
           <el-form-item label="描述" prop="desc" label-width="80px">
             <el-input v-model="configForm.desc" type="textarea" :autosize="{ minRows: 2, maxRows: 2}" maxlength="200" show-word-limit placeholder="描述" />
+          </el-form-item>
+          <el-form-item label="Pyshell" prop="modules" label-width="80px">
+            <el-select v-model="configForm.modules" multiple placeholder="请选择Pyshell" style="width:100%">
+              <el-option
+                v-for="item in moduleOptions"
+                :key="item.value"
+                :label="item.value"
+                :value="item.value"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="状态" prop="status" label-width="80px">
             <el-radio v-model="configForm.status" :label="1">启用</el-radio>
@@ -77,12 +92,6 @@
               :custom-style="'width:235px'"
             />
           </el-tab-pane>
-          <el-tab-pane label="Hooks" name="Hooks">
-            <Hooks
-              ref="hooks"
-              :hooks="configForm.config.hooks"
-            />
-          </el-tab-pane>
         </el-tabs>
       </el-card>
       <div class="demo-drawer__footer draw-btn-right">
@@ -99,17 +108,17 @@ import { searchConfig, deletConfig, createConfig, updateConfig } from '@/api/htt
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/HttpRunner/Headers'
 import Variables from '@/components/HttpRunner/Variables'
-import Hooks from '@/components/HttpRunner/Hooks'
 import Service from '@/components/HttpRunner/Service'
 
 export default {
-  components: { Pagination, Headers, Variables, Hooks, Service },
+  components: { Pagination, Headers, Variables, Service },
   filters: {},
   data() {
     return {
       envList: null,
       listLoading: false,
       activeStep: 'service',
+      moduleOptions: [{ 'value': 'login.py' }, { 'value': 'test.py' }],
       q: '',
       paging: {
         page: 1,
@@ -117,7 +126,7 @@ export default {
         total: 0
       },
       drawerAttribute: {
-        title: '新增环境',
+        title: '新增配置',
         create: 1,
         show: false,
         save: false
@@ -134,15 +143,12 @@ export default {
         id: '',
         name: '',
         status: 1,
+        modules: '',
         desc: '',
         config: {
           variables: [{ key: '', type: 1, value: '', desc: '' }],
           headers: [{ key: '', value: '', desc: '' }],
-          service: [{ key: '', value: '', desc: '' }],
-          hooks: {
-            setup_hooks: [{ setup_hook: '' }],
-            teardown_hooks: [{ teardown_hook: '' }]
-          }
+          service: [{ key: '', value: '', desc: '' }]
         }
       }
     }
@@ -163,16 +169,13 @@ export default {
       return {
         id: '',
         name: '',
+        modules: [],
         status: 1,
         desc: '',
         config: {
           variables: [{ key: '', type: 1, value: '', desc: '' }],
           headers: [{ key: '', value: '', desc: '' }],
-          service: [{ key: '', value: '', desc: '' }],
-          hooks: {
-            setup_hooks: [{ setup_hook: '' }],
-            teardown_hooks: [{ teardown_hook: '' }]
-          }
+          service: [{ key: '', value: '', desc: '' }]
         }
       }
     },
@@ -184,11 +187,12 @@ export default {
     handleEdit(row) {
       this.drawerAttribute.show = true
       this.drawerAttribute.create = 0
-      this.drawerAttribute.title = '编辑环境'
+      this.drawerAttribute.title = '编辑配置'
       this.configForm.id = row.id
       this.configForm.name = row.name
       this.configForm.status = row.status
       this.configForm.desc = row.desc
+      this.configForm.modules = JSON.parse(row.modules)
       this.configForm.config = JSON.parse(row.config)
     },
     async getEnvList() {
@@ -209,16 +213,17 @@ export default {
         id: this.configForm.id,
         name: this.configForm.name,
         status: this.configForm.status,
+        modules: this.configForm.modules,
         desc: this.configForm.desc,
         config: {
           variables: this.$refs.variables.parseVariables(),
           headers: this.$refs.headers.parseHeaders(),
-          service: this.$refs.service.parseService(),
-          hooks: this.$refs.hooks.parseHooks()
+          service: this.$refs.service.parseService()
         }
       }
     },
     handleSave() {
+      console.log(this.getConfigForm())
       this.$refs.configForm.validate(validate => {
         if (validate) {
           this.drawerAttribute.save = true

@@ -91,7 +91,7 @@
           <el-table-column label="Label" prop="label" />
           <el-table-column label="Value" prop="value" />
           <el-table-column label="排序" prop="sort" />
-          <el-table-column prop="status" label="状态">
+          <el-table-column label="状态" prop="status">
             <template slot-scope="{row}">
               <el-select v-model="row.status" placeholder="请选择" style="width:80px" @change="selectItemChange(row)">
                 <el-option
