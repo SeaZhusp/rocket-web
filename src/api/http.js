@@ -43,3 +43,10 @@ export function deleteProject(id) { return request({ url: `/http/project/delete/
 export function updateProject(data) { return request({ url: '/http/project/update', method: 'put', data }) }
 
 export function listProject() { return request({ url: '/http/project/all', method: 'get' }) }
+
+// pyshell
+export function listPyshell() { return request({ url: '/http/pyshell/list', method: 'get' }) }
+
+export function getPyshellContent(params) { return request({ url: '/http/pyshell/info', method: 'get', params }) }
+
+export function debugFunction(data) { return request({ url: '/http/pyshell/debug', method: 'post', data }) }

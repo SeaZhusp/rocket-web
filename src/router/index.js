@@ -68,6 +68,12 @@ export const constantRoutes = [
         meta: { title: '接口管理' }
       },
       {
+        path: '/http/pyshell',
+        name: 'PyShell',
+        component: () => import('@/views/http/pyshell'),
+        meta: { title: 'PyShell' }
+      },
+      {
         path: '/http/envconfig',
         name: '环境配置',
         component: () => import('@/views/http/envconfig'),
