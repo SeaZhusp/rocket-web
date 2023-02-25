@@ -1,76 +1,85 @@
 <template>
   <div class="app-container">
-    <el-form>
-      <el-form-item>
-        <el-alert
-          title="调试步骤:1)选择pyshell后读取;2)选择方法后调试;"
-          type="info"
-          show-icon
-        />
-      </el-form-item>
-    </el-form>
-    <el-form>
-      <el-form-item label="Pyshell" label-width="80px">
-        <el-autocomplete
-          v-model="moduleName"
-          :fetch-suggestions="pyshellQuerySearch"
-          placeholder="输入或选择文件"
-          style="width:40%"
-        />
-        <el-button-group>
-          <el-tooltip content="读取py文件内容" placement="top-start">
-            <el-button type="success" @click.native="readPyshellContent()">读取</el-button>
-          </el-tooltip>
-          <el-tooltip content="创建py文件" placement="top-start">
-            <el-button type="primary" @click.native="createFunc()">创建</el-button>
-          </el-tooltip>
-        </el-button-group>
-      </el-form-item>
-
-      <el-form-item label="函数名" label-width="80px">
-        <el-autocomplete
-          v-model="funcExpress"
-          :fetch-suggestions="functionQuerySearch"
-          placeholder="选择调试方法"
-          style="width:40%"
-        />
-        <el-tooltip content="选择方法后进行调试" placement="top-start">
-          <el-button type="primary" @click.native="handleDebugFunstion()">调试</el-button>
-        </el-tooltip>
-      </el-form-item>
-    </el-form>
     <el-row>
-      <el-col :span="16">
-        <el-container>
-          <editor
-            v-model="pyshellContent"
-            style="font-size: 15px"
-            lang="python"
-            theme="monokai"
-            width="100%"
-            height="810px"
-            :options="{
-              enableSnippets:true,
-              enableBasicAutocompletion: true,
-              enableLiveAutocompletion: true
-            }"
-            @init="editorInit"
+      <el-form>
+        <el-form-item>
+          <el-alert
+            title="【调试步骤】: 先选择pyshell [读取]，再选择要调试的方法 [执行]"
+            type="info"
+            close-text="知道了"
+            show-icon
           />
-        </el-container>
+        </el-form-item>
+      </el-form>
+
+    </el-row>
+    <el-row>
+      <el-col :span="13">
+        <el-form>
+          <el-form-item label="Pyshell" label-width="80px">
+            <el-autocomplete
+              v-model="moduleName"
+              :fetch-suggestions="pyshellQuerySearch"
+              placeholder="输入或选择文件"
+              style="width:40%"
+            />
+            <el-button-group>
+              <el-tooltip content="读取Pyshell" placement="top-start">
+                <el-button type="success" icon="el-icon-refresh" @click.native="readPyshellContent()" />
+              </el-tooltip>
+              <el-tooltip content="创建Pyshell" placement="top-start">
+                <el-button type="primary" icon="el-icon-document-add" @click.native="handleCreatePyshell()" />
+              </el-tooltip>
+              <el-tooltip content="覆盖Pyshell" placement="top-start">
+                <el-button type="warning" icon="el-icon-edit" @click.native="handleSavePyshell()" />
+              </el-tooltip>
+              <el-tooltip content="删除Pyshell" placement="top-start">
+                <el-button type="danger" icon="el-icon-delete" @click.native="handleDeletePyshell()" />
+              </el-tooltip>
+            </el-button-group>
+          </el-form-item>
+        </el-form>
+        <editor
+          v-model="pyshellContent"
+          style="font-size: 15px"
+          lang="python"
+          theme="monokai"
+          width="100%"
+          height="710px"
+          :options="{
+            enableSnippets:true,
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true
+          }"
+          @init="editorInit"
+        />
       </el-col>
-      <el-col class="result" :span="8">
+      <el-col :span="10" style="margin-left:10px">
+        <el-form>
+          <el-form-item label="方法名" label-width="80px">
+            <el-autocomplete
+              v-model="funcExpress"
+              :fetch-suggestions="functionQuerySearch"
+              placeholder="选择调试方法"
+              style="width:90%"
+            />
+            <el-tooltip content="选择方法后进行调试" placement="top-start">
+              <el-button type="primary" icon="el-icon-video-play" @click.native="handleDebugFunstion()" />
+            </el-tooltip>
+          </el-form-item>
+        </el-form>
         <div class="result-font">
           测试结果：
         </div>
-        <pre style="white-space: pre-wrap;word-wrap: break-word;padding-left:10px;">{{ this.result }}
-                </pre>
+        <pre style="white-space: pre-wrap;word-wrap: break-word;padding-left:10px;">{{ result }}</pre>
       </el-col>
+
     </el-row>
   </div>
 </template>
 
 <script>
-import { listPyshell, getPyshellContent, debugFunction } from '@/api/http'
+import { listPyshell, getPyshellContent, debugFunction, createPyshell, savePyshell, deletePyshell } from '@/api/http'
 export default {
   name: 'Pyshell',
   components: {
@@ -88,6 +97,7 @@ export default {
   },
   mounted() {
     this.getPyshellList()
+    console.log(this.duty)
   },
   methods: {
     pyshellQuerySearch(queryString, cb) {
@@ -116,30 +126,22 @@ export default {
         this.functions = res.data.functions
       })
     },
-    createFunc() {
-      create_func({ functionName: this.comparator }).then(data => {
-        this.$message.success(data.msg)
-        this.getFuncAddress()
+    handleCreatePyshell() {
+      createPyshell({ module_name: this.moduleName }).then(res => {
+        this.$message.success(res.msg)
+        this.getPyshellList()
       }).catch(error => {
-        this.$message.error(error.response.data.msg)
-      })
-    },
-    removeFunc() {
-      remove_func({ functionName: this.comparator }).then(data => {
-        this.$message.success(data.msg)
-        this.getFuncAddress()
+        this.$message.error(error.msg)
       })
     },
     getPyshellList() {
       listPyshell().then(res => {
         this.pyshells = res.data
-      }).catch(error => {
-        this.$message.error(error.res.msg)
       })
     },
     handleDebugFunstion() {
       if (this.moduleName === '') {
-        this.$message.warning('请先选择函数文件')
+        this.$message.warning('请先选择Pyshell')
         return
       }
       if (!this.funcExpress) {
@@ -147,7 +149,7 @@ export default {
         return
       }
       if (!this.pyshellContent) {
-        this.$message.warning('请点击文件读取后再调试')
+        this.$message.warning('请点击读取后再调试')
         return
       }
       debugFunction({ module_name: this.moduleName, func_express: this.funcExpress }).then(res => {
@@ -161,19 +163,41 @@ export default {
       require('brace/theme/monokai')
       require('brace/snippets/python')
     },
-    saveFunc() {
-      if (!this.pyshellContent) {
-        this.$message({
-          showClose: true,
-          message: '文件为空，请输入内容后再保存',
-          type: 'warning'
-        })
+    handleSavePyshell() {
+      if (this.moduleName === '') {
+        this.$message.warning('请先选择Pyshell')
         return
       }
-      save_func({ pyshellContent: this.pyshellContent, functionName: this.comparator }).then(data => {
-        this.$message.success(data.msg)
-      }).catch(error => {
-        this.$message.error(error.response.data.msg)
+      if (!this.pyshellContent) {
+        this.$message.warning('请输入内容后再保存')
+        return
+      }
+      this.$confirm('确定要覆盖吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        savePyshell({ module_name: this.moduleName, content: this.pyshellContent }).then(res => {
+          this.$message.success(res.msg)
+        })
+      })
+    },
+    handleDeletePyshell() {
+      if (this.moduleName === '') {
+        this.$message.warning('请先选择要删除的Pyshell')
+        return
+      }
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(() => {
+        deletePyshell({ module_name: this.moduleName }).then(res => {
+          this.$message.success(res.msg)
+          this.getPyshellList()
+        })
       })
     }
   }
@@ -182,11 +206,6 @@ export default {
 </script>
 
 <style>
-.result{
-    padding-left:10px;
-    background-color: rgb(234, 234, 234);
-    height:815px
-}
 .result-font{
     font-weight: 700;
     color: gray;

@@ -48,8 +48,25 @@
 
     <el-row style="margin-top:20px">
       <slot v-for="item in summary.details">
-        <span :key="item.id" style="font-size: 15px;">CaseName: <span style="color: #409EFF;margin-right: 5px">{{ item.name }}</span></span>
-        <span :key="item.id" style="float:right">{{ item.time.start_at_iso_format }}</span>
+        <div :key="item.case_id" style="margin:5px">
+          <span>ID:{{ item.case_id }}</span>
+          <el-divider direction="vertical" />
+          <span style="color: #409EFF;">{{ item.name }}</span>
+          <el-divider direction="vertical" />
+          <el-tag :type="item.success ? 'success' : 'danger'" disable-transitions>{{ item.success ? 'Pass' : 'Fail' }}</el-tag>
+          <div :key="item.id" style="float:right">
+            <span>{{ item.time.start_at_iso_format }}</span>
+            <el-divider direction="vertical" />
+            <el-popover placement="right" width="400" trigger="click">
+              <vue-json-editor
+                v-model="item.in_out"
+                :show-btns="false"
+              />
+              <el-button slot="reference" type="text" icon="el-icon-view">查看变量</el-button>
+            </el-popover>
+          </div>
+
+        </div>
         <el-table
           :data="item.step_datas"
           border
@@ -90,9 +107,9 @@
                     <el-table-column prop="expect" label="期望值" />
                   </el-table>
                 </el-tab-pane>
-                <el-tab-pane label="Variables">
+                <el-tab-pane label="Extract">
                   <vue-json-editor
-                    v-model="item.in_out"
+                    v-model="props.row.export_vars"
                     :show-btns="false"
                   />
                 </el-tab-pane>
@@ -128,7 +145,7 @@
 
           <el-table-column label="测试结果" align="center">
             <template slot-scope="scope">
-              <el-tag :type="scope.row.data.success ? 'success' : 'danger'" disable-transitions>{{ scope.row.data.success ? 'Pass' : 'Fail' }}</el-tag>
+              <span>{{ scope.row.data.success ? 'Pass' : 'Fail' }}</span>
             </template>
           </el-table-column>
         </el-table>

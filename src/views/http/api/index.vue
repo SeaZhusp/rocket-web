@@ -15,6 +15,7 @@
         <CatalogTree
           :catalogs="catalogs"
           :project-id="projectId"
+          :catalog-used="catalogUsed"
           @create="createCatalogSubmit"
           @update="updateCatalogSubmit"
           @delete="deleteCatalogSubmit"
@@ -149,6 +150,7 @@ export default {
       summary: {},
       projectId: '',
       catalogId: '',
+      catalogUsed: 1,
       apiInfo: null,
       search: {
         q: '',
@@ -247,7 +249,7 @@ export default {
       await this.getCatalogTree()
     },
     async getCatalogTree() {
-      const params = { project_id: this.projectId }
+      const params = { project_id: this.projectId, used: this.catalogUsed }
       searchCatalogTree(params).then(res => {
         this.catalogs = res.data
       })

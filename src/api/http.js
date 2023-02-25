@@ -50,3 +50,9 @@ export function listPyshell() { return request({ url: '/http/pyshell/list', meth
 export function getPyshellContent(params) { return request({ url: '/http/pyshell/info', method: 'get', params }) }
 
 export function debugFunction(data) { return request({ url: '/http/pyshell/debug', method: 'post', data }) }
+
+export function createPyshell(data) { return request({ url: '/http/pyshell/create', method: 'post', data }) }
+
+export function savePyshell(data) { return request({ url: '/http/pyshell/save', method: 'put', data }) }
+
+export function deletePyshell(data) { return request({ url: '/http/pyshell/delete', method: 'delete', data }) }

@@ -52,23 +52,25 @@ export default {
   props: {
     catalogs: {
       type: Array,
-      default() {
-        return []
-      }
+      required: true
     },
     projectId: {
       type: Number,
-      require: false,
-      default() { return null }
+      required: true
+    },
+    catalogUsed: {
+      type: Number,
+      required: true
     }
   },
   data() {
     return {
       filterText: '',
       catalogForm: {
-        id: '',
-        name: '',
-        project_id: '',
+        id: null,
+        name: null,
+        used: null,
+        project_id: null,
         parent_id: null
       },
       catalogFormRules: {
@@ -109,15 +111,18 @@ export default {
       this.$set(data, 'del', false)
     },
     handleCreate(node = null, data = null) {
+      console.log(this.catalogForm)
       this.catalogDialog.show = true
       this.catalogDialog.create = 1
       this.catalogForm = this.$resetForm(this.catalogForm)
+      this.catalogForm.used = this.catalogUsed
       this.catalogForm.project_id = this.projectId
       if (data) {
         this.catalogForm.parent_id = data.id
       }
     },
     handleCatalogEdit(node = null, data) {
+      console.log(this.catalogForm)
       this.catalogDialog.show = true
       this.catalogDialog.create = 0
       this.catalogForm.id = data.id
