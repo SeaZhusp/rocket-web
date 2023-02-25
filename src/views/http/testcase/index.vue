@@ -15,11 +15,8 @@
         <CatalogTree
           :catalogs="catalogs"
           :project-id="projectId"
-          @create="createCatalogSubmit"
-          @update="updateCatalogSubmit"
-          @delete="deleteCatalogSubmit"
+          :catalog-used="catalogUsed"
           @changeCatalogId="changeCatalogId"
-          @getCatalogTree="getCatalogTree"
         />
       </el-col>
       <el-col>
@@ -68,23 +65,20 @@
 </template>
 
 <script>
-import { get } from '@/api/http'
+import { listCatalogTree } from '@/api/http'
 import Sortable from 'sortablejs'
+import CatalogTree from '@/components/CatalogTree'
 
 export default {
-  name: 'DragTable',
+  name: 'TestCase',
+  components: { CatalogTree },
   filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
-      }
-      return statusMap[status]
-    }
   },
   data() {
     return {
+      catalogUsed: 2,
+      catalogs: [],
+      projectId: parseInt(localStorage.getItem('projectId')),
       list: [
         { 'id': 1, 'author': 'Anthony' },
         { 'id': 2, 'author': 'Helen' },
@@ -102,8 +96,15 @@ export default {
   },
   created() {
     this.getList()
+    this.getCatalogTree()
   },
   methods: {
+    async getCatalogTree() {
+      const params = { project_id: this.projectId, used: this.catalogUsed }
+      listCatalogTree(params).then(res => {
+        this.catalogs = res.data
+      })
+    },
     async getList() {
       this.total = 100
       this.listLoading = false
@@ -131,6 +132,10 @@ export default {
           this.newList.splice(evt.newIndex, 0, tempIndex)
         }
       })
+    },
+    changeCatalogId() {
+      // todu
+      console.log('目录改变要做的')
     }
   }
 }

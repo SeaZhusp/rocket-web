@@ -47,13 +47,14 @@
 </template>
 
 <script>
+import { createCatalog, updateCatalog, deleteCatalog, listCatalogTree } from '@/api/http'
 export default {
   name: 'CatalogTree',
   props: {
-    catalogs: {
-      type: Array,
-      required: true
-    },
+    // catalogs: {
+    //   type: Array,
+    //   required: true
+    // },
     projectId: {
       type: Number,
       required: true
@@ -66,6 +67,7 @@ export default {
   data() {
     return {
       filterText: '',
+      catalogs: [],
       catalogForm: {
         id: null,
         name: null,
@@ -95,9 +97,15 @@ export default {
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val)
+    },
+    projectId(val) {
+      // localStorage.setItem('projectId', val)
+      this.getCatalogTree()
+      // this.getApiList()
     }
   },
   created() {
+    this.getCatalogTree()
   },
   methods: {
     filterNode(value, data) {
@@ -110,8 +118,13 @@ export default {
     mouseleave(data) {
       this.$set(data, 'del', false)
     },
+    async getCatalogTree() {
+      const params = { project_id: this.projectId, used: this.catalogUsed }
+      listCatalogTree(params).then(res => {
+        this.catalogs = res.data
+      })
+    },
     handleCreate(node = null, data = null) {
-      console.log(this.catalogForm)
       this.catalogDialog.show = true
       this.catalogDialog.create = 1
       this.catalogForm = this.$resetForm(this.catalogForm)
@@ -122,11 +135,11 @@ export default {
       }
     },
     handleCatalogEdit(node = null, data) {
-      console.log(this.catalogForm)
       this.catalogDialog.show = true
       this.catalogDialog.create = 0
       this.catalogForm.id = data.id
       this.catalogForm.name = data.label
+      this.catalogForm.used = data.used
       this.catalogForm.parent_id = data.parent_id
       this.catalogForm.project_id = data.project_id
     },
@@ -137,21 +150,40 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        this.$emit('delete', data.id)
+        const { msg } = await deleteCatalog(data.id)
+        this.$message.success(msg)
+        this.$emit('getCatalogTree')
       })
     },
     handleCatalogClick(obj, node, data) {
       this.$emit('changeCatalogId', obj)
+    },
+    create() {
+      if (this.catalogForm.parent_id === '') {
+        delete this.catalogForm['parent_id']
+        delete this.catalogForm['id']
+      }
+      createCatalog(this.catalogForm).then(res => {
+        this.$message.success(res.msg)
+      })
+    },
+    update() {
+      updateCatalog(this.catalogForm).then(res => {
+        this.$message.success(res.msg)
+      }).catch(error => {
+        this.$message.error(error.response.data['message'])
+      })
     },
     handleSave() {
       this.$refs.catalogForm.validate(validate => {
         if (validate) {
           this.catalogDialog.save = true
           if (this.catalogDialog.create === 1) {
-            this.$emit('create', this.catalogForm)
+            this.create()
           } else {
-            this.$emit('update', this.catalogForm)
+            this.update()
           }
+          this.$emit('getCatalogTree')
           this.cancelCatalog()
         }
       })

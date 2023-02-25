@@ -16,11 +16,7 @@
           :catalogs="catalogs"
           :project-id="projectId"
           :catalog-used="catalogUsed"
-          @create="createCatalogSubmit"
-          @update="updateCatalogSubmit"
-          @delete="deleteCatalogSubmit"
           @changeCatalogId="changeCatalogId"
-          @getCatalogTree="getCatalogTree"
         />
       </el-col>
       <el-col :span="19" style="margin-left:5px">
@@ -129,15 +125,14 @@
 </template>
 
 <script>
-import { listProject, getAllEnvConfig, runSingleApi,
-  searchCatalogTree, createCatalog, updateCatalog, deleteCatalog,
-  searchApi, getApiDetail, deleteApi } from '@/api/http'
+import { listProject, getAllEnvConfig, runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 import CatalogTree from '@/components/CatalogTree'
 import Report from '@/components/HttpRunner/Report'
 
 export default {
+  name: 'Api',
   components: { CatalogTree, Detail, Pagination, Report },
   data() {
     return {
@@ -181,7 +176,7 @@ export default {
   watch: {
     projectId(val) {
       localStorage.setItem('projectId', val)
-      this.getCatalogTree()
+      // this.getCatalogTree()
       this.getApiList()
     }
   },
@@ -195,7 +190,7 @@ export default {
       const projectId = localStorage.getItem('projectId')
       if (projectId) {
         this.projectId = parseInt(projectId)
-        this.getCatalogTree()
+        // this.getCatalogTree()
         this.getApiList()
       }
     },
@@ -243,38 +238,38 @@ export default {
       })
     },
     // Catalog
-    async deleteCatalogSubmit(id) {
-      const { msg } = await deleteCatalog(id)
-      this.$message.success(msg)
-      await this.getCatalogTree()
-    },
-    async getCatalogTree() {
-      const params = { project_id: this.projectId, used: this.catalogUsed }
-      searchCatalogTree(params).then(res => {
-        this.catalogs = res.data
-      })
-    },
-    createCatalogSubmit(catalog) {
-      // var catalog = this.catalogForm
-      if (catalog.parent_id === '') {
-        delete catalog['parent_id']
-        delete catalog['id']
-      }
-      createCatalog(catalog).then(res => {
-        this.$message.success(res.msg)
-      }).catch(error => {
-        this.$message.error(error.response.data['message'])
-      })
-      this.getCatalogTree()
-    },
-    updateCatalogSubmit(catalog) {
-      updateCatalog(catalog).then(res => {
-        this.$message.success(res.msg)
-      }).catch(error => {
-        this.$message.error(error.response.data['message'])
-      })
-      this.getCatalogTree()
-    },
+    // async deleteCatalogSubmit(id) {
+    //   const { msg } = await deleteCatalog(id)
+    //   this.$message.success(msg)
+    //   await this.getCatalogTree()
+    // },
+    // async getCatalogTree() {
+    //   const params = { project_id: this.projectId, used: this.catalogUsed }
+    //   listCatalogTree(params).then(res => {
+    //     this.catalogs = res.data
+    //   })
+    // },
+    // createCatalogSubmit(catalog) {
+    //   // var catalog = this.catalogForm
+    //   if (catalog.parent_id === '') {
+    //     delete catalog['parent_id']
+    //     delete catalog['id']
+    //   }
+    //   createCatalog(catalog).then(res => {
+    //     this.$message.success(res.msg)
+    //   }).catch(error => {
+    //     this.$message.error(error.response.data['message'])
+    //   })
+    //   this.getCatalogTree()
+    // },
+    // updateCatalogSubmit(catalog) {
+    //   updateCatalog(catalog).then(res => {
+    //     this.$message.success(res.msg)
+    //   }).catch(error => {
+    //     this.$message.error(error.response.data['message'])
+    //   })
+    //   this.getCatalogTree()
+    // },
     changeCatalogId(obj) {
       this.catalogId = obj.id
       this.getApiList()
@@ -357,10 +352,6 @@ export default {
       })
       this.reportDialog.show = true
       loading.close()
-      // setTimeout(() => {
-      //   loading.close()
-      // }, 2000)
-      // }
     }
   }
 }
