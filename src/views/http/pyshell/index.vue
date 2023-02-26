@@ -31,7 +31,7 @@
                 <el-button type="primary" icon="el-icon-document-add" @click.native="handleCreatePyshell()" />
               </el-tooltip>
               <el-tooltip content="覆盖Pyshell" placement="top-start">
-                <el-button type="warning" icon="el-icon-edit" @click.native="handleSavePyshell()" />
+                <el-button type="warning" icon="el-icon-document" @click.native="handleSavePyshell()" />
               </el-tooltip>
               <el-tooltip content="删除Pyshell" placement="top-start">
                 <el-button type="danger" icon="el-icon-delete" @click.native="handleDeletePyshell()" />

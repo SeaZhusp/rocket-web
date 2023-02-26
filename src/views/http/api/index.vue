@@ -112,7 +112,7 @@
         :api-info="apiInfo"
         :api-create-flag="apiCreateFlag"
         :catalogs="catalogs"
-        :config-options="configOptions"
+        :envs="envs"
         :catalog-select-options.sync="catalogSelectOptions"
         @handleApiDrawerClose="handleApiDrawerClose"
         @getApiList="getApiList"
@@ -143,7 +143,7 @@ export default {
       apiCreateFlag: true,
       catalogSelectOptions: [],
       projects: [],
-      configOptions: [],
+      envs: [],
       summary: {},
       projectId: '',
       catalogId: '',
@@ -228,7 +228,7 @@ export default {
     },
     async getAllEnvConfigs() {
       await getAllEnvConfig().then(res => {
-        this.configOptions = res.data
+        this.envs = res.data
       })
     },
     async getAllProjects() {

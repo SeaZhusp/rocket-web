@@ -80,7 +80,7 @@
               <el-input-number v-model="apiInfo.times" style="width:100px" controls-position="right" :min="1" :max="100" />
             </el-tooltip> -->
               <el-select v-model="apiInfo.config_id" placeholder="Config">
-                <el-option v-for="item in configOptions" :key="item.id" :label="item.name" :value="item.id" />
+                <el-option v-for="item in envs" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -182,7 +182,7 @@ export default {
         return []
       }
     },
-    configOptions: {
+    envs: {
       type: Array,
       require: false,
       default() {
@@ -201,7 +201,6 @@ export default {
       methodOptions: JSON.parse(localStorage.getItem('dicts'))['http_method'] || [],
       levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
-      tagOptions: [{ value: 0, label: '冒烟测试' }, { value: 1, label: '系统测试' }],
       serviceOptions: JSON.parse(localStorage.getItem('dicts'))['http_service'] || [],
       apiInfoRules: {
         name: [
