@@ -51,7 +51,7 @@ export const constantRoutes = [
       path: 'dashboard',
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      meta: { title: 'Dashboard' }
     }]
   },
 
@@ -90,14 +90,23 @@ export const constantRoutes = [
         name: '环境配置',
         component: () => import('@/views/http/envconfig'),
         meta: { title: '环境配置' }
-      },
+      }
+
+    ]
+  },
+  {
+    path: '/manage',
+    component: Layout,
+    redirect: '/manage/project',
+    name: '管理中心',
+    meta: { title: '管理中心' },
+    children: [
       {
         path: 'project',
         name: '项目管理',
         component: () => import('@/views/http/project/index'),
         meta: { title: '项目管理' }
       }
-
     ]
   },
 

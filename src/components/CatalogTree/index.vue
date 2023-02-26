@@ -7,7 +7,7 @@
         </el-form-item>
         <el-form-item>
           <el-tooltip class="item" effect="dark" content="点击创建根目录，子目录请在节点创建" placement="top-start">
-            <el-button type="text" icon="el-icon-folder-add" @click="handleCreate">新增</el-button>
+            <el-button type="text" @click="handleCreate">新增</el-button>
           </el-tooltip>
         </el-form-item>
       </el-form>

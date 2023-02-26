@@ -33,17 +33,6 @@ export function createEnvConfig(data) { return request({ url: '/http/envconfig/c
 
 export function getAllEnvConfig() { return request({ url: '/http/envconfig/all', method: 'get' }) }
 
-// project
-export function searchProject(params) { return request({ url: '/http/project/list', method: 'get', params }) }
-
-export function createProject(data) { return request({ url: '/http/project/create', method: 'post', data }) }
-
-export function deleteProject(id) { return request({ url: `/http/project/delete/${id}`, method: 'delete' }) }
-
-export function updateProject(data) { return request({ url: '/http/project/update', method: 'put', data }) }
-
-export function listProject() { return request({ url: '/http/project/all', method: 'get' }) }
-
 // pyshell
 export function listPyshell() { return request({ url: '/http/pyshell/list', method: 'get' }) }
 

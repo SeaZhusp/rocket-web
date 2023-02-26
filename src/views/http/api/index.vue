@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-form :inline="true">
       <el-form-item label="当前项目" prop="projectId">
         <el-select v-model="projectId" placeholder="请选择" filterable>
@@ -11,15 +11,16 @@
       </el-form-item>
     </el-form>
     <el-row>
-      <el-col :span="4.1">
+      <el-col :span="5" class="app-container">
         <CatalogTree
+          v-if="projectId"
           :catalogs="catalogs"
           :project-id="projectId"
           :catalog-used="catalogUsed"
           @changeCatalogId="changeCatalogId"
         />
       </el-col>
-      <el-col :span="19" style="margin-left:5px">
+      <el-col :span="19" class="app-container">
         <el-row shadow="never">
           <el-form :inline="true">
             <el-row>
@@ -125,7 +126,8 @@
 </template>
 
 <script>
-import { listProject, getAllEnvConfig, runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
+import { getAllEnvConfig, runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
+import { listProject } from '@/api/manage'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 import CatalogTree from '@/components/CatalogTree'
