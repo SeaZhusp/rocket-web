@@ -152,7 +152,7 @@ export default {
       }).then(async() => {
         const { msg } = await deleteCatalog(data.id)
         this.$message.success(msg)
-        this.$emit('getCatalogTree')
+        this.getCatalogTree()
       })
     },
     handleCatalogClick(obj, node, data) {
@@ -183,7 +183,7 @@ export default {
           } else {
             this.update()
           }
-          this.$emit('getCatalogTree')
+          this.getCatalogTree()
           this.cancelCatalog()
         }
       })

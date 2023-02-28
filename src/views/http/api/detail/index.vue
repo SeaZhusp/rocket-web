@@ -199,7 +199,7 @@ export default {
       reportShow: false,
       activeStep: 'request',
       methodOptions: JSON.parse(localStorage.getItem('dicts'))['http_method'] || [],
-      levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
+      levelOptions: JSON.parse(localStorage.getItem('dicts'))['common_level'] || [],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       serviceOptions: JSON.parse(localStorage.getItem('dicts'))['http_service'] || [],
       apiInfoRules: {

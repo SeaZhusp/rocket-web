@@ -45,3 +45,6 @@ export function createPyshell(data) { return request({ url: '/http/pyshell/creat
 export function savePyshell(data) { return request({ url: '/http/pyshell/save', method: 'put', data }) }
 
 export function deletePyshell(data) { return request({ url: '/http/pyshell/delete', method: 'delete', data }) }
+
+// testcase
+export function searchTestcaseList(params) { return request({ url: '/http/testcase/list', method: 'get', params }) }

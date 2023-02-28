@@ -21,7 +21,7 @@
         />
       </el-col>
       <el-col :span="19" class="app-container">
-        <el-row shadow="never">
+        <el-row>
           <el-form :inline="true">
             <el-row>
               <el-col>
@@ -68,7 +68,7 @@
                 </el-table-column>
                 <el-table-column label="优先级" prop="level" width="100">
                   <template slot-scope="{row}">
-                    <el-tag :type="row.level==='P0'?'':row.level==='P1'?'success':'info'">{{ row.level }}</el-tag>
+                    <el-tag :type="row.level==='P0'?'danger':row.level==='P1'?'warning':'info'">{{ row.level }}</el-tag>
                   </template>
                 </el-table-column>
                 <el-table-column label="状态" width="100">
@@ -159,7 +159,7 @@ export default {
         limit: 10,
         total: 0
       },
-      levelOptions: [{ label: 'P0' }, { label: 'P1' }, { label: 'P2' }],
+      levelOptions: JSON.parse(localStorage.getItem('dicts'))['common_level'] || [],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       catalogs: [],
       defaultProps: {
