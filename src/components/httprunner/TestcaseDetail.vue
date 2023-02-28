@@ -2,8 +2,44 @@
   <div>
     <el-divider>基本信息</el-divider>
     <el-form :model="testcase" :inline="true" label-width="70px">
-      <el-form-item label="项目" prop="name">
-        <el-input v-model="testcase.name" placeholder="项目" class="custom-form-item" />
+      <el-form-item label="名称" prop="name">
+        <el-input v-model="testcase.name" placeholder="名称" class="custom-form-item" />
+      </el-form-item>
+      <el-form-item label="目录" prop="catalog_id">
+        <el-select
+          ref="select"
+          v-model="testcase.catalog_id"
+          placeholder="请选择"
+          clearable
+          filterable
+          :filter-method="singleTreeFilterMethod"
+          popper-class="customSelectPopper"
+          class="custom-form-item"
+          @focus="singleTreeFocus"
+          @clear="singleTreeClear"
+        >
+          <el-option
+            v-for="item in catalogOptions"
+            v-show="false"
+            :key="item.id"
+            :label="item.label"
+            :value="item.id"
+          />
+          <div class="singleTree">
+            <el-tree
+              ref="selectTree"
+              key
+              :data="testcaseCatalogs"
+              node-key="id"
+              empty-text="无匹配数据"
+              highlight-current
+              :expand-on-click-node="false"
+              :props="{'label': 'label', children: 'children'}"
+              :filter-node-method="filterNode"
+              @node-click="handleNodeClick"
+            />
+          </div>
+        </el-select>
       </el-form-item>
       <el-form-item label="优先级" prop="level">
         <el-select v-model="testcase.level" placeholder="优先级" class="custom-form-item">
@@ -66,13 +102,13 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" label="ID" width="65">
+          <el-table-column align="center" label="ID" width="100">
             <template slot-scope="{row}">
-              <span>{{ row.id }}</span>
+              <span>ID：{{ row.id }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column width="180px" label="接口名">
+          <el-table-column label="接口名">
             <template slot-scope="{row}">
               <span>{{ row.name }}</span>
             </template>
@@ -84,15 +120,9 @@
             </template>
           </el-table-column>
 
-          <el-table-column align="center" type="index" label="Drag" width="80">
+          <el-table-column align="center" type="index" label="状态" width="100">
             <template slot-scope="{row}">
               <el-switch v-model="row.status" :active-value="1" :inactive-value="0" />
-            </template>
-          </el-table-column>
-
-          <el-table-column width="180px" label="Path">
-            <template slot-scope="{row}">
-              <span>{{ row.author }}</span>
             </template>
           </el-table-column>
 
@@ -132,11 +162,23 @@ export default {
     projectId: {
       type: Number,
       required: true
+    },
+    testcaseCatalogs: {
+      type: Array,
+      required: true
+    },
+    catalogSelectOptions: {
+      type: Array,
+      require: true,
+      default() {
+        return []
+      }
     }
   },
   data() {
     return {
       catalogUsed: 2,
+      catalogOptions: this.catalogSelectOptions,
       apiSelectShow: false,
       showDetail: false,
       testcases: [],
@@ -153,7 +195,8 @@ export default {
         tags: null,
         desc: null,
         steps: [],
-        envId: null
+        envId: null,
+        catalog_id: null
       },
       //   projectId: parseInt(localStorage.getItem('projectId')),
       stepList: [],
@@ -168,6 +211,11 @@ export default {
       statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }, { value: 2, label: '已停用' }]
     }
   },
+  watch: {
+    catalogSelectOptions: function() {
+      this.catalogOptions = this.catalogSelectOptions
+    }
+  },
   created() {
     this.getStepList()
     this.getAllEnvConfigs()
@@ -175,6 +223,25 @@ export default {
   methods: {
     goBack() {
       this.showDetail = false
+    },
+    singleTreeClear() {
+      // do something
+    },
+    singleTreeFilterMethod(val) {
+      this.$refs.selectTree.filter(val)
+    },
+    singleTreeFocus() {
+      this.$refs.selectTree.filter('')
+    },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    handleNodeClick(data) {
+      this.testcase.catalog_id = data.id
+      // this.selectModel = data.id // select v-model 赋值
+      this.catalogOptions = [data] // 隐藏的 select option 赋值
+      this.$refs.select.blur() // 收起 select 下拉框
     },
     async getAllEnvConfigs() {
       await getAllEnvConfig().then(res => {
@@ -209,9 +276,18 @@ export default {
         }
       })
     },
-    addStep(item) {
-      this.stepList.splice(this.stepList.length + 1, 0, item)
-      console.log(this.stepList)
+    addStep(row) {
+      const index = this.stepList.length + 1
+      const step = {
+        id: row.id,
+        name: row.name,
+        path: row.path,
+        method:
+        row.method,
+        status: 1,
+        index: index
+      }
+      this.stepList.splice(index, 0, step)
       this.getStepList()
     }
   }

@@ -122,6 +122,7 @@ export default {
       const params = { project_id: this.projectId, used: this.catalogUsed }
       listCatalogTree(params).then(res => {
         this.catalogs = res.data
+        this.$emit('setParentCatalogs', res.data)
       })
     },
     handleCreate(node = null, data = null) {

@@ -17,6 +17,7 @@
           :catalogs="catalogs"
           :project-id="projectId"
           :catalog-used="catalogUsed"
+          @setParentCatalogs="setParentCatalogs"
           @changeCatalogId="changeCatalogId"
         />
       </el-col>
@@ -109,6 +110,7 @@
 
     <el-drawer :title="apiDrawer.title" :visible.sync="apiDrawer.show" direction="rtl" :before-close="handleApiDrawerClose" :wrapper-closable="false" size="75%">
       <Detail
+        v-if="catalogs"
         :api-info="apiInfo"
         :api-create-flag="apiCreateFlag"
         :catalogs="catalogs"
@@ -240,11 +242,9 @@ export default {
       })
     },
     // Catalog
-    // async deleteCatalogSubmit(id) {
-    //   const { msg } = await deleteCatalog(id)
-    //   this.$message.success(msg)
-    //   await this.getCatalogTree()
-    // },
+    setParentCatalogs(catalogs) {
+      this.catalogs = catalogs
+    },
     // async getCatalogTree() {
     //   const params = { project_id: this.projectId, used: this.catalogUsed }
     //   listCatalogTree(params).then(res => {

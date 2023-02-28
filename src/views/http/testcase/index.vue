@@ -6,6 +6,7 @@
           :catalogs="catalogs"
           :project-id="projectId"
           :catalog-used="catalogUsed"
+          @setParentCatalogs="setParentCatalogs"
           @changeCatalogId="changeCatalogId"
         />
       </el-col>
@@ -65,6 +66,8 @@
           <el-page-header content="用例详情" @back="goBack" />
           <TestcaseDetail
             :project-id="projectId"
+            :testcase-catalogs="catalogs"
+            :catalog-select-options.sync="catalogSelectOptions"
           />
         </el-row>
       </el-col>
@@ -73,7 +76,7 @@
 </template>
 
 <script>
-import { listCatalogTree, searchTestcaseList } from '@/api/http'
+import { searchTestcaseList } from '@/api/http'
 import CatalogTree from '@/components/CatalogTree'
 import Pagination from '@/components/Pagination'
 import TestcaseDetail from '@/components/HttpRunner/TestcaseDetail.vue'
@@ -88,6 +91,7 @@ export default {
       catalogUsed: 2,
       showDetail: false,
       testcases: [],
+      catalogSelectOptions: [],
       search: {
         q: '',
         status: '',
@@ -107,12 +111,16 @@ export default {
     }
   },
   created() {
-    this.getCatalogTree()
+    // this.getCatalogTree()
     this.getTestcaseList()
   },
   methods: {
     goBack() {
       this.showDetail = false
+    },
+    // Catalog
+    setParentCatalogs(catalogs) {
+      this.catalogs = catalogs
     },
     getTestcaseList() {
       this.listLoading = true
@@ -133,16 +141,24 @@ export default {
     },
     handleCreate() {
       this.showDetail = true
+      this.catalogSelectOptions = this.catalogs
     },
-    async getCatalogTree() {
-      const params = { project_id: this.projectId, used: this.catalogUsed }
-      listCatalogTree(params).then(res => {
-        this.catalogs = res.data
-      })
+    handleEdit() {
+      this.showDetail = true
+      this.catalogSelectOptions = this.catalogs
     },
-    changeCatalogId() {
+    // async getCatalogTree() {
+    //   const params = { project_id: this.projectId, used: this.catalogUsed }
+    //   listCatalogTree(params).then(res => {
+    //     this.catalogs = res.data
+    //   })
+    // },
+    changeCatalogId(obj) {
       // todu
-      console.log('目录改变要做的')
+      this.catalogSelectOptions = [{
+        id: obj.id,
+        label: obj.label
+      }]
     }
   }
 }
