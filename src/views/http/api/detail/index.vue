@@ -33,7 +33,6 @@
                   :data="catalogs"
                   node-key="id"
                   empty-text="无匹配数据"
-                  :default-expanded-keys="defaultExpandedkeys"
                   highlight-current
                   :expand-on-click-node="false"
                   :props="{'label': 'label', children: 'children'}"
@@ -192,7 +191,6 @@ export default {
   },
   data() {
     return {
-      defaultExpandedkeys: [this.apiInfo.catalog_id],
       catalogOptions: this.catalogSelectOptions,
       runStatus: false,
       summary: '',

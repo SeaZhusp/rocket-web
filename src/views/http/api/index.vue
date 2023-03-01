@@ -43,7 +43,7 @@
                   <el-button type="primary" @click="getApiList">搜索</el-button>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" :disabled="catalogId === '' " @click="handleApiCreate">新增</el-button>
+                  <el-button type="primary" @click="handleApiCreate">新增</el-button>
                 </el-form-item>
                 <el-form-item>
                   <el-dropdown>
@@ -95,13 +95,7 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <pagination
-                v-show="paging.total > 0"
-                :total="paging.total"
-                :page.sync="paging.page"
-                :limit.sync="paging.limit"
-                @pagination="getApiList"
-              />
+              <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getApiList" />
             </el-row>
           </el-form>
         </el-row>
@@ -245,33 +239,6 @@ export default {
     setParentCatalogs(catalogs) {
       this.catalogs = catalogs
     },
-    // async getCatalogTree() {
-    //   const params = { project_id: this.projectId, used: this.catalogUsed }
-    //   listCatalogTree(params).then(res => {
-    //     this.catalogs = res.data
-    //   })
-    // },
-    // createCatalogSubmit(catalog) {
-    //   // var catalog = this.catalogForm
-    //   if (catalog.parent_id === '') {
-    //     delete catalog['parent_id']
-    //     delete catalog['id']
-    //   }
-    //   createCatalog(catalog).then(res => {
-    //     this.$message.success(res.msg)
-    //   }).catch(error => {
-    //     this.$message.error(error.response.data['message'])
-    //   })
-    //   this.getCatalogTree()
-    // },
-    // updateCatalogSubmit(catalog) {
-    //   updateCatalog(catalog).then(res => {
-    //     this.$message.success(res.msg)
-    //   }).catch(error => {
-    //     this.$message.error(error.response.data['message'])
-    //   })
-    //   this.getCatalogTree()
-    // },
     changeCatalogId(obj) {
       this.catalogId = obj.id
       this.getApiList()
