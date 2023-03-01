@@ -48,3 +48,9 @@ export function deletePyshell(data) { return request({ url: '/http/pyshell/delet
 
 // testcase
 export function searchTestcaseList(params) { return request({ url: '/http/testcase/list', method: 'get', params }) }
+
+export function deleteTestcase(id) { return request({ url: `/http/testcase/delete/${id}`, method: 'delete' }) }
+
+export function updateTestcase(data) { return request({ url: '/http/testcase/update', method: 'put', data }) }
+
+export function createTestcase(data) { return request({ url: '/http/testcase/create', method: 'post', data }) }

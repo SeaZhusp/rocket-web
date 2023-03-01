@@ -46,8 +46,8 @@
             <el-table-column label="更新人" prop="update_user" width="100" />
             <el-table-column fixed="right" label="操作" width="150">
               <template slot-scope="scope">
-                <el-button type="text" size="small" @click="handleApiEdit(scope.row)">编辑</el-button>
-                <el-button type="text" size="small" @click="handleApiDelete(scope.row)">删除</el-button>
+                <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
+                <el-button type="text" size="small" @click="handleDelete(scope.row)">删除</el-button>
                 <el-dropdown>
                   <span class="el-dropdown-link">
                     更多<i class="el-icon-arrow-down el-icon--right" />
@@ -65,9 +65,12 @@
         <el-row v-show="showDetail">
           <el-page-header content="用例详情" @back="goBack" />
           <TestcaseDetail
+            ref="testcaseDetail"
             :project-id="projectId"
             :testcase-catalogs="catalogs"
+            :is-create="isCreate"
             :catalog-select-options.sync="catalogSelectOptions"
+            @getTestcaseList="getTestcaseList"
           />
         </el-row>
       </el-col>
@@ -90,6 +93,7 @@ export default {
     return {
       catalogUsed: 2,
       showDetail: false,
+      isCreate: true,
       testcases: [],
       catalogSelectOptions: [],
       search: {
@@ -141,11 +145,14 @@ export default {
     },
     handleCreate() {
       this.showDetail = true
+      this.isCreate = true
       this.catalogSelectOptions = this.catalogs
     },
-    handleEdit() {
+    handleEdit(row) {
       this.showDetail = true
+      this.isCreate = false
       this.catalogSelectOptions = this.catalogs
+      this.$refs.testcaseDetail.setTestcaseInfo(row)
     },
     // async getCatalogTree() {
     //   const params = { project_id: this.projectId, used: this.catalogUsed }

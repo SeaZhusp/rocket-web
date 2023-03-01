@@ -78,7 +78,7 @@
               <!-- <el-tooltip class="item" effect="dark" content="循环次数" placement="top-start">
               <el-input-number v-model="apiInfo.times" style="width:100px" controls-position="right" :min="1" :max="100" />
             </el-tooltip> -->
-              <el-select v-model="apiInfo.config_id" placeholder="Config">
+              <el-select v-model="apiInfo.env_id" placeholder="Config">
                 <el-option v-for="item in envs" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </el-form-item>
@@ -259,7 +259,7 @@ export default {
         create_user: this.apiInfo.create_user,
         project_id: this.apiInfo.project_id,
         catalog_id: this.apiInfo.catalog_id,
-        config_id: this.apiInfo.config_id,
+        env_id: this.apiInfo.env_id,
         name: this.apiInfo.name,
         level: this.apiInfo.level,
         status: this.apiInfo.status,
@@ -307,7 +307,7 @@ export default {
       })
       this.runStatus = true
       const params = {
-        config_id: this.apiInfo.config_id,
+        env_id: this.apiInfo.env_id,
         api_id: this.apiInfo.id
       }
       await runSingleApi(params).then(res => {
