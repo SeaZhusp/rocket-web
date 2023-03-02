@@ -90,7 +90,7 @@
     </el-form>
     <el-form>
       <el-form-item label="步骤">
-        <el-table ref="dragTable" v-loading="listLoading" :show-header="false" :data="stepList" fit highlight-current-row style="width: 100%">
+        <el-table ref="dragTable" v-loading="listLoading" :show-header="false" :data="stepList" row-key="index" fit highlight-current-row style="width: 100%">
           <el-table-column align="center" type="index" label="Drag" width="80">
             <template slot-scope="{}">
               <svg-icon class="drag-handler" icon-class="drag" />
