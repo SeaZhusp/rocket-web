@@ -71,22 +71,28 @@
             :is-create="isCreate"
             :catalog-select-options.sync="catalogSelectOptions"
             @getTestcaseList="getTestcaseList"
+            @goBack="goBack"
           />
         </el-row>
       </el-col>
     </el-row>
+
+    <el-dialog :visible.sync="reportShow" :close-on-click-modal="false" width="60%">
+      <Report :summary="summary" />
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { searchTestcaseList, deleteTestcase } from '@/api/http'
+import { searchTestcaseList, deleteTestcase, runTestcase } from '@/api/http'
 import CatalogTree from '@/components/CatalogTree'
 import Pagination from '@/components/Pagination'
 import TestcaseDetail from '@/components/HttpRunner/TestcaseDetail.vue'
+import Report from '@/components/HttpRunner/Report'
 
 export default {
   name: 'TestCase',
-  components: { CatalogTree, Pagination, TestcaseDetail },
+  components: { CatalogTree, Pagination, TestcaseDetail, Report },
   filters: {
   },
   data() {
@@ -95,6 +101,8 @@ export default {
       showDetail: false,
       isCreate: true,
       testcases: [],
+      summary: null,
+      reportShow: false,
       catalogSelectOptions: [],
       search: {
         q: '',
@@ -168,11 +176,29 @@ export default {
       })
     },
     changeCatalogId(obj) {
-      // todu
+      this.catalogId = obj.id
+      this.getTestcaseList()
       this.catalogSelectOptions = [{
         id: obj.id,
         label: obj.label
       }]
+    },
+    async handleRun(row) {
+      // openFullScreen2() {
+      const loading = this.$loading({
+        lock: true,
+        text: '拼命执行中',
+        spinner: 'el-icon-loading'
+      })
+      const params = {
+        id: row.id
+      }
+      await runTestcase(params).then(res => {
+        this.$message.success(res.msg)
+        this.summary = res.data
+      })
+      this.reportShow = true
+      loading.close()
     }
   }
 }

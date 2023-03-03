@@ -81,7 +81,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">调试</el-button>
+        <el-button type="primary" @click="debugRun()">调试</el-button>
       </el-form-item>
       <el-form-item style="float:right">
         <el-button type="primary" @click="apiSelectShow=true">添加步骤</el-button>
@@ -147,15 +147,20 @@
         @addStep="addStep"
       />
     </el-drawer>
+
+    <el-dialog :visible.sync="reportShow" :close-on-click-modal="false" width="60%">
+      <Report :summary="summary" />
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getAllEnvConfig, createTestcase, updateTestcase } from '@/api/http'
+import { getAllEnvConfig, createTestcase, updateTestcase, runTestcase } from '@/api/http'
 import Sortable from 'sortablejs'
-import ApiList from '@/components/HttpRunner/ApiList.vue'
+import ApiList from '@/components/HttpRunner/ApiList'
+import Report from '@/components/HttpRunner/Report'
 export default {
-  components: { ApiList },
+  components: { ApiList, Report },
   filters: {
   },
   props: {
@@ -184,7 +189,8 @@ export default {
       catalogUsed: 2,
       catalogOptions: this.catalogSelectOptions,
       apiSelectShow: false,
-      showDetail: false,
+      reportShow: false,
+      summary: null,
       testcases: [],
       search: {
         q: '',
@@ -243,9 +249,6 @@ export default {
     this.getAllEnvConfigs()
   },
   methods: {
-    goBack() {
-      this.showDetail = false
-    },
     singleTreeClear() {
       // do something
     },
@@ -357,10 +360,26 @@ export default {
               this.$message.error(error.response.data['message'])
             })
           }
-          this.goBack()
+          this.$emit('goBack')
           this.$emit('getTestcaseList')
         }
       })
+    },
+    async debugRun() {
+      const loading = this.$loading({
+        lock: true,
+        text: '拼命执行中',
+        spinner: 'el-icon-loading'
+      })
+      const params = {
+        id: this.testcase.id
+      }
+      await runTestcase(params).then(res => {
+        this.$message.success(res.msg)
+        this.summary = res.data
+      })
+      this.reportShow = true
+      loading.close()
     }
   }
 }

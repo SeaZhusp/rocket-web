@@ -196,7 +196,6 @@ export default {
       return {
         project_id: this.projectId,
         catalog_id: this.catalogId,
-        config_id: '',
         name: '',
         level: '',
         status: 1,

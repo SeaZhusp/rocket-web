@@ -54,3 +54,5 @@ export function deleteTestcase(id) { return request({ url: `/http/testcase/delet
 export function updateTestcase(data) { return request({ url: '/http/testcase/update', method: 'put', data }) }
 
 export function createTestcase(data) { return request({ url: '/http/testcase/create', method: 'post', data }) }
+
+export function runTestcase(data) { return request({ url: '/http/testcase/run', method: 'post', data }) }
