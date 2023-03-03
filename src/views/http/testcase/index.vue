@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { searchTestcaseList } from '@/api/http'
+import { searchTestcaseList, deleteTestcase } from '@/api/http'
 import CatalogTree from '@/components/CatalogTree'
 import Pagination from '@/components/Pagination'
 import TestcaseDetail from '@/components/HttpRunner/TestcaseDetail.vue'
@@ -147,6 +147,7 @@ export default {
       this.showDetail = true
       this.isCreate = true
       this.catalogSelectOptions = this.catalogs
+      this.$refs.testcaseDetail.resetTestcaseInfo()
     },
     handleEdit(row) {
       this.showDetail = true
@@ -154,12 +155,18 @@ export default {
       this.catalogSelectOptions = this.catalogs
       this.$refs.testcaseDetail.setTestcaseInfo(row)
     },
-    // async getCatalogTree() {
-    //   const params = { project_id: this.projectId, used: this.catalogUsed }
-    //   listCatalogTree(params).then(res => {
-    //     this.catalogs = res.data
-    //   })
-    // },
+    handleDelete(row) {
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const { msg } = await deleteTestcase(row.id)
+        this.$message.success(msg)
+        await this.getTestcaseList()
+      })
+    },
     changeCatalogId(obj) {
       // todu
       this.catalogSelectOptions = [{

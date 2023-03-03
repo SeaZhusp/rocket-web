@@ -313,7 +313,7 @@ export default {
       })
       const params = {
         api_id: row.id,
-        config_id: row.config_id
+        env_id: row.env_id
       }
       await runSingleApi(params).then(res => {
         this.$message.success(res.msg)

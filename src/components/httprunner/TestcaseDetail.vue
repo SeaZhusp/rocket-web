@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-divider>基本信息</el-divider>
-    <el-form :model="testcase" :inline="true" label-width="70px">
+    <el-form ref="testcase" :model="testcase" :rules="testcaseRules" :inline="true" label-width="70px">
       <el-form-item label="名称" prop="name">
         <el-input v-model="testcase.name" placeholder="名称" class="custom-form-item" />
       </el-form-item>
@@ -76,7 +76,7 @@
     <el-divider>用例步骤</el-divider>
     <el-form :inline="true">
       <el-form-item>
-        <el-select v-model="testcase.envId" placeholder="环境">
+        <el-select v-model="testcase.env_id" placeholder="环境">
           <el-option v-for="item in envs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -85,12 +85,12 @@
       </el-form-item>
       <el-form-item style="float:right">
         <el-button type="primary" @click="apiSelectShow=true">添加步骤</el-button>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="handleSave">保存</el-button>
       </el-form-item>
     </el-form>
     <el-form>
       <el-form-item label="步骤">
-        <el-table ref="dragTable" v-loading="listLoading" :show-header="false" :data="stepList" row-key="index" fit highlight-current-row style="width: 100%">
+        <el-table ref="dragTable" v-loading="listLoading" :show-header="false" row-key="index" :data="stepList" fit highlight-current-row style="width: 100%">
           <el-table-column align="center" type="index" label="Drag" width="80">
             <template slot-scope="{}">
               <svg-icon class="drag-handler" icon-class="drag" />
@@ -151,7 +151,7 @@
 </template>
 
 <script>
-import { getAllEnvConfig } from '@/api/http'
+import { getAllEnvConfig, createTestcase, updateTestcase } from '@/api/http'
 import Sortable from 'sortablejs'
 import ApiList from '@/components/HttpRunner/ApiList.vue'
 export default {
@@ -173,6 +173,10 @@ export default {
       default() {
         return []
       }
+    },
+    isCreate: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -189,13 +193,17 @@ export default {
       },
       catalogs: [],
       testcase: {
+        id: null,
+        project_id: this.projectId,
         name: null,
         level: null,
         status: null,
         tags: null,
         desc: null,
-        steps: [],
-        envId: null,
+        body: {
+          steps: []
+        },
+        env_id: null,
         catalog_id: null
       },
       //   projectId: parseInt(localStorage.getItem('projectId')),
@@ -208,7 +216,21 @@ export default {
       envs: [],
       levelOptions: JSON.parse(localStorage.getItem('dicts'))['common_level'] || [],
       tagOptions: [{ label: '冒烟测试' }, { label: '系统测试' }],
-      statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }, { value: 2, label: '已停用' }]
+      statusOptions: [{ value: 0, label: '进行中' }, { value: 1, label: '已完成' }, { value: 2, label: '已停用' }],
+      testcaseRules: {
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ],
+        level: [
+          { required: true, message: '优先级不能为空', trigger: 'blur' }
+        ],
+        status: [
+          { required: true, message: '状态不能为空', trigger: 'blur' }
+        ],
+        catalog_id: [
+          { required: true, message: '目录不能为空', trigger: 'blur' }
+        ]
+      }
     }
   },
   watch: {
@@ -273,6 +295,7 @@ export default {
           // for show the changes, you can delete in you code
           const tempIndex = this.newList.splice(evt.oldIndex, 1)[0]
           this.newList.splice(evt.newIndex, 0, tempIndex)
+          console.log(this.stepList)
         }
       })
     },
@@ -282,13 +305,62 @@ export default {
         id: row.id,
         name: row.name,
         path: row.path,
-        method:
-        row.method,
+        method: row.method,
         status: 1,
         index: index
       }
       this.stepList.splice(index, 0, step)
       this.getStepList()
+    },
+    resetTestcaseInfo() {
+      this.testcase.name = null
+      this.testcase.project_id = this.projectId
+      this.testcase.level = null
+      this.testcase.status = null
+      this.testcase.tags = null
+      this.testcase.desc = null
+      this.testcase.env_id = null
+      this.testcase.catalog_id = null
+      this.stepList = []
+    },
+    setTestcaseInfo(row) {
+      this.testcase.id = row.id
+      this.testcase.name = row.name
+      this.testcase.project_id = row.project_id
+      this.testcase.level = row.level
+      this.testcase.status = row.status
+      this.testcase.tags = JSON.parse(row.tags)
+      this.testcase.create_user = row.create_user
+      this.testcase.desc = row.desc
+      this.testcase.env_id = row.env_id
+      this.testcase.catalog_id = row.catalog_id
+      this.stepList = JSON.parse(row.body)['steps']
+      // this.getStepList()
+    },
+    handleSave() {
+      // if (!this.testcase.env_id) {
+      //   this.$notify.warning('请选择环境')
+      // }
+      this.$refs.testcase.validate(validate => {
+        if (validate) {
+          this.testcase.body.steps = this.stepList
+          if (this.isCreate) {
+            createTestcase(this.testcase).then(res => {
+              this.$message.success(res.msg)
+            }).catch(error => {
+              this.$message.error(error.response.data['message'])
+            })
+          } else {
+            updateTestcase(this.testcase).then(res => {
+              this.$message.success(res.msg)
+            }).catch(error => {
+              this.$message.error(error.response.data['message'])
+            })
+          }
+          this.goBack()
+          this.$emit('getTestcaseList')
+        }
+      })
     }
   }
 }
