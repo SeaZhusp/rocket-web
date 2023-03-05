@@ -366,6 +366,10 @@ export default {
       })
     },
     async debugRun() {
+      if (this.testcase.env_id === null) {
+        this.$message.error('请先择环境')
+        return
+      }
       const loading = this.$loading({
         lock: true,
         text: '拼命执行中',
