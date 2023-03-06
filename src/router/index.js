@@ -76,7 +76,7 @@ export const constantRoutes = [
       {
         path: '/http/plan',
         name: '测试计划',
-        component: () => import('@/views/http/testcase'),
+        component: () => import('@/views/http/testplan'),
         meta: { title: '测试计划' }
       },
       {

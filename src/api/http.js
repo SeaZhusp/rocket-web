@@ -56,3 +56,12 @@ export function updateTestcase(data) { return request({ url: '/http/testcase/upd
 export function createTestcase(data) { return request({ url: '/http/testcase/create', method: 'post', data }) }
 
 export function runTestcase(data) { return request({ url: '/http/testcase/run', method: 'post', data }) }
+
+// testplan
+export function searchTestplanList(params) { return request({ url: '/http/testplan/list', method: 'get', params }) }
+
+export function deleteTestplan(id) { return request({ url: `/http/testplan/delete/${id}`, method: 'delete' }) }
+
+export function updateTestplan(data) { return request({ url: '/http/testplan/update', method: 'put', data }) }
+
+export function createTestplan(data) { return request({ url: '/http/testplan/create', method: 'post', data }) }

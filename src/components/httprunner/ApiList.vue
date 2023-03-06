@@ -16,7 +16,7 @@
               @clear="singleTreeClear"
             >
               <el-option
-                v-for="item in catalogs"
+                v-for="item in catalogOptions"
                 v-show="false"
                 :key="item.id"
                 :label="item.label"
@@ -39,12 +39,12 @@
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-input v-model="search.q" clearable placeholder="输入接口名搜索" />
-          </el-form-item>
-          <el-form-item>
             <el-select v-model="search.level" placeholder="优先级" clearable class="custom-form-item-select" @change="getApiList">
               <el-option v-for="item in levelOptions" :key="item.label" :label="item.label" :value="item.label" />
             </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="search.q" clearable placeholder="输入接口名搜索" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="getApiList">搜索</el-button>
@@ -100,6 +100,7 @@ export default {
     return {
       apiList: [],
       listLoading: false,
+      catalogOptions: null,
       catalogId: '',
       catalogUsed: 1,
       apiInfo: null,
@@ -150,6 +151,7 @@ export default {
       const params = { project_id: this.projectId, used: this.catalogUsed }
       listCatalogTree(params).then(res => {
         this.catalogs = res.data
+        this.catalogOptions = res.data
       })
     },
     getApiList() {
