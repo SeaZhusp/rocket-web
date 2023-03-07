@@ -16,56 +16,53 @@
           </el-col>
         </el-row>
       </el-form>
-      <el-table v-loading="listLoading" :data="userList" element-loading-text="Loading">
-        <el-table-column label="序号" type="index" width="55" />
-        <el-table-column label="姓名" prop="fullname" />
-        <el-table-column label="账号" prop="username" />
-        <el-table-column label="职责">
+      <el-table v-loading="listLoading" :data="testplanList" element-loading-text="Loading">
+        <el-table-column label="计划名称" prop="Testplan.name" />
+        <el-table-column label="Cron" prop="Testplan.cron" />
+        <el-table-column label="运行环境" prop="name" />
+        <el-table-column label="备注" prop="Testplan.desc" />
+        <el-table-column label="运行状态">
           <template slot-scope="{row}">
-            <el-tag :type="row.duty === 0 ? 'info': row.duty === 1 ? 'success': 'danger' ">{{ row.duty | dutyName }}</el-tag>
+            <el-switch v-model="row.Testplan.status" :active-value="1" :inactive-value="0" />
           </template>
         </el-table-column>
-        <el-table-column label="邮箱" prop="email" />
-        <el-table-column label="手机号" prop="phone" />
-        <el-table-column label="状态">
-          <template slot-scope="{row}">
-            <el-tag effect="dark" :type="row.status === 1 ? 'success':'info' ">{{ row.status===1? "启用":"禁用" }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="创建日期" prop="create_time" />
-        <el-table-column label="创建日期" prop="update_time" />
+        <el-table-column label="创建日期" prop="Testplan.create_time" />
+        <el-table-column label="创建日期" prop="Testplan.update_time" />
         <el-table-column fixed="right" label="操作" min-width="80px">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="text" @click="handleEdit(scope.row.Testplan)">编辑</el-button>
+            <el-button type="text" @click="handleDelete(scope.row.Testplan)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getTestplanList" />
     </el-row>
 
-    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="cancelSubmit">
+    <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="resetTestplanForm">
       <el-form ref="testplanForm" :model="testplanForm" :rules="testplanFormRules" label-width="85px">
         <el-form-item label="计划名称" prop="name">
           <el-input v-model="testplanForm.name" placeholder="计划名称" />
         </el-form-item>
-        <el-form-item label="cron表达式" prop="cron">
-          <el-input v-model="testplanForm.username" placeholder="cron表达式只支持5位" />
+        <el-form-item label="cron" prop="cron">
+          <el-input v-model="testplanForm.cron" placeholder="cron表达式只支持5位" />
         </el-form-item>
         <el-form-item label="运行环境" prop="env_id">
-          <el-select v-model="testplanForm.status" placeholder="状态" style="width:184px">
-            <el-option v-for="item in statusList" :key="item.type" :label="item.name" :value="item.type" />
+          <el-select v-model="testplanForm.env_id" placeholder="状态">
+            <el-option v-for="item in envs" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="运行状态" prop="status">
+          <el-switch v-model="testplanForm.status" :active-value="1" :inactive-value="0" />
+        </el-form-item>
+        <el-form-item label="Webhook" prop="webhook">
+          <el-input v-model="testplanForm.webhook" type="textarea" placeholder="webhook" />
         </el-form-item>
         <el-form-item label="备注" prop="desc">
           <el-input v-model="testplanForm.desc" type="textarea" placeholder="备注" />
         </el-form-item>
-        <el-form-item label="webhook" prop="webhook">
-          <el-input v-model="testplanForm.webhook" type="textarea" placeholder="webhook" />
-        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="cancelSubmit">取 消</el-button>
+        <el-button @click="resetTestplanForm">取 消</el-button>
         <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
       </span>
     </el-dialog>
@@ -73,7 +70,7 @@
 </template>
 
 <script>
-import { searchTestplanList, deleteTestplan } from '@/api/http'
+import { searchTestplanList, deleteTestplan, createTestplan, updateTestplan, getAllEnvConfig } from '@/api/http'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -90,9 +87,10 @@ export default {
   },
   data() {
     return {
-      userList: null,
+      testplanList: null,
       projectId: parseInt(localStorage.getItem('projectId')),
       listLoading: false,
+      envs: [],
       search: {
         q: '',
         project_id: '',
@@ -111,45 +109,53 @@ export default {
       },
       testplanFormRules: {
         name: [
-          { required: true, message: '账号不能为空', trigger: 'blur' }
+          { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
-        fullname: [
-          { required: true, message: '姓名不能为空', trigger: 'blur' }
+        cron: [
+          { required: true, message: 'cron不能为空', trigger: 'blur' }
+        ],
+        env_id: [
+          { required: true, message: '环境不能为空', trigger: 'blur' }
         ]
       },
       testplanForm: {
         id: '',
         name: '',
-        desc: '',
-        fullname: '',
+        cron: '',
+        env_id: '',
         status: '',
-        phone: '',
-        email: '',
-        duty: ''
+        webhook: '',
+        desc: ''
       }
     }
   },
   created() {
     this.getTestplanList()
+    this.getAllEnvConfigs()
   },
   methods: {
     handleCreate() {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
-      this.userForm = this.$resetForm(this.userForm)
-      this.userForm.password = '123456'
+      this.testplanForm = this.$resetForm(this.testplanForm)
+      this.testplanForm.status = 0
     },
     handleEdit(row) {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 0
       this.dialogAttribute.title = '编辑'
-      this.userForm.id = row.id
-      this.userForm.fullname = row.fullname
-      this.userForm.username = row.username
-      this.userForm.email = row.email
-      this.userForm.phone = row.phone
-      this.userForm.duty = row.duty
-      this.userForm.status = row.status
+      this.testplanForm.id = row.id
+      this.testplanForm.name = row.name
+      this.testplanForm.cron = row.cron
+      this.testplanForm.env_id = row.env_id
+      this.testplanForm.status = row.status
+      this.testplanForm.webhook = row.webhook
+      this.testplanForm.desc = row.desc
+    },
+    async getAllEnvConfigs() {
+      await getAllEnvConfig().then(res => {
+        this.envs = res.data
+      })
     },
     async handleDelete(row) {
       this.$confirm('确定要删除吗？', '提示', {
@@ -181,13 +187,13 @@ export default {
         project_id: this.projectId
       }
       await searchTestplanList(params).then(response => {
-        this.userList = response.data
+        this.testplanList = response.data
         this.paging = response.paging
         this.listLoading = false
       })
     },
     saveSubmit() {
-      this.$refs.userForm.validate(validate => {
+      this.$refs.testplanForm.validate(validate => {
         if (validate) {
           this.dialogAttribute.save = true
           if (this.dialogAttribute.create === 1) {
@@ -195,29 +201,27 @@ export default {
           } else {
             this.update()
           }
-          this.cancelSubmit()
+          this.resetTestplanForm()
           this.getTestplanList()
         }
       })
     },
     update() {
-      updateUser(this.userForm).then(res => {
+      updateTestplan(this.testplanForm).then(res => {
         this.$message.success(res.msg)
-      }).catch(error => {
-        this.$message.error(error.response.data['message'])
-      })
+      }).catch(() => {})
     },
     create() {
-      createUser(this.userForm).then(res => {
+      createTestplan(this.testplanForm).then(res => {
         this.$message.success(res.msg)
-      }).catch(error => {
-        this.$message.error(error.response.data['message'])
-      })
+      }).catch(() => {})
     },
-    cancelSubmit() {
+    resetTestplanForm() {
       this.dialogAttribute.save = false
       this.dialogAttribute.show = false
-      this.$refs['userForm'].clearValidate()
+      this.$refs['testplanForm'].clearValidate()
+      this.testplanForm.status = 0
+      this.testplanForm.project_id = parseInt(localStorage.getItem('projectId'))
     }
   }
 }
