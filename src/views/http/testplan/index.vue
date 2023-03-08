@@ -125,6 +125,7 @@ export default {
         env_id: '',
         status: '',
         webhook: '',
+        project_id: '',
         desc: ''
       }
     }
@@ -145,6 +146,7 @@ export default {
       this.dialogAttribute.create = 0
       this.dialogAttribute.title = '编辑'
       this.testplanForm.id = row.id
+      this.testplanForm.project_id = row.project_id
       this.testplanForm.name = row.name
       this.testplanForm.cron = row.cron
       this.testplanForm.env_id = row.env_id
@@ -201,8 +203,10 @@ export default {
           } else {
             this.update()
           }
-          this.resetTestplanForm()
-          this.getTestplanList()
+          this.$nextTick(() => {
+            this.resetTestplanForm()
+            this.getTestplanList()
+          })
         }
       })
     },
@@ -220,7 +224,6 @@ export default {
       this.dialogAttribute.save = false
       this.dialogAttribute.show = false
       this.$refs['testplanForm'].clearValidate()
-      this.testplanForm.status = 0
       this.testplanForm.project_id = parseInt(localStorage.getItem('projectId'))
     }
   }
