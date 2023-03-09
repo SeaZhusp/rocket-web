@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-row>
+    <el-row v-if="showList">
       <el-form :inline="true">
         <el-row>
           <el-col :span="8">
@@ -19,19 +19,17 @@
       <el-table v-loading="listLoading" :data="testplanList" element-loading-text="Loading">
         <el-table-column label="计划名称">
           <template slot-scope="{row}">
-            <el-link type="primary" :underline="false">{{ row.Plan.name }}</el-link>
+            <el-link type="primary" :underline="false" @click="hanldePlanDetail(row.Plan)">{{ row.Plan.name }}</el-link>
           </template>
         </el-table-column>
         <el-table-column label="运行环境" prop="name" width="250" />
         <el-table-column label="Cron" prop="Plan.cron" width="200" />
-        <!-- <el-table-column label="备注" prop="Plan.desc" /> -->
         <el-table-column label="运行状态" width="150">
           <template slot-scope="{row}">
             <el-switch v-model="row.Plan.status" :active-value="1" :inactive-value="0" />
           </template>
         </el-table-column>
-        <el-table-column label="创建日期" prop="Plan.create_time" width="150" />
-        <!-- <el-table-column label="创建日期" prop="Plan.update_time" /> -->
+        <el-table-column label="更新日期" prop="Plan.update_time" width="150" />
         <el-table-column fixed="right" label="操作" width="150">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEdit(scope.row.Plan)">编辑</el-button>
@@ -49,6 +47,68 @@
         </el-table-column>
       </el-table>
       <pagination v-show="paging.total > 0" :total="paging.total" :page.sync="paging.page" :limit.sync="paging.limit" @pagination="getTestplanList" />
+    </el-row>
+
+    <el-row v-if="!showList">
+      <el-row>
+        <el-page-header content="计划详情" @back="goBack" />
+      </el-row>
+      <el-row>
+        <el-col :span="5" class="app-container">
+          <el-card shadow="never">
+            <el-form :inline="true">
+              <el-form-item>
+                <el-input v-model="filterText" suffix-icon="el-icon-search" placeholder="关键字过滤" />
+              </el-form-item>
+            </el-form>
+            <el-tree
+              ref="tree"
+              class="filter-tree"
+              :data="catalogs"
+              :props="defaultProps"
+              :filter-node-method="filterNode"
+              :expand-on-click-node="false"
+              highlight-current
+              @node-click="handleCatalogClick"
+            />
+          </el-card>
+        </el-col>
+        <el-col :span="19" class="app-container">
+          <el-form :inline="true">
+            <el-form-item>
+              <el-button type="primary" @click="handleCreate">关联用例</el-button>
+              <el-button type="primary" @click="handleCreate">执行计划</el-button>
+              <el-button @click="handleReset">重置列表</el-button>
+            </el-form-item>
+          </el-form>
+          <el-table v-loading="caseListLoading" :data="caseList" element-loading-text="Loading">
+            <el-table-column label="用例名称">
+              <template slot-scope="{row}">
+                <el-link type="primary" :underline="false">{{ row.name }}</el-link>
+              </template>
+            </el-table-column>
+            <el-table-column label="优先级" prop="level" width="200" />
+            <el-table-column label="状态" width="150">
+              <template slot-scope="{row}">
+                <el-tag :type="row.status===0?'':row.status===1?'success':'info'">{{ row.status===0?'进行中':row.status===1?'已完成':'已停用' }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="更新日期" prop="update_time" width="150" />
+            <el-table-column fixed="right" label="操作" width="150">
+              <template slot-scope="scope">
+                <el-button type="text" @click="handleEdit(scope.row.Plan)">移除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+          <pagination
+            v-show="caseListPaging.total > 0"
+            :total="caseListPaging.total"
+            :page.sync="caseListPaging.page"
+            :limit.sync="caseListPaging.limit"
+            @pagination="getTestplanList"
+          />
+        </el-col>
+      </el-row>
     </el-row>
 
     <el-dialog :title="dialogAttribute.title" :visible.sync="dialogAttribute.show" width="30%" @close="resetTestplanForm">
@@ -83,7 +143,7 @@
 </template>
 
 <script>
-import { searchTestplanList, deleteTestplan, createTestplan, updateTestplan, getAllEnvConfig } from '@/api/http'
+import { searchTestplanList, deleteTestplan, createTestplan, updateTestplan, getAllEnvConfig, getPlanTestcaseCatalogTree, getPlanTestcaseList } from '@/api/http'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -103,6 +163,7 @@ export default {
       testplanList: null,
       projectId: parseInt(localStorage.getItem('projectId')),
       listLoading: false,
+      showList: true,
       envs: [],
       search: {
         q: '',
@@ -113,6 +174,20 @@ export default {
         page: 1,
         limit: 10,
         total: 0
+      },
+      catalogs: [],
+      caseList: [],
+      plan: null,
+      caseListPaging: {
+        page: 1,
+        limit: 10,
+        total: 0
+      },
+      filterText: '',
+      catalogId: '',
+      defaultProps: {
+        children: 'children',
+        label: 'label'
       },
       dialogAttribute: {
         title: '新增',
@@ -141,6 +216,11 @@ export default {
         project_id: '',
         desc: ''
       }
+    }
+  },
+  watch: {
+    filterText(val) {
+      this.$refs.tree.filter(val)
     }
   },
   created() {
@@ -238,6 +318,46 @@ export default {
       this.dialogAttribute.show = false
       this.$refs['testplanForm'].clearValidate()
       this.testplanForm.project_id = parseInt(localStorage.getItem('projectId'))
+    },
+    goBack() {
+      this.showList = true
+    },
+    filterNode(value, data) {
+      if (!value) return true
+      return data.label.indexOf(value) !== -1
+    },
+    handleReset() {
+      this.catalogId = ''
+      this.getPlanDetailTestcaseList()
+    },
+    hanldePlanDetail(plan) {
+      this.showList = false
+      this.plan = plan
+      this.getCatalogTree()
+      this.getPlanDetailTestcaseList()
+    },
+    handleCatalogClick(obj, node, data) {
+      this.catalogId = obj.id
+      this.getPlanDetailTestcaseList()
+    },
+    getCatalogTree() {
+      const params = {
+        plan_id: this.plan.id,
+        project_id: this.plan.project_id
+      }
+      getPlanTestcaseCatalogTree(params).then(res => {
+        this.catalogs = res.data
+      })
+    },
+    getPlanDetailTestcaseList() {
+      const params = {
+        plan_id: this.plan.id,
+        catalog_id: this.catalogId
+      }
+      getPlanTestcaseList(params).then(res => {
+        this.caseList = res.data
+        this.caseListPaging = res.paging
+      })
     }
   }
 }
