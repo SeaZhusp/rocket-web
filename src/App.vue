@@ -19,4 +19,16 @@ export default {
 .custom-form-item {
     width: 330px;
 }
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+  font-size: 12px;
+  margin-left: 10px;
+}
+.el-icon-arrow-down {
+  font-size: 11px;
+}
+.el-drawer__body {
+  overflow: auto;
+}
 </style>

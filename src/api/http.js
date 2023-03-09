@@ -58,10 +58,10 @@ export function createTestcase(data) { return request({ url: '/http/testcase/cre
 export function runTestcase(data) { return request({ url: '/http/testcase/run', method: 'post', data }) }
 
 // testplan
-export function searchTestplanList(params) { return request({ url: '/http/testplan/list', method: 'get', params }) }
+export function searchTestplanList(params) { return request({ url: '/http/plan/list', method: 'get', params }) }
 
-export function deleteTestplan(id) { return request({ url: `/http/testplan/delete/${id}`, method: 'delete' }) }
+export function deleteTestplan(id) { return request({ url: `/http/plan/delete/${id}`, method: 'delete' }) }
 
-export function updateTestplan(data) { return request({ url: '/http/testplan/update', method: 'put', data }) }
+export function updateTestplan(data) { return request({ url: '/http/plan/update', method: 'put', data }) }
 
-export function createTestplan(data) { return request({ url: '/http/testplan/create', method: 'post', data }) }
+export function createTestplan(data) { return request({ url: '/http/plan/create', method: 'post', data }) }

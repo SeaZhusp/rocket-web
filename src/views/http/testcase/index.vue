@@ -47,13 +47,13 @@
             <el-table-column fixed="right" label="操作" width="150">
               <template slot-scope="scope">
                 <el-button type="text" size="small" @click="handleEdit(scope.row)">编辑</el-button>
-                <el-button type="text" size="small" @click="handleDelete(scope.row)">删除</el-button>
+                <el-button type="text" size="small" @click="handleRun(scope.row)">执行</el-button>
                 <el-dropdown>
                   <span class="el-dropdown-link">
                     更多<i class="el-icon-arrow-down el-icon--right" />
                   </span>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item @click.native="handleRun(scope.row)">执行</el-dropdown-item>
+                    <el-dropdown-item @click.native="handleDelete(scope.row)">删除</el-dropdown-item>
                     <el-dropdown-item disabled>复制</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -203,18 +203,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.el-dropdown-link {
-  cursor: pointer;
-  color: #409EFF;
-  font-size: 12px;
-  margin-left: 10px;
-}
-.el-icon-arrow-down {
-  font-size: 11px;
-}
-.el-drawer__body {
-  overflow: auto;
-}
-</style>

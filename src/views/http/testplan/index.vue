@@ -17,21 +17,34 @@
         </el-row>
       </el-form>
       <el-table v-loading="listLoading" :data="testplanList" element-loading-text="Loading">
-        <el-table-column label="计划名称" prop="Testplan.name" />
-        <el-table-column label="Cron" prop="Testplan.cron" />
-        <el-table-column label="运行环境" prop="name" />
-        <el-table-column label="备注" prop="Testplan.desc" />
-        <el-table-column label="运行状态">
+        <el-table-column label="计划名称">
           <template slot-scope="{row}">
-            <el-switch v-model="row.Testplan.status" :active-value="1" :inactive-value="0" />
+            <el-link type="primary" :underline="false">{{ row.Plan.name }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column label="创建日期" prop="Testplan.create_time" />
-        <el-table-column label="创建日期" prop="Testplan.update_time" />
-        <el-table-column fixed="right" label="操作" min-width="80px">
+        <el-table-column label="运行环境" prop="name" width="250" />
+        <el-table-column label="Cron" prop="Plan.cron" width="200" />
+        <!-- <el-table-column label="备注" prop="Plan.desc" /> -->
+        <el-table-column label="运行状态" width="150">
+          <template slot-scope="{row}">
+            <el-switch v-model="row.Plan.status" :active-value="1" :inactive-value="0" />
+          </template>
+        </el-table-column>
+        <el-table-column label="创建日期" prop="Plan.create_time" width="150" />
+        <!-- <el-table-column label="创建日期" prop="Plan.update_time" /> -->
+        <el-table-column fixed="right" label="操作" width="150">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleEdit(scope.row.Testplan)">编辑</el-button>
-            <el-button type="text" @click="handleDelete(scope.row.Testplan)">删除</el-button>
+            <el-button type="text" @click="handleEdit(scope.row.Plan)">编辑</el-button>
+            <el-button type="text" @click="handleRun(scope.row.Plan)">执行</el-button>
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                更多<i class="el-icon-arrow-down el-icon--right" />
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item @click.native="handleDelete(scope.row.Plan)">删除</el-dropdown-item>
+                <el-dropdown-item disabled>复制</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
