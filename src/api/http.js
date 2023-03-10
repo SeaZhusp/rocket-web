@@ -14,13 +14,13 @@ export function createApi(data) { return request({ url: '/http/api/create', meth
 export function runSingleApi(data) { return request({ url: '/http/api/run', method: 'post', data }) }
 
 // catalog
-export function listCatalogTree(params) { return request({ url: '/http/catalog/tree', method: 'get', params }) }
+export function listCatalogTree(params) { return request({ url: '/manage/catalog/tree', method: 'get', params }) }
 
-export function createCatalog(data) { return request({ url: '/http/catalog/create', method: 'post', data }) }
+export function createCatalog(data) { return request({ url: '/manage/catalog/create', method: 'post', data }) }
 
-export function updateCatalog(data) { return request({ url: '/http/catalog/update', method: 'put', data }) }
+export function updateCatalog(data) { return request({ url: '/manage/catalog/update', method: 'put', data }) }
 
-export function deleteCatalog(id) { return request({ url: `/http/catalog/delete/${id}`, method: 'delete' }) }
+export function deleteCatalog(id) { return request({ url: `/manage/catalog/delete/${id}`, method: 'delete' }) }
 
 // envconfig
 export function searchEnvConfig(params) { return request({ url: '/http/envconfig/list', method: 'get', params }) }

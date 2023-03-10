@@ -104,7 +104,7 @@ export const constantRoutes = [
       {
         path: 'project',
         name: '项目管理',
-        component: () => import('@/views/http/project/index'),
+        component: () => import('@/views/manage/project/index'),
         meta: { title: '项目管理' }
       }
     ]
