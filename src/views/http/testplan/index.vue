@@ -96,7 +96,7 @@
             <el-table-column label="更新日期" prop="update_time" width="150" />
             <el-table-column fixed="right" label="操作" width="150">
               <template slot-scope="scope">
-                <el-button type="text" @click="handleEdit(scope.row.Plan)">移除</el-button>
+                <el-button type="text" @click="handleRemove(scope.row)">移除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -143,7 +143,7 @@
 </template>
 
 <script>
-import { searchTestplanList, deleteTestplan, createTestplan, updateTestplan, getAllEnvConfig, getPlanTestcaseCatalogTree, getPlanTestcaseList } from '@/api/http'
+import { searchTestplanList, deleteTestplan, createTestplan, updateTestplan, getAllEnvConfig, getPlanTestcaseCatalogTree, getPlanTestcaseList, deletePlanDetailTestcase } from '@/api/http'
 import Pagination from '@/components/Pagination'
 
 export default {
@@ -176,6 +176,7 @@ export default {
         total: 0
       },
       catalogs: [],
+      catalogUsed: 1,
       caseList: [],
       plan: null,
       caseListPaging: {
@@ -328,7 +329,7 @@ export default {
     },
     handleReset() {
       this.catalogId = ''
-      this.getPlanDetailTestcaseList()
+      this.hanldePlanDetail(this.plan)
     },
     hanldePlanDetail(plan) {
       this.showList = false
@@ -343,7 +344,8 @@ export default {
     getCatalogTree() {
       const params = {
         plan_id: this.plan.id,
-        project_id: this.plan.project_id
+        project_id: this.plan.project_id,
+        used: this.catalogUsed
       }
       getPlanTestcaseCatalogTree(params).then(res => {
         this.catalogs = res.data
@@ -357,6 +359,18 @@ export default {
       getPlanTestcaseList(params).then(res => {
         this.caseList = res.data
         this.caseListPaging = res.paging
+      })
+    },
+    handleRemove(row) {
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const { msg } = await deletePlanDetailTestcase(row.id)
+        this.$message.success(msg)
+        this.hanldePlanDetail(this.plan)
       })
     }
   }

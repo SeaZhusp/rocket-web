@@ -70,3 +70,5 @@ export function createTestplan(data) { return request({ url: '/http/plan/create'
 export function getPlanTestcaseCatalogTree(params) { return request({ url: '/http/plan/detail/catalog/tree', method: 'get', params }) }
 
 export function getPlanTestcaseList(params) { return request({ url: '/http/plan/detail/testcase/list', method: 'get', params }) }
+
+export function deletePlanDetailTestcase(id) { return request({ url: `/http/plan/detail/testcase/remove/${id}`, method: 'delete' }) }
