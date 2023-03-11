@@ -165,14 +165,6 @@ import TestcaseList from '@/components/HttpRunner/TestcaseList'
 export default {
   components: { Pagination, TestcaseList },
   filters: {
-    dutyName(duty) {
-      const statusMap = {
-        0: '普通成员',
-        1: '组长',
-        2: '管理员'
-      }
-      return statusMap[duty]
-    }
   },
   data() {
     return {

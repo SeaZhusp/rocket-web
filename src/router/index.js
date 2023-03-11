@@ -74,12 +74,6 @@ export const constantRoutes = [
         meta: { title: '测试用例' }
       },
       {
-        path: '/http/plan',
-        name: '测试计划',
-        component: () => import('@/views/http/testplan'),
-        meta: { title: '测试计划' }
-      },
-      {
         path: '/http/pyshell',
         name: '函数管理',
         component: () => import('@/views/http/pyshell'),
@@ -90,6 +84,18 @@ export const constantRoutes = [
         name: '环境配置',
         component: () => import('@/views/http/envconfig'),
         meta: { title: '环境配置' }
+      },
+      {
+        path: '/http/plan',
+        name: '测试计划',
+        component: () => import('@/views/http/testplan'),
+        meta: { title: '测试计划' }
+      },
+      {
+        path: '/http/report',
+        name: '报告中心',
+        component: () => import('@/views/http/report'),
+        meta: { title: '报告中心' }
       }
 
     ]

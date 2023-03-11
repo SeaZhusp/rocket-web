@@ -76,3 +76,8 @@ export function getPlanTestcaseList(params) { return request({ url: '/http/plan/
 export function deletePlanDetailTestcase(data) { return request({ url: '/http/plan/detail/testcase/remove', method: 'post', data }) }
 
 export function addTestcaseToPlan(data) { return request({ url: '/http/plan/detail/testcase/add', method: 'post', data }) }
+
+// report
+export function searchReportList(params) { return request({ url: '/http/report/list', method: 'get', params }) }
+
+export function deleteReport(id) { return request({ url: `/http/report/delete/${id}`, method: 'delete' }) }
