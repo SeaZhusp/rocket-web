@@ -5,7 +5,7 @@
         <el-form-item>
           <el-input v-model="filterText" suffix-icon="el-icon-search" placeholder="关键字过滤" />
         </el-form-item>
-        <el-form-item>
+        <el-form-item v-if="showAdd">
           <el-tooltip class="item" effect="dark" content="点击创建根目录，子目录请在节点创建" placement="top-start">
             <el-button type="text" @click="handleCreate">新增</el-button>
           </el-tooltip>
@@ -55,6 +55,11 @@ export default {
     //   type: Array,
     //   required: true
     // },
+    showAdd: {
+      type: Boolean,
+      required: false,
+      default() { return true }
+    },
     projectId: {
       type: Number,
       required: true

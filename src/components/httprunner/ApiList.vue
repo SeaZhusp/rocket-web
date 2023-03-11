@@ -178,21 +178,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.custom-form-item-select {
-  width:110px
-}
-.el-dropdown-link {
-  cursor: pointer;
-  color: #409EFF;
-  font-size: 12px;
-  margin-left: 10px;
-}
-.el-icon-arrow-down {
-  font-size: 11px;
-}
-.el-drawer__body {
-  overflow: auto;
-}
-</style>

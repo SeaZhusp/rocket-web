@@ -341,9 +341,14 @@ export default {
       // this.getStepList()
     },
     handleSave() {
-      // if (!this.testcase.env_id) {
-      //   this.$notify.warning('请选择环境')
-      // }
+      if (!this.testcase.env_id) {
+        this.$notify({
+          title: '提醒',
+          type: 'warning',
+          message: '请选择环境'
+        })
+        return
+      }
       this.$refs.testcase.validate(validate => {
         if (validate) {
           this.testcase.body.steps = this.stepList
@@ -360,7 +365,7 @@ export default {
               this.$message.error(error.response.data['message'])
             })
           }
-          this.$emit('goBack')
+          // this.$emit('goBack')
           this.$emit('getTestcaseList')
         }
       })

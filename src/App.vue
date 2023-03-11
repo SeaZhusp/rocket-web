@@ -19,6 +19,9 @@ export default {
 .custom-form-item {
     width: 330px;
 }
+.custom-form-item-select {
+  width:110px
+}
 .el-dropdown-link {
   cursor: pointer;
   color: #409EFF;

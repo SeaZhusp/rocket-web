@@ -66,9 +66,13 @@ export function updateTestplan(data) { return request({ url: '/http/plan/update'
 
 export function createTestplan(data) { return request({ url: '/http/plan/create', method: 'post', data }) }
 
+export function runPlan(id) { return request({ url: `/http/plan/run/${id}`, method: 'post' }) }
+
 // plandetail
 export function getPlanTestcaseCatalogTree(params) { return request({ url: '/http/plan/detail/catalog/tree', method: 'get', params }) }
 
 export function getPlanTestcaseList(params) { return request({ url: '/http/plan/detail/testcase/list', method: 'get', params }) }
 
-export function deletePlanDetailTestcase(id) { return request({ url: `/http/plan/detail/testcase/remove/${id}`, method: 'delete' }) }
+export function deletePlanDetailTestcase(data) { return request({ url: '/http/plan/detail/testcase/remove', method: 'post', data }) }
+
+export function addTestcaseToPlan(data) { return request({ url: '/http/plan/detail/testcase/add', method: 'post', data }) }

@@ -76,8 +76,8 @@
         <el-col :span="19" class="app-container">
           <el-form :inline="true">
             <el-form-item>
-              <el-button type="primary" @click="handleCreate">关联用例</el-button>
-              <el-button type="primary" @click="handleCreate">执行计划</el-button>
+              <el-button type="primary" @click="handleAddTestcase">关联用例</el-button>
+              <el-button type="primary" @click="handleRun(plan)">执行计划</el-button>
               <el-button @click="handleReset">重置列表</el-button>
             </el-form-item>
           </el-form>
@@ -139,15 +139,31 @@
         <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
       </span>
     </el-dialog>
+
+    <el-drawer title="测试用例" :visible.sync="testcaseListShow" size="70%">
+      <TestcaseList
+        @addToPlan="addToPlan"
+      />
+    </el-drawer>
   </div>
 </template>
 
 <script>
-import { searchTestplanList, deleteTestplan, createTestplan, updateTestplan, getAllEnvConfig, getPlanTestcaseCatalogTree, getPlanTestcaseList, deletePlanDetailTestcase } from '@/api/http'
+import { searchTestplanList,
+  deleteTestplan,
+  createTestplan,
+  updateTestplan,
+  getAllEnvConfig,
+  getPlanTestcaseCatalogTree,
+  getPlanTestcaseList,
+  deletePlanDetailTestcase,
+  runPlan,
+  addTestcaseToPlan } from '@/api/http'
 import Pagination from '@/components/Pagination'
+import TestcaseList from '@/components/HttpRunner/TestcaseList'
 
 export default {
-  components: { Pagination },
+  components: { Pagination, TestcaseList },
   filters: {
     dutyName(duty) {
       const statusMap = {
@@ -164,6 +180,8 @@ export default {
       projectId: parseInt(localStorage.getItem('projectId')),
       listLoading: false,
       showList: true,
+      caseListLoading: false,
+      testcaseListShow: false,
       envs: [],
       search: {
         q: '',
@@ -176,7 +194,6 @@ export default {
         total: 0
       },
       catalogs: [],
-      catalogUsed: 1,
       caseList: [],
       plan: null,
       caseListPaging: {
@@ -229,6 +246,9 @@ export default {
     this.getAllEnvConfigs()
   },
   methods: {
+    handleAddTestcase() {
+      this.testcaseListShow = true
+    },
     handleCreate() {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
@@ -344,14 +364,14 @@ export default {
     getCatalogTree() {
       const params = {
         plan_id: this.plan.id,
-        project_id: this.plan.project_id,
-        used: this.catalogUsed
+        project_id: this.plan.project_id
       }
       getPlanTestcaseCatalogTree(params).then(res => {
         this.catalogs = res.data
       })
     },
     getPlanDetailTestcaseList() {
+      this.caseListLoading = true
       const params = {
         plan_id: this.plan.id,
         catalog_id: this.catalogId
@@ -360,6 +380,7 @@ export default {
         this.caseList = res.data
         this.caseListPaging = res.paging
       })
+      this.caseListLoading = false
     },
     handleRemove(row) {
       this.$confirm('确定要删除吗？', '提示', {
@@ -368,9 +389,30 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        const { msg } = await deletePlanDetailTestcase(row.id)
-        this.$message.success(msg)
-        this.hanldePlanDetail(this.plan)
+        const data = {
+          plan_id: this.plan.id,
+          testcase_id: row.id
+        }
+        deletePlanDetailTestcase(data).then(res => {
+          this.$message.success(res.msg)
+          this.hanldePlanDetail(this.plan)
+        })
+      })
+    },
+    addToPlan(row) {
+      const data = {
+        plan_id: this.plan.id,
+        testcase_id: row.id
+      }
+      addTestcaseToPlan(data).then(res => {
+        this.message.success(res.msg)
+      })
+      this.testcaseListShow = false
+      this.handleReset()
+    },
+    handleRun(plan) {
+      runPlan(plan.id).then(res => {
+        this.$message.success(res.msg)
       })
     }
   }
