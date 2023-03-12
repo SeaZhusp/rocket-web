@@ -19,7 +19,7 @@
         <el-table-column label="测试时间" prop="test_begin_time" width="150" />
         <el-table-column label="耗时（秒）" width="100">
           <template slot-scope="{row}">
-            <el-tag type="info">{{ row.duration }}</el-tag>
+            <span>{{ row.duration }} 秒</span>
           </template>
         </el-table-column>
         <el-table-column label="用例数" width="100">
@@ -37,10 +37,10 @@
             <el-tag type="danger">{{ row.failed }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="失败" width="100">
-          <template slot-scope="{row}">
+        <el-table-column label="通过率" prop="pass_rate" width="100">
+          <!-- <template slot-scope="{row}">
             <el-tag type="warning">{{ row.pass_rate }}</el-tag>
-          </template>
+          </template> -->
         </el-table-column>
         <el-table-column label="执行人" prop="create_user" width="100" />
         <el-table-column fixed="right" label="操作" width="150">
@@ -122,6 +122,10 @@ export default {
         this.paging = response.paging
         this.listLoading = false
       })
+    },
+    handleView(id) {
+      const { href } = this.$router.resolve({ path: '/http/report/view', query: { report_id: id }})
+      window.open(href, '_blank')
     }
   }
 }

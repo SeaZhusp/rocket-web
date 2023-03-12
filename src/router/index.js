@@ -96,6 +96,13 @@ export const constantRoutes = [
         name: '报告中心',
         component: () => import('@/views/http/report'),
         meta: { title: '报告中心' }
+      },
+      {
+        path: '/http/report/view',
+        name: '报告详情',
+        hidden: true,
+        component: () => import('@/views/http/report/detail'),
+        meta: { title: '报告详情' }
       }
 
     ]

@@ -81,3 +81,6 @@ export function addTestcaseToPlan(data) { return request({ url: '/http/plan/deta
 export function searchReportList(params) { return request({ url: '/http/report/list', method: 'get', params }) }
 
 export function deleteReport(id) { return request({ url: `/http/report/delete/${id}`, method: 'delete' }) }
+
+// report detail
+export function getReportDetail(params) { return request({ url: '/http/report/view', method: 'get', params }) }
