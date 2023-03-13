@@ -31,7 +31,7 @@
         </el-row>
         <el-divider>Test Cases</el-divider>
         <el-row>
-          <el-col :span="6">
+          <el-col :span="7">
             <el-card shadow="never">
               <el-table
                 ref="singleTable"
@@ -49,7 +49,7 @@
                     <span>{{ row.time.duration | computerTime }} s</span>
                   </template>
                 </el-table-column>
-                <el-table-column width="80">
+                <el-table-column width="100">
                   <template slot-scope="{row}">
                     <el-tag :type="row.test_success?'success': 'danger'">{{ row.test_success?'Success': 'Failed' }}</el-tag>
                   </template>
@@ -57,7 +57,7 @@
               </el-table>
             </el-card>
           </el-col>
-          <el-col :span="17" style="margin-left: 10px">
+          <el-col :span="16" style="margin-left: 10px">
             <el-card shadow="never">
               <el-empty v-if="step_datas.length === 0" description="请选择Testcase后查看执行详情" />
               <el-collapse v-if="step_datas.length !== 0">
