@@ -68,6 +68,10 @@ export function createTestplan(data) { return request({ url: '/http/plan/create'
 
 export function runPlan(id) { return request({ url: `/http/plan/run/${id}`, method: 'post' }) }
 
+export function addPlanStatus(id) { return request({ url: `/http/plan/job/add/${id}`, method: 'put' }) }
+
+export function removePlanStatus(id) { return request({ url: `/http/plan/job/remove/${id}`, method: 'put' }) }
+
 // plandetail
 export function getPlanTestcaseCatalogTree(params) { return request({ url: '/http/plan/detail/catalog/tree', method: 'get', params }) }
 

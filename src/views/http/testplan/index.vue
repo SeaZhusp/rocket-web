@@ -24,9 +24,9 @@
         </el-table-column>
         <el-table-column label="运行环境" prop="name" width="250" />
         <el-table-column label="Cron" prop="Plan.cron" width="200" />
-        <el-table-column label="运行状态" width="150">
+        <el-table-column label="定时执行" width="150">
           <template slot-scope="{row}">
-            <el-switch v-model="row.Plan.status" :active-value="1" :inactive-value="0" />
+            <el-switch v-model="row.Plan.status" :active-value="1" :inactive-value="0" @change="changeStatus(row)" />
           </template>
         </el-table-column>
         <el-table-column label="更新日期" prop="Plan.update_time" width="150" />
@@ -117,15 +117,12 @@
           <el-input v-model="testplanForm.name" placeholder="计划名称" />
         </el-form-item>
         <el-form-item label="cron" prop="cron">
-          <el-input v-model="testplanForm.cron" placeholder="cron表达式只支持5位" />
+          <el-input v-model="testplanForm.cron" placeholder="分 时 天 月 周" />
         </el-form-item>
         <el-form-item label="运行环境" prop="env_id">
           <el-select v-model="testplanForm.env_id" placeholder="状态">
             <el-option v-for="item in envs" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="运行状态" prop="status">
-          <el-switch v-model="testplanForm.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
         <el-form-item label="Webhook" prop="webhook">
           <el-input v-model="testplanForm.webhook" type="textarea" placeholder="webhook" />
@@ -158,6 +155,8 @@ import { searchTestplanList,
   getPlanTestcaseList,
   deletePlanDetailTestcase,
   runPlan,
+  addPlanStatus,
+  removePlanStatus,
   addTestcaseToPlan } from '@/api/http'
 import Pagination from '@/components/Pagination'
 import TestcaseList from '@/components/HttpRunner/TestcaseList'
@@ -177,8 +176,7 @@ export default {
       envs: [],
       search: {
         q: '',
-        project_id: '',
-        status: ''
+        project_id: ''
       },
       paging: {
         page: 1,
@@ -221,7 +219,6 @@ export default {
         name: '',
         cron: '',
         env_id: '',
-        status: '',
         webhook: '',
         project_id: '',
         desc: ''
@@ -245,7 +242,6 @@ export default {
       this.dialogAttribute.show = true
       this.dialogAttribute.create = 1
       this.testplanForm = this.$resetForm(this.testplanForm)
-      this.testplanForm.status = 0
     },
     handleEdit(row) {
       this.dialogAttribute.show = true
@@ -256,7 +252,6 @@ export default {
       this.testplanForm.name = row.name
       this.testplanForm.cron = row.cron
       this.testplanForm.env_id = row.env_id
-      this.testplanForm.status = row.status
       this.testplanForm.webhook = row.webhook
       this.testplanForm.desc = row.desc
     },
@@ -291,7 +286,6 @@ export default {
         page: this.paging.page,
         limit: this.paging.limit,
         search: this.search.q,
-        status: this.search.status,
         project_id: this.projectId
       }
       await searchTestplanList(params).then(response => {
@@ -406,6 +400,19 @@ export default {
       runPlan(plan.id).then(res => {
         this.$message.success(res.msg)
       })
+    },
+    changeStatus(row) {
+      const id = row.Plan.id
+      const status = row.Plan.status
+      if (status === 1) {
+        addPlanStatus(id).then(res => {
+          this.$message.success(res.msg)
+        })
+      } else {
+        removePlanStatus(id).then(res => {
+          this.$message.success(res.msg)
+        })
+      }
     }
   }
 }
