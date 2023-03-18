@@ -228,6 +228,10 @@ export default {
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val)
+    },
+    '$store.state.rocket.projectId'() {
+      this.projectId = this.$store.state.rocket.projectId
+      this.getTestplanList()
     }
   },
   created() {

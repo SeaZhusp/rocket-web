@@ -6,12 +6,18 @@
 
     <div class="right-menu">
       <div class="right-menu-item hover-effect">
-        <span style=" padding: 0px 10px; cursor: pointer; font-size: 13px;">
+        <el-select v-model="projectId" placeholder="请选择" filterable>
+          <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id" />
+        </el-select>
+        <!-- <span style=" padding: 0px 10px; cursor: pointer; font-size: 13px;">
           欢迎 <b>{{ fullname }}</b> ~
-        </span>
+        </span> -->
       </div>
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
+          <!-- <span style="padding: 0px 10px; font-size: 13px;">
+            欢迎 <b>{{ fullname }}</b> ~
+          </span> -->
           <img :src="avatar" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
@@ -37,6 +43,7 @@
 </template>
 
 <script>
+import { listProject } from '@/api/manage'
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
@@ -46,6 +53,12 @@ export default {
     Breadcrumb,
     Hamburger
   },
+  data() {
+    return {
+      projectId: '',
+      projects: []
+    }
+  },
   computed: {
     ...mapGetters([
       'sidebar',
@@ -53,7 +66,27 @@ export default {
       'fullname'
     ])
   },
+  watch: {
+    projectId(val) {
+      this.$store.dispatch('rocket/changeProjectId', val)
+    }
+  },
+  created() {
+    this.getAllProjects()
+  },
   methods: {
+    async getAllProjects() {
+      await listProject().then(response => {
+        const prjId = localStorage.getItem('projectId')
+        this.projects = response.data
+        if (prjId === '') {
+          this.projectId = response.data[0].id
+          this.$store.dispatch('changeProjectId', response.data[0].id)
+        } else {
+          this.projectId = parseInt(prjId)
+        }
+      })
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },

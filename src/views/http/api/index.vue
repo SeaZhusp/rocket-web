@@ -1,15 +1,5 @@
 <template>
   <div>
-    <el-form :inline="true">
-      <el-form-item label="当前项目" prop="projectId">
-        <el-select v-model="projectId" placeholder="请选择" filterable>
-          <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <i class="el-icon-info" style="color:#909399"> 请先选择一个项目，然后开始吧-.- | 新增前记得先选目录后~.~ </i>
-      </el-form-item>
-    </el-form>
     <el-row>
       <el-col :span="5" class="app-container">
         <CatalogTree
@@ -123,7 +113,6 @@
 
 <script>
 import { getAllEnvConfig, runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
-import { listProject } from '@/api/manage'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 import CatalogTree from '@/components/CatalogTree'
@@ -138,7 +127,6 @@ export default {
       listLoading: false,
       apiCreateFlag: true,
       catalogSelectOptions: [],
-      projects: [],
       envs: [],
       summary: {},
       projectId: '',
@@ -172,14 +160,12 @@ export default {
     }
   },
   watch: {
-    projectId(val) {
-      localStorage.setItem('projectId', val)
-      // this.getCatalogTree()
-      this.getApiList()
+    '$store.state.rocket.projectId'() {
+      this.projectId = this.$store.state.rocket.projectId
+      this.initApiPage()
     }
   },
   created() {
-    this.getAllProjects()
     this.initApiPage()
     this.getAllEnvConfigs()
   },
@@ -188,7 +174,6 @@ export default {
       const projectId = localStorage.getItem('projectId')
       if (projectId) {
         this.projectId = parseInt(projectId)
-        // this.getCatalogTree()
         this.getApiList()
       }
     },
@@ -224,14 +209,6 @@ export default {
     async getAllEnvConfigs() {
       await getAllEnvConfig().then(res => {
         this.envs = res.data
-      })
-    },
-    async getAllProjects() {
-      await listProject().then(response => {
-        this.projects = response.data
-        if (this.projectId === '') {
-          this.projectId = response.data[0].id
-        }
       })
     },
     // Catalog
@@ -324,9 +301,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.custom-form-item-select {
-  width:110px
-}
-</style>

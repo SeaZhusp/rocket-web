@@ -83,6 +83,10 @@ export default {
     }
   },
   watch: {
+    '$store.state.rocket.projectId'() {
+      this.projectId = this.$store.state.rocket.projectId
+      this.getReportList()
+    }
   },
   created() {
     this.getReportList()
