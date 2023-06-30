@@ -17,12 +17,12 @@
       <div>
         <el-row>
           <el-col :span="24">
-            <el-descriptions size="medium">
+            <el-descriptions :column="4" size="medium" border>
               <el-descriptions-item label="测试环境">{{ envName }}</el-descriptions-item>
               <el-descriptions-item label="执行人">{{ createUser }}</el-descriptions-item>
               <el-descriptions-item label="执行总数"><el-tag>{{ total }}</el-tag></el-descriptions-item>
-              <el-descriptions-item label="成功"><el-tag type="success">{{ passed }}</el-tag></el-descriptions-item>
-              <el-descriptions-item label="失败"><el-tag type="danger">{{ failed }}</el-tag></el-descriptions-item>
+              <el-descriptions-item label="成功数"><el-tag type="success">{{ passed }}</el-tag></el-descriptions-item>
+              <el-descriptions-item label="失败数"><el-tag type="danger">{{ failed }}</el-tag></el-descriptions-item>
               <el-descriptions-item label="通过率"><el-tag type="warning">{{ passRate }}</el-tag></el-descriptions-item>
               <el-descriptions-item label="耗时（秒）">{{ duration }}</el-descriptions-item>
               <el-descriptions-item label="测试时间">{{ testBeginTime }}</el-descriptions-item>

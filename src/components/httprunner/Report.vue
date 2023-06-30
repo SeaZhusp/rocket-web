@@ -72,7 +72,7 @@
           border
           :header-cell-style="{textAlign:'center'}"
         >
-          <el-table-column type="expand" fixed>
+          <el-table-column type="expand">
             <template slot-scope="props">
               <el-tabs>
                 <el-tab-pane label="Request">
