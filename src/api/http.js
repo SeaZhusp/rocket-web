@@ -33,19 +33,6 @@ export function createEnvConfig(data) { return request({ url: '/http/envconfig/c
 
 export function getAllEnvConfig() { return request({ url: '/http/envconfig/all', method: 'get' }) }
 
-// pyshell
-export function listPyshell() { return request({ url: '/http/pyshell/list', method: 'get' }) }
-
-export function getPyshellContent(params) { return request({ url: '/http/pyshell/info', method: 'get', params }) }
-
-export function debugFunction(data) { return request({ url: '/http/pyshell/debug', method: 'post', data }) }
-
-export function createPyshell(data) { return request({ url: '/http/pyshell/create', method: 'post', data }) }
-
-export function savePyshell(data) { return request({ url: '/http/pyshell/save', method: 'put', data }) }
-
-export function deletePyshell(data) { return request({ url: '/http/pyshell/delete', method: 'delete', data }) }
-
 // testcase
 export function searchTestcaseList(params) { return request({ url: '/http/testcase/list', method: 'get', params }) }
 

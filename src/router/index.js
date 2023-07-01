@@ -74,12 +74,6 @@ export const constantRoutes = [
         meta: { title: '测试用例' }
       },
       {
-        path: '/http/pyshell',
-        name: '函数管理',
-        component: () => import('@/views/http/pyshell'),
-        meta: { title: '函数管理' }
-      },
-      {
         path: '/http/envconfig',
         name: '环境配置',
         component: () => import('@/views/http/envconfig'),
@@ -119,6 +113,12 @@ export const constantRoutes = [
         name: '项目管理',
         component: () => import('@/views/manage/project/index'),
         meta: { title: '项目管理' }
+      },
+      {
+        path: '/manage/pyshell',
+        name: '脚本管理',
+        component: () => import('@/views/manage/pyshell'),
+        meta: { title: '脚本管理' }
       }
     ]
   },

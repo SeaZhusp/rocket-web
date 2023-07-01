@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { listPyshell, getPyshellContent, debugFunction, createPyshell, savePyshell, deletePyshell } from '@/api/http'
+import { listPyshell, getPyshellContent, debugFunction, createPyshell, savePyshell, deletePyshell } from '@/api/manage'
 export default {
   name: 'Pyshell',
   components: {
@@ -178,8 +178,9 @@ export default {
         lockScroll: false,
         type: 'warning'
       }).then(async() => {
-        savePyshell({ module_name: this.moduleName, content: this.pyshellContent }).then(res => {
+        savePyshell({ module_name: this.moduleName, code: this.pyshellContent }).then(res => {
           this.$message.success(res.msg)
+          this.readPyshellContent()
         })
       })
     },
