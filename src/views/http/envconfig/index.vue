@@ -61,7 +61,7 @@
             <el-select v-model="configForm.modules" multiple placeholder="请选择Pyshell" style="width:100%">
               <el-option
                 v-for="item in moduleOptions"
-                :key="item.value"
+                :key="item.id"
                 :label="item.value"
                 :value="item.value"
               />
@@ -105,6 +105,7 @@
 
 <script>
 import { searchEnvConfig, deleteEnvConfig, createEnvConfig, updateEnvConfig } from '@/api/http'
+import { listPyshell } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/HttpRunner/Headers'
 import Variables from '@/components/HttpRunner/Variables'
@@ -118,7 +119,7 @@ export default {
       envList: null,
       listLoading: false,
       activeStep: 'service',
-      moduleOptions: [{ 'value': 'login.py' }, { 'value': 'test.py' }],
+      moduleOptions: [],
       q: '',
       paging: {
         page: 1,
@@ -155,6 +156,7 @@ export default {
   },
   created() {
     this.getEnvList()
+    this.getPyshellList()
   },
   methods: {
     async handleCurrentChange(val) {
@@ -164,6 +166,11 @@ export default {
     async handleSearch() {
       this.paging.page = 1
       await this.getEnvList()
+    },
+    getPyshellList() {
+      listPyshell().then(res => {
+        this.moduleOptions = res.data
+      })
     },
     initConfigForm() {
       return {
