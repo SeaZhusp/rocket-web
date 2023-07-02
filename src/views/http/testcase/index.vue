@@ -201,8 +201,8 @@ export default {
       await runTestcase(params).then(res => {
         this.$message.success(res.msg)
         this.summary = res.data
-      })
-      this.reportShow = true
+        this.reportShow = true
+      }).catch(() => {})
       loading.close()
     }
   }
