@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { searchEnvConfig, deleteEnvConfig, createEnvConfig, updateEnvConfig } from '@/api/http'
+import { searchEnvConfig, deleteEnvConfig, createEnvConfig, updateEnvConfig } from '@/api/manage'
 import { listPyshell } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import Headers from '@/components/HttpRunner/Headers'

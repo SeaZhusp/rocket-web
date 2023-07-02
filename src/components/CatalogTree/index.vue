@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { createCatalog, updateCatalog, deleteCatalog, listCatalogTree } from '@/api/http'
+import { createCatalog, updateCatalog, deleteCatalog, listCatalogTree } from '@/api/manage'
 export default {
   name: 'CatalogTree',
   props: {

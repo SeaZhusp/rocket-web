@@ -150,7 +150,6 @@ import { searchTestplanList,
   deleteTestplan,
   createTestplan,
   updateTestplan,
-  getAllEnvConfig,
   getPlanTestcaseCatalogTree,
   getPlanTestcaseList,
   deletePlanDetailTestcase,
@@ -158,6 +157,7 @@ import { searchTestplanList,
   addPlanStatus,
   removePlanStatus,
   addTestcaseToPlan } from '@/api/http'
+import { getAllEnvConfig } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 import TestcaseList from '@/components/HttpRunner/TestcaseList'
 

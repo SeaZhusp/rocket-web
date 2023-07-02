@@ -112,7 +112,8 @@
 </template>
 
 <script>
-import { getAllEnvConfig, runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
+import { runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
+import { getAllEnvConfig } from '@/api/manage'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 import CatalogTree from '@/components/CatalogTree'

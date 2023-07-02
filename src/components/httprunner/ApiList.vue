@@ -84,7 +84,8 @@
 </template>
 
 <script>
-import { searchApi, listCatalogTree } from '@/api/http'
+import { searchApi } from '@/api/http'
+import { listCatalogTree } from '@/api/manage'
 import Pagination from '@/components/Pagination'
 
 export default {

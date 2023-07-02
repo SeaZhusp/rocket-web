@@ -100,11 +100,11 @@
                     border
                     style="width: 100%"
                   >
-                    <el-table-column prop="check_result" label="是否通过" width="180" />
                     <el-table-column prop="check" label="取值表达式" width="180" />
                     <el-table-column prop="check_value" label="实际值" />
                     <el-table-column prop="comparator" label="比较器" />
                     <el-table-column prop="expect" label="期望值" />
+                    <el-table-column prop="check_result" label="是否通过" width="180" />
                   </el-table>
                 </el-tab-pane>
                 <el-tab-pane label="Extract">

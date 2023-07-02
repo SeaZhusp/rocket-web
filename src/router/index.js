@@ -54,7 +54,6 @@ export const constantRoutes = [
       meta: { title: 'Dashboard' }
     }]
   },
-
   {
     path: '/http',
     component: Layout,
@@ -72,12 +71,6 @@ export const constantRoutes = [
         name: '测试用例',
         component: () => import('@/views/http/testcase'),
         meta: { title: '测试用例' }
-      },
-      {
-        path: '/http/envconfig',
-        name: '环境配置',
-        component: () => import('@/views/http/envconfig'),
-        meta: { title: '环境配置' }
       },
       {
         path: '/http/plan',
@@ -102,6 +95,17 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/datafactory',
+    component: Layout,
+    redirect: '/datafactory/scene',
+    children: [{
+      path: '/datafactory/scene',
+      name: '场景管理',
+      component: () => import('@/views/datafactory/scene'),
+      meta: { title: '场景管理' }
+    }]
+  },
+  {
     path: '/manage',
     component: Layout,
     redirect: '/manage/project',
@@ -119,6 +123,12 @@ export const constantRoutes = [
         name: '脚本管理',
         component: () => import('@/views/manage/pyshell'),
         meta: { title: '脚本管理' }
+      },
+      {
+        path: '/manage/envconfig',
+        name: '环境管理',
+        component: () => import('@/views/manage/envconfig'),
+        meta: { title: '环境管理' }
       }
     ]
   },

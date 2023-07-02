@@ -155,7 +155,8 @@
 </template>
 
 <script>
-import { getAllEnvConfig, createTestcase, updateTestcase, runTestcase } from '@/api/http'
+import { createTestcase, updateTestcase, runTestcase } from '@/api/http'
+import { getAllEnvConfig } from '@/api/manage'
 import Sortable from 'sortablejs'
 import ApiList from '@/components/HttpRunner/ApiList'
 import Report from '@/components/HttpRunner/Report'
