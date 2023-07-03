@@ -40,7 +40,7 @@
                     <el-button> 更多操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
                     <el-dropdown-menu slot="dropdown">
                       <el-dropdown-item disabled>批量删除</el-dropdown-item>
-                      <el-dropdown-item disabled>导入接口</el-dropdown-item>
+                      <el-dropdown-item @click.native="handleImport">导入接口</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </el-form-item>
@@ -108,6 +108,25 @@
     <el-dialog :visible.sync="reportDialog.show" :close-on-click-modal="false" width="60%">
       <Report :summary="summary" />
     </el-dialog>
+
+    <el-dialog :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="40%">
+      <el-form ref="importForm" :model="importForm" :rules="importFormRules" label-width="85px">
+        <el-form-item label="导入类型">
+          <el-radio-group v-model="importForm.importType">
+            <el-radio label="swagger" />
+            <el-radio label="curl" />
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="用例名称" prop="name">
+          <el-input v-model="importForm.name" placeholder="计划名称" />
+        </el-form-item>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="">取 消</el-button>
+        <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -157,6 +176,24 @@ export default {
       },
       reportDialog: {
         show: false
+      },
+      importForm: {
+        importType: 1,
+        name: '自定义接口名称'
+      },
+      importFormRules: {
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ],
+        importType: [
+          { required: true, message: 'cron不能为空', trigger: 'blur' }
+        ]
+      },
+      dialogAttribute: {
+        title: '新增',
+        create: 1,
+        show: false,
+        save: false
       }
     }
   },
@@ -298,6 +335,9 @@ export default {
       })
       this.reportDialog.show = true
       loading.close()
+    },
+    handleImport() {
+      this.dialogAttribute.show = true
     }
   }
 }
