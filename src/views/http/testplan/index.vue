@@ -22,15 +22,15 @@
             <el-link type="primary" :underline="false" @click="hanldePlanDetail(row.Plan)">{{ row.Plan.name }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column label="运行环境" prop="name" width="250" />
-        <el-table-column label="Cron" prop="Plan.cron" width="200" />
-        <el-table-column label="定时执行" width="150">
+        <el-table-column label="运行环境" prop="name" width="300" />
+        <el-table-column label="Cron" prop="Plan.cron" width="250" />
+        <el-table-column label="定时执行" width="180">
           <template slot-scope="{row}">
             <el-switch v-model="row.Plan.status" :active-value="1" :inactive-value="0" @change="changeStatus(row)" />
           </template>
         </el-table-column>
-        <el-table-column label="更新日期" prop="Plan.update_time" width="150" />
-        <el-table-column fixed="right" label="操作" width="150">
+        <el-table-column label="更新日期" prop="Plan.update_time" width="180" />
+        <el-table-column fixed="right" label="操作" width="180">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEdit(scope.row.Plan)">编辑</el-button>
             <el-button type="text" @click="handleRun(scope.row.Plan)">执行</el-button>

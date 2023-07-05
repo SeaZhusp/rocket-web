@@ -39,7 +39,7 @@
                   <el-dropdown>
                     <el-button> 更多操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item disabled>批量删除</el-dropdown-item>
+                      <el-dropdown-item @click.native="batchDelete">批量删除</el-dropdown-item>
                       <el-dropdown-item @click.native="handleImport">导入接口</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
@@ -47,7 +47,14 @@
               </el-col>
             </el-row>
             <el-row>
-              <el-table v-loading="listLoading" border stripe :data="apiList" element-loading-text="Loading">
+              <el-table
+                v-loading="listLoading"
+                border
+                stripe
+                :data="apiList"
+                element-loading-text="Loading"
+                @selection-change="handleSelectionChange"
+              >
                 <el-table-column align="center" type="selection" width="55" />
                 <el-table-column label="ID" prop="id" width="60" />
                 <el-table-column label="接口名称" :show-overflow-tooltip="true" prop="name" />
@@ -111,27 +118,31 @@
 
     <el-dialog :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="40%">
       <el-form ref="importForm" :model="importForm" :rules="importFormRules" label-width="85px">
-        <el-form-item label="导入类型">
-          <el-radio-group v-model="importForm.importType">
-            <el-radio label="swagger" />
-            <el-radio label="curl" />
-          </el-radio-group>
+        <el-form-item label="导入类型" prop="importType">
+          <el-select v-model="importForm.importType" placeholder="请选择">
+            <el-option
+              v-for="item in importTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </el-form-item>
-        <el-form-item label="用例名称" prop="name">
+        <el-form-item label="接口名称" prop="name">
           <el-input v-model="importForm.name" placeholder="计划名称" />
         </el-form-item>
 
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="">取 消</el-button>
-        <el-button type="primary" :loading="dialogAttribute.save" @click="saveSubmit">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
+        <el-button>取 消</el-button>
+        <el-button type="primary" :loading="dialogAttribute.save">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
+import { runSingleApi, searchApi, getApiDetail, deleteApi, batchDeleteApi } from '@/api/http'
 import { getAllEnvConfig } from '@/api/manage'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
@@ -153,6 +164,7 @@ export default {
       catalogId: '',
       catalogUsed: 1,
       apiInfo: null,
+      multipleSelection: [],
       search: {
         q: '',
         level: '',
@@ -166,10 +178,10 @@ export default {
       levelOptions: JSON.parse(localStorage.getItem('dicts'))['common_level'] || [],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       catalogs: [],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      },
+      importTypeOptions: [
+        { value: 'swagger', label: 'swagger' },
+        { key: 'curl', label: 'curl' }
+      ],
       apiDrawer: {
         show: false,
         title: '新增'
@@ -178,7 +190,7 @@ export default {
         show: false
       },
       importForm: {
-        importType: 1,
+        importType: null,
         name: '自定义接口名称'
       },
       importFormRules: {
@@ -186,7 +198,7 @@ export default {
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
         importType: [
-          { required: true, message: 'cron不能为空', trigger: 'blur' }
+          { required: true, message: '请选择导入类型', trigger: 'blur' }
         ]
       },
       dialogAttribute: {
@@ -289,6 +301,26 @@ export default {
         await this.getApiList()
       })
     },
+    batchDelete() {
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning('请选择一条数据！')
+        return
+      }
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const catalogIds = []
+        this.multipleSelection.forEach(row => {
+          catalogIds.push(row.id)
+        })
+        const { msg } = await batchDeleteApi({ ids: catalogIds })
+        this.$message.success(msg)
+        await this.getApiList()
+      })
+    },
     getApiList() {
       this.listLoading = true
       const params = {
@@ -335,6 +367,9 @@ export default {
       })
       this.reportDialog.show = true
       loading.close()
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
     },
     handleImport() {
       this.dialogAttribute.show = true

@@ -21,12 +21,14 @@
         highlight-current
         @node-click="handleCatalogClick"
       >
-        <span slot-scope="{ node, data }" class="custom-tree-node" @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
-          <span>{{ node.label }}</span>
-          <span>
-            <el-button v-show="data.del" type="text" icon="el-icon-folder-add" @click="handleCreate(node, data)" />
-            <el-button v-show="data.del" type="text" icon="el-icon-edit" @click="handleCatalogEdit(node, data)" />
-            <el-button v-show="data.del" type="text" icon="el-icon-delete" @click="handleCatalogDelete(node, data)" />
+        <span slot-scope="{ node, data }" class="custom-tree-node" style="display: flex; width: 180px" @mouseenter="mouseenter(data)" @mouseleave="mouseleave(data)">
+          <span style="overflow: hidden; text-overflow:ellipsis; flex: 1">
+            <i class="el-icon-folder" />&nbsp;&nbsp;{{ node.label }}
+          </span>
+          <span v-show="data.del" class="icon-group">
+            <el-button type="text" icon="el-icon-folder-add" @click="handleCreate(node, data)" />
+            <el-button type="text" icon="el-icon-edit" @click="handleCatalogEdit(node, data)" />
+            <el-button type="text" icon="el-icon-delete" @click="handleCatalogDelete(node, data)" />
           </span>
         </span>
       </el-tree>
@@ -82,7 +84,8 @@ export default {
       },
       catalogFormRules: {
         name: [
-          { required: true, message: '目录名不能为空', trigger: 'blur' }
+          { required: true, message: '目录名不能为空', trigger: 'blur' },
+          { min: 1, max: 16, message: '最长16个字符', trigger: 'blur' }
         ]
       },
       defaultProps: {
@@ -164,7 +167,7 @@ export default {
     handleCatalogClick(obj, node, data) {
       this.$emit('changeCatalogId', obj)
     },
-    create() {
+    async create() {
       if (this.catalogForm.parent_id === '') {
         delete this.catalogForm['parent_id']
         delete this.catalogForm['id']
@@ -173,21 +176,21 @@ export default {
         this.$message.success(res.msg)
       })
     },
-    update() {
+    async update() {
       updateCatalog(this.catalogForm).then(res => {
         this.$message.success(res.msg)
       }).catch(error => {
         this.$message.error(error.response.data['message'])
       })
     },
-    handleSave() {
-      this.$refs.catalogForm.validate(validate => {
+    async handleSave() {
+      this.$refs.catalogForm.validate(async validate => {
         if (validate) {
           this.catalogDialog.save = true
           if (this.catalogDialog.create === 1) {
-            this.create()
+            await this.create()
           } else {
-            this.update()
+            await this.update()
           }
           this.getCatalogTree()
           this.cancelCatalog()
@@ -204,7 +207,7 @@ export default {
 </script>
 
 <style scoped>
-.custom-tree-node {
+ .custom-tree-node {
   flex: 1;
   display: flex;
   align-items: center;

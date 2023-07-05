@@ -7,6 +7,8 @@ export function getApiDetail(id) { return request({ url: `/http/api/${id}`, meth
 
 export function deleteApi(id) { return request({ url: `/http/api/delete/${id}`, method: 'delete' }) }
 
+export function batchDeleteApi(data) { return request({ url: `/http/api/batch/delete`, method: 'delete', data }) }
+
 export function updateApi(data) { return request({ url: '/http/api/update', method: 'put', data }) }
 
 export function createApi(data) { return request({ url: '/http/api/create', method: 'post', data }) }

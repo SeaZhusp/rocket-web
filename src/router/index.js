@@ -94,17 +94,17 @@ export const constantRoutes = [
 
     ]
   },
-  {
-    path: '/datafactory',
-    component: Layout,
-    redirect: '/datafactory/scene',
-    children: [{
-      path: '/datafactory/scene',
-      name: '场景管理',
-      component: () => import('@/views/datafactory/scene'),
-      meta: { title: '场景管理' }
-    }]
-  },
+  // {
+  //   path: '/datafactory',
+  //   component: Layout,
+  //   redirect: '/datafactory/scene',
+  //   children: [{
+  //     path: '/datafactory/scene',
+  //     name: '场景管理',
+  //     component: () => import('@/views/datafactory/scene'),
+  //     meta: { title: '场景管理' }
+  //   }]
+  // },
   {
     path: '/manage',
     component: Layout,

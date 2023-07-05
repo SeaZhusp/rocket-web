@@ -16,8 +16,8 @@
       <el-table v-loading="listLoading" :data="reportList" element-loading-text="Loading">
         <el-table-column label="报告名称" prop="name" />
         <el-table-column label="运行环境" prop="env_name" width="250" />
-        <el-table-column label="测试时间" prop="test_begin_time" width="150" />
-        <el-table-column label="耗时（秒）" width="100">
+        <el-table-column label="测试时间" prop="test_begin_time" width="180" />
+        <el-table-column label="耗时（秒）" width="150">
           <template slot-scope="{row}">
             <span>{{ row.duration }} 秒</span>
           </template>
