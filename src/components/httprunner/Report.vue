@@ -14,7 +14,7 @@
         </el-table-column>
         <el-table-column prop="success" label="Result" align="center" width="100">
           <template slot-scope="scope">
-            <el-tag :type="scope.row.success ? 'success' : 'danger'" disable-transitions>{{ scope.row.success ? 'Pass' : 'Fail' }}</el-tag>
+            <el-tag :type="scope.row.test_success===true ? 'success' : 'danger'" disable-transitions>{{ scope.row.test_success===true ? 'Pass' : 'Fail' }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="total" label="Total" align="center" width="100">
@@ -53,7 +53,7 @@
           <el-divider direction="vertical" />
           <span style="color: #409EFF;">{{ item.name }}</span>
           <el-divider direction="vertical" />
-          <el-tag :type="item.success ? 'success' : 'danger'" disable-transitions>{{ item.success ? 'Pass' : 'Fail' }}</el-tag>
+          <el-tag :type="item.test_success===true ? 'success' : 'danger'" disable-transitions>{{ item.test_success===true ? 'Pass' : 'Fail' }}</el-tag>
           <div :key="item.id" style="float:right">
             <span>{{ item.time.start_at_iso_format }}</span>
             <el-divider direction="vertical" />
@@ -72,7 +72,7 @@
           border
           :header-cell-style="{textAlign:'center'}"
         >
-          <el-table-column type="expand" fixed>
+          <el-table-column type="expand">
             <template slot-scope="props">
               <el-tabs>
                 <el-tab-pane label="Request">
@@ -100,11 +100,11 @@
                     border
                     style="width: 100%"
                   >
-                    <el-table-column prop="check_result" label="是否通过" width="180" />
                     <el-table-column prop="check" label="取值表达式" width="180" />
                     <el-table-column prop="check_value" label="实际值" />
                     <el-table-column prop="comparator" label="比较器" />
                     <el-table-column prop="expect" label="期望值" />
+                    <el-table-column prop="check_result" label="是否通过" width="180" />
                   </el-table>
                 </el-tab-pane>
                 <el-tab-pane label="Extract">
@@ -145,7 +145,7 @@
 
           <el-table-column label="测试结果" align="center">
             <template slot-scope="scope">
-              <span>{{ scope.row.data.success ? 'Pass' : 'Fail' }}</span>
+              <span>{{ scope.row.test_success===true ? 'Pass' : 'Fail' }}</span>
             </template>
           </el-table-column>
         </el-table>

@@ -26,8 +26,16 @@
           <el-table-column fixed="right" label="操作" min-width="80px">
             <template slot-scope="scope">
               <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
-              <!-- <el-button type="text" @click="handleEdit(scope.row)">成员</el-button> -->
-              <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="text" disabled>配置</el-button>
+              <el-dropdown>
+                <span class="el-dropdown-link">
+                  更多<i class="el-icon-arrow-down el-icon--right" />
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item @click="handleDelete(scope.row)">删除</el-dropdown-item>
+                  <el-dropdown-item disabled>同步项目</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </template>
           </el-table-column>
         </el-table>

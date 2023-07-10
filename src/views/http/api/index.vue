@@ -1,15 +1,5 @@
 <template>
   <div>
-    <el-form :inline="true">
-      <el-form-item label="当前项目" prop="projectId">
-        <el-select v-model="projectId" placeholder="请选择" filterable>
-          <el-option v-for="item in projects" :key="item.id" :label="item.name" :value="item.id" />
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <i class="el-icon-info" style="color:#909399"> 请先选择一个项目，然后开始吧-.- | 新增前记得先选目录后~.~ </i>
-      </el-form-item>
-    </el-form>
     <el-row>
       <el-col :span="5" class="app-container">
         <CatalogTree
@@ -49,15 +39,22 @@
                   <el-dropdown>
                     <el-button> 更多操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item disabled>批量删除</el-dropdown-item>
-                      <el-dropdown-item disabled>导入接口</el-dropdown-item>
+                      <el-dropdown-item @click.native="batchDelete">批量删除</el-dropdown-item>
+                      <el-dropdown-item @click.native="handleImport">导入接口</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
-              <el-table v-loading="listLoading" border stripe :data="apiList" element-loading-text="Loading">
+              <el-table
+                v-loading="listLoading"
+                border
+                stripe
+                :data="apiList"
+                element-loading-text="Loading"
+                @selection-change="handleSelectionChange"
+              >
                 <el-table-column align="center" type="selection" width="55" />
                 <el-table-column label="ID" prop="id" width="60" />
                 <el-table-column label="接口名称" :show-overflow-tooltip="true" prop="name" />
@@ -82,13 +79,13 @@
                 <el-table-column fixed="right" label="操作" width="150">
                   <template slot-scope="scope">
                     <el-button type="text" size="small" @click="handleApiEdit(scope.row)">编辑</el-button>
-                    <el-button type="text" size="small" @click="handleApiDelete(scope.row)">删除</el-button>
+                    <el-button type="text" size="small" @click="handleRun(scope.row)">执行</el-button>
                     <el-dropdown>
                       <span class="el-dropdown-link">
                         更多<i class="el-icon-arrow-down el-icon--right" />
                       </span>
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="handleRun(scope.row)">执行</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleApiDelete(scope.row)">删除</el-dropdown-item>
                         <el-dropdown-item disabled>复制</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
@@ -118,12 +115,35 @@
     <el-dialog :visible.sync="reportDialog.show" :close-on-click-modal="false" width="60%">
       <Report :summary="summary" />
     </el-dialog>
+
+    <el-dialog :visible.sync="dialogAttribute.show" :close-on-click-modal="false" width="40%">
+      <el-form ref="importForm" :model="importForm" :rules="importFormRules" label-width="85px">
+        <el-form-item label="导入类型" prop="importType">
+          <el-select v-model="importForm.importType" placeholder="请选择">
+            <el-option
+              v-for="item in importTypeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="接口名称" prop="name">
+          <el-input v-model="importForm.name" placeholder="计划名称" />
+        </el-form-item>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button>取 消</el-button>
+        <el-button type="primary" :loading="dialogAttribute.save">{{ dialogAttribute.save ? '提交中 ...' : '确 定' }}</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getAllEnvConfig, runSingleApi, searchApi, getApiDetail, deleteApi } from '@/api/http'
-import { listProject } from '@/api/manage'
+import { runSingleApi, searchApi, getApiDetail, deleteApi, batchDeleteApi } from '@/api/http'
+import { getAllEnvConfig } from '@/api/manage'
 import Detail from '@/views/http/api/detail'
 import Pagination from '@/components/Pagination'
 import CatalogTree from '@/components/CatalogTree'
@@ -138,13 +158,13 @@ export default {
       listLoading: false,
       apiCreateFlag: true,
       catalogSelectOptions: [],
-      projects: [],
       envs: [],
       summary: {},
       projectId: '',
       catalogId: '',
       catalogUsed: 1,
       apiInfo: null,
+      multipleSelection: [],
       search: {
         q: '',
         level: '',
@@ -158,28 +178,44 @@ export default {
       levelOptions: JSON.parse(localStorage.getItem('dicts'))['common_level'] || [],
       statusOptions: [{ value: 1, label: '启用' }, { value: 0, label: '禁用' }],
       catalogs: [],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      },
+      importTypeOptions: [
+        { value: 'swagger', label: 'swagger' },
+        { key: 'curl', label: 'curl' }
+      ],
       apiDrawer: {
         show: false,
         title: '新增'
       },
       reportDialog: {
         show: false
+      },
+      importForm: {
+        importType: null,
+        name: '自定义接口名称'
+      },
+      importFormRules: {
+        name: [
+          { required: true, message: '名称不能为空', trigger: 'blur' }
+        ],
+        importType: [
+          { required: true, message: '请选择导入类型', trigger: 'blur' }
+        ]
+      },
+      dialogAttribute: {
+        title: '新增',
+        create: 1,
+        show: false,
+        save: false
       }
     }
   },
   watch: {
-    projectId(val) {
-      localStorage.setItem('projectId', val)
-      // this.getCatalogTree()
-      this.getApiList()
+    '$store.state.rocket.projectId'() {
+      this.projectId = this.$store.state.rocket.projectId
+      this.initApiPage()
     }
   },
   created() {
-    this.getAllProjects()
     this.initApiPage()
     this.getAllEnvConfigs()
   },
@@ -188,7 +224,6 @@ export default {
       const projectId = localStorage.getItem('projectId')
       if (projectId) {
         this.projectId = parseInt(projectId)
-        // this.getCatalogTree()
         this.getApiList()
       }
     },
@@ -196,7 +231,6 @@ export default {
       return {
         project_id: this.projectId,
         catalog_id: this.catalogId,
-        config_id: '',
         name: '',
         level: '',
         status: 1,
@@ -225,14 +259,6 @@ export default {
     async getAllEnvConfigs() {
       await getAllEnvConfig().then(res => {
         this.envs = res.data
-      })
-    },
-    async getAllProjects() {
-      await listProject().then(response => {
-        this.projects = response.data
-        if (this.projectId === '') {
-          this.projectId = response.data[0].id
-        }
       })
     },
     // Catalog
@@ -271,6 +297,26 @@ export default {
         type: 'warning'
       }).then(async() => {
         const { msg } = await deleteApi(row.id)
+        this.$message.success(msg)
+        await this.getApiList()
+      })
+    },
+    batchDelete() {
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning('请选择一条数据！')
+        return
+      }
+      this.$confirm('确定要删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        lockScroll: false,
+        type: 'warning'
+      }).then(async() => {
+        const catalogIds = []
+        this.multipleSelection.forEach(row => {
+          catalogIds.push(row.id)
+        })
+        const { msg } = await batchDeleteApi({ ids: catalogIds })
         this.$message.success(msg)
         await this.getApiList()
       })
@@ -321,25 +367,13 @@ export default {
       })
       this.reportDialog.show = true
       loading.close()
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    handleImport() {
+      this.dialogAttribute.show = true
     }
   }
 }
 </script>
-
-<style lang="scss">
-.custom-form-item-select {
-  width:110px
-}
-.el-dropdown-link {
-  cursor: pointer;
-  color: #409EFF;
-  font-size: 12px;
-  margin-left: 10px;
-}
-.el-icon-arrow-down {
-  font-size: 11px;
-}
-.el-drawer__body {
-  overflow: auto;
-}
-</style>

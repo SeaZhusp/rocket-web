@@ -202,7 +202,8 @@ export default {
       serviceOptions: JSON.parse(localStorage.getItem('dicts'))['http_service'] || [],
       apiInfoRules: {
         name: [
-          { required: true, message: '名称不能为空', trigger: 'blur' }
+          { required: true, message: '名称不能为空', trigger: 'blur' },
+          { min: 1, max: 128, message: '最长128个字符', trigger: 'blur' }
         ],
         level: [
           { required: true, message: '优先级不能为空', trigger: 'blur' }
@@ -221,6 +222,9 @@ export default {
         ],
         times: [
           { required: true, message: 'times不能为空', trigger: 'blur' }
+        ],
+        catalog_id: [
+          { required: true, message: '目录不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -279,16 +283,16 @@ export default {
       }
     },
     handleSave() {
-      this.$refs.apiInfo.validate(validate => {
+      this.$refs.apiInfo.validate(async validate => {
         if (validate) {
           if (this.apiCreateFlag) {
-            createApi(this.getApiInfo()).then(res => {
+            await createApi(this.getApiInfo()).then(res => {
               this.$message.success(res.msg)
             }).catch(error => {
               this.$message.error(error.response.data['message'])
             })
           } else {
-            updateApi(this.getApiInfo()).then(res => {
+            await updateApi(this.getApiInfo()).then(res => {
               this.$message.success(res.msg)
             }).catch(error => {
               this.$message.error(error.response.data['message'])

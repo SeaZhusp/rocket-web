@@ -54,7 +54,6 @@ export const constantRoutes = [
       meta: { title: 'Dashboard' }
     }]
   },
-
   {
     path: '/http',
     component: Layout,
@@ -76,24 +75,36 @@ export const constantRoutes = [
       {
         path: '/http/plan',
         name: '测试计划',
-        component: () => import('@/views/http/testcase'),
+        component: () => import('@/views/http/testplan'),
         meta: { title: '测试计划' }
       },
       {
-        path: '/http/pyshell',
-        name: '函数管理',
-        component: () => import('@/views/http/pyshell'),
-        meta: { title: '函数管理' }
+        path: '/http/report',
+        name: '报告中心',
+        component: () => import('@/views/http/report'),
+        meta: { title: '报告中心' }
       },
       {
-        path: '/http/envconfig',
-        name: '环境配置',
-        component: () => import('@/views/http/envconfig'),
-        meta: { title: '环境配置' }
+        path: '/http/report/view',
+        name: '报告详情',
+        hidden: true,
+        component: () => import('@/views/http/report/detail'),
+        meta: { title: '报告详情' }
       }
 
     ]
   },
+  // {
+  //   path: '/datafactory',
+  //   component: Layout,
+  //   redirect: '/datafactory/scene',
+  //   children: [{
+  //     path: '/datafactory/scene',
+  //     name: '场景管理',
+  //     component: () => import('@/views/datafactory/scene'),
+  //     meta: { title: '场景管理' }
+  //   }]
+  // },
   {
     path: '/manage',
     component: Layout,
@@ -104,8 +115,20 @@ export const constantRoutes = [
       {
         path: 'project',
         name: '项目管理',
-        component: () => import('@/views/http/project/index'),
+        component: () => import('@/views/manage/project/index'),
         meta: { title: '项目管理' }
+      },
+      {
+        path: '/manage/pyshell',
+        name: '脚本管理',
+        component: () => import('@/views/manage/pyshell'),
+        meta: { title: '脚本管理' }
+      },
+      {
+        path: '/manage/envconfig',
+        name: '环境管理',
+        component: () => import('@/views/manage/envconfig'),
+        meta: { title: '环境管理' }
       }
     ]
   },
